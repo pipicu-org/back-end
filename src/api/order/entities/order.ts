@@ -1,4 +1,4 @@
-import { Line } from ".";
+import { Line } from '.';
 
 export interface Order {
   id: string;
@@ -6,4 +6,4 @@ export interface Order {
   createdAt: Date;
 }
 
-export let orders: Order[] = [];
+export const orders: Order[] = [];

@@ -3,4 +3,4 @@ export interface Line {
   productId: number;
 }
 
-export let lines: Line[] = [];
+export const lines: Line[] = [];
