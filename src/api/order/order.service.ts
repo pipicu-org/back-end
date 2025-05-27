@@ -1,45 +1,66 @@
-import { Order } from "./entities";
+import { OrderRequestDTO } from '../models/DTO/request/orderRequestDTO';
+import { OrderResponseDTO } from '../models/DTO/response/orderResponseDTO';
+import { IOrderRepository, OrderRepositoryImpl } from './orderRepository';
 
 export interface IOrderService {
-  create(order: Order): Promise<Order>;
-  get(id: string): Promise<Order[]>;
-  update(id: string, order: Partial<Order>): Promise<Order>;
-  delete(id: string): Promise<Order>;
+  create(order: OrderRequestDTO): Promise<OrderResponseDTO>;
+  get(id: number): Promise<OrderResponseDTO>;
+  update(id: number, order: OrderRequestDTO): Promise<OrderResponseDTO>;
+  delete(id: number): Promise<OrderResponseDTO>;
 }
 
 export class OrderService implements IOrderService {
   constructor(
-    // private readonly orderRepository: OrderRepository,
-  ) { }
+    private readonly orderRepository: IOrderRepository = new OrderRepositoryImpl(),
+  ) {}
 
-  async create(order: Order): Promise<Order> {
-    return order;
+  async create(order: OrderRequestDTO): Promise<OrderResponseDTO> {
+    try {
+      const createdOrder = await this.orderRepository.create(order);
+      return new OrderResponseDTO(createdOrder);
+    } catch (error) {
+      console.error('Error en crear la orden:', error);
+      throw new Error('No se ha podido crear la orden');
+    }
   }
 
-  async get(id: string): Promise<Order[]> {
-    throw [
-      {
-        id: "1",
-        lines: [],
-        createdAt: new Date(),
+  async get(id: number): Promise<OrderResponseDTO> {
+    try {
+      const order = await this.orderRepository.get(id);
+      if (!order || order.length === 0) {
+        throw new Error('Order not found');
       }
-    ];
+      return new OrderResponseDTO(order[0]);
+    } catch (error) {
+      console.error('Error en encontrar la orden:', error);
+      throw new Error('No se ha podido encontrar la orden');
+    }
   }
 
-  async update(id: string, order: Partial<Order>): Promise<Order> {
-    return {
-      id,
-      createdAt: new Date(),
-      lines: [],
-      ...order
-    };
+  async update(id: number, order: OrderRequestDTO): Promise<OrderResponseDTO> {
+    try {
+      const updatedOrder = await this.orderRepository.update(id, order);
+
+      if (!updatedOrder) {
+        throw new Error('Orden no encontrada');
+      }
+      return new OrderResponseDTO(updatedOrder);
+    } catch (error) {
+      console.error('Error en actualizar la orden:', error);
+      throw new Error('No se ha podido actualizar la orden');
+    }
   }
 
-  async delete(id: string): Promise<Order> {
-    return {
-      id: "1",
-      lines: [],
-      createdAt: new Date(),
-    };
+  async delete(id: number): Promise<OrderResponseDTO> {
+    try {
+      const order = await this.orderRepository.delete(id);
+      if (!order) {
+        throw new Error('Orden no encontrada');
+      }
+      return new OrderResponseDTO(order);
+    } catch (error) {
+      console.error('Error en eliminar la orden:', error);
+      throw new Error('No se ha podido eliminar la orden');
+    }
   }
 }

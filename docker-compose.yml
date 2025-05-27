@@ -1,0 +1,37 @@
+services:
+  db-pipicucu:
+    image: postgres:12
+    container_name: db-pipicucu
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: pipicucu
+      POSTGRES_PORT: 5432
+    networks:
+      - pipicucu-network
+    ports:
+      - 8080:5432
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      timeout: 30s
+      retries: 5
+  api-pipicucu:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: node:23-alpine
+    container_name: api-pipicucu
+    depends_on:
+      db-pipicucu:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db-pipicucu:5432/pipicucu?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    networks:
+      - pipicucu-network
+    ports:
+      - 9091:8080
+networks:
+  pipicucu-network:
+    driver: bridge

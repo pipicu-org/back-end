@@ -14,16 +14,24 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.27.0",
     "@types/express": "^5.0.1",
     "@types/node": "^22.15.17",
+    "@types/pg": "^8.15.2",
     "dotenv": "^16.5.0",
     "eslint": "^9.26.0",
     "express": "^5.1.0",
+    "globals": "^16.2.0",
     "install": "^0.13.0",
     "nodemon": "^3.1.10",
     "npm": "^11.3.0",
     "prettier": "^3.5.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "pg": "^8.16.0",
+    "typeorm": "^0.3.24"
   }
 }
