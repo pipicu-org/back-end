@@ -1,10 +1,8 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Ingredient } from './ingredient';
-import { Product } from './product';
 
 interface IRecipe {
   id: number;
-  product: Product;
   ingredient: Ingredient;
   quantity: number;
   totalPrice: number;
@@ -14,9 +12,6 @@ interface IRecipe {
 export class Recipe implements IRecipe {
   @PrimaryGeneratedColumn()
   id!: number;
-
-  @OneToMany(() => Product, (product) => product.id)
-  product!: Product;
 
   @OneToMany(() => Ingredient, (ingredient) => ingredient.id)
   ingredient!: Ingredient;

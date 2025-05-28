@@ -24,6 +24,6 @@ export class Product implements IProduct {
   @Column({ type: 'numeric', precision: 10, scale: 2 })
   price!: number;
 
-  @OneToMany(() => Recipe, (recipe) => recipe.product)
+  @OneToMany(() => Recipe, (recipe) => recipe.id)
   ingredients!: Recipe[];
 }
