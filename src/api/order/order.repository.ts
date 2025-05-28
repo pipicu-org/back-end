@@ -12,18 +12,14 @@ export interface IOrderRepository {
 }
 
 export class OrderRepository implements IOrderRepository {
-  constructor(
-    private readonly order: Repository<Order>
-  ) {}
+  constructor(private readonly order: Repository<Order>) {}
 
   async create(order: Partial<Order>): Promise<Order> {
     try {
-      if (!order.state) throw new Error("State should be defined");
-      if (!order.client) throw new Error("Client should be defined");
-      if (!order.lines) throw new Error("Lines should be defined");
-      return this.order.save(
-        new Order(order.state, order.client, order.lines),
-      );
+      if (!order.state) throw new Error('State should be defined');
+      if (!order.client) throw new Error('Client should be defined');
+      if (!order.lines) throw new Error('Lines should be defined');
+      return this.order.save(new Order(order.state, order.client, order.lines));
     } catch (error) {
       console.error('Error en la creacion de ordenes:', error);
       throw new Error('No se ha podido crear la orden');
@@ -40,14 +36,11 @@ export class OrderRepository implements IOrderRepository {
     }
   }
 
-  async update(
-    id: number,
-    newOrder: Partial<Order>,
-  ): Promise<Order | null> {
+  async update(id: number, newOrder: Partial<Order>): Promise<Order | null> {
     try {
-      if (!newOrder.state) throw new Error("State should be defined");
-      if (!newOrder.client) throw new Error("Client should be defined");
-      if (!newOrder.lines) throw new Error("Lines should be defined");
+      if (!newOrder.state) throw new Error('State should be defined');
+      if (!newOrder.client) throw new Error('Client should be defined');
+      if (!newOrder.lines) throw new Error('Lines should be defined');
       await this.order.update(
         id,
         new Order(newOrder.state, newOrder.client, newOrder.lines),
@@ -64,7 +57,7 @@ export class OrderRepository implements IOrderRepository {
     try {
       const order = await this.get(id);
       await this.order.delete(id);
-      return order ? (order as Order) : null;
+      return order ?? null;
     } catch (error) {
       console.error('Error al eliminar la orden:', error);
       throw new Error('No se ha podido eliminar la orden');

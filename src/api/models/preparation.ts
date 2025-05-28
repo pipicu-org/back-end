@@ -9,7 +9,7 @@ interface IPreparation {
   state: State;
 }
 
-@Entity('preparation')
+@Entity('Preparation')
 export class Preparation implements IPreparation {
   @PrimaryGeneratedColumn()
   id!: number;

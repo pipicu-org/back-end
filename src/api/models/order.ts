@@ -17,7 +17,7 @@ interface IOrder {
   lines: Line[];
 }
 
-@Entity('order')
+@Entity('Order')
 export class Order implements IOrder {
   @PrimaryGeneratedColumn()
   id!: number;

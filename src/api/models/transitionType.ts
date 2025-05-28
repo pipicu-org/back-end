@@ -4,7 +4,7 @@ interface ITransitionType {
   id: number;
   name: string;
 }
-@Entity('transition_type')
+@Entity('Transition_type')
 export class TransitionType implements ITransitionType {
   @PrimaryGeneratedColumn()
   id!: number;

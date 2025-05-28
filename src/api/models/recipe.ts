@@ -10,7 +10,7 @@ interface IRecipe {
   totalPrice: number;
 }
 
-@Entity('recipe')
+@Entity('Recipe')
 export class Recipe implements IRecipe {
   @PrimaryGeneratedColumn()
   id!: number;

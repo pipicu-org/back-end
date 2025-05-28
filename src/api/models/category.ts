@@ -5,7 +5,7 @@ interface ICategory {
   name: string;
 }
 
-@Entity('category')
+@Entity('Category')
 export class Category implements ICategory {
   @PrimaryGeneratedColumn()
   id!: number;

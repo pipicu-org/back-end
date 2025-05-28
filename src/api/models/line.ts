@@ -11,7 +11,7 @@ interface ILine {
   addedAt: Date;
 }
 
-@Entity('line')
+@Entity('Line')
 export class Line implements ILine {
   @PrimaryGeneratedColumn()
   id!: number;

@@ -13,7 +13,7 @@ interface ITransition {
   duration: number;
 }
 
-@Entity('transition')
+@Entity('Transition')
 export class Transition implements ITransition {
   @PrimaryGeneratedColumn()
   id!: number;

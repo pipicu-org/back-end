@@ -11,7 +11,9 @@ initializeDataSource().catch((err) =>
 );
 
 // Tables
-export const dbOrderRepository = AppDataSource.getRepository<Order>('Order').extend({});
+export const dbOrderRepository = AppDataSource.getRepository<Order>(
+  'Order',
+).extend({});
 
 // Repositories
 export const orderRepository = new OrderRepository(dbOrderRepository);

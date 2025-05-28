@@ -10,7 +10,7 @@ interface IProduct {
   ingredients: Recipe[];
 }
 
-@Entity('product')
+@Entity('Product')
 export class Product implements IProduct {
   @PrimaryGeneratedColumn()
   id!: number;

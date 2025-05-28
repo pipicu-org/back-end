@@ -5,7 +5,7 @@ interface IState {
   name: string;
 }
 
-@Entity('state')
+@Entity('State')
 export class State implements IState {
   @PrimaryGeneratedColumn()
   id!: number;

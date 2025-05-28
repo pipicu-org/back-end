@@ -6,7 +6,7 @@ interface IClient {
   name: string;
   address: string;
 }
-@Entity('client')
+@Entity('Client')
 export class Client implements IClient {
   @PrimaryGeneratedColumn()
   id!: number;

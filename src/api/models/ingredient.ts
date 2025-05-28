@@ -6,14 +6,14 @@ interface IIngredient {
   price: number;
 }
 
-@Entity('ingredient')
+@Entity('Ingredient')
 export class Ingredient implements IIngredient {
   @PrimaryGeneratedColumn()
   id!: number;
 
   @Column({ type: 'varchar', length: 255 })
   name!: string;
-  
+
   @Column({ type: 'numeric', precision: 10, scale: 2 })
   price!: number;
 }
