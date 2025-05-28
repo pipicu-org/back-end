@@ -37,6 +37,6 @@ export class Transition implements ITransition {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt!: Date;
 
-  @Column({ type: 'datetime', nullable: true })
+  @Column({ type: 'bigint', nullable: true })
   duration!: number;
 }

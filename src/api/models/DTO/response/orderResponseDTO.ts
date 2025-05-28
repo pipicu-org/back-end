@@ -67,7 +67,7 @@ export class OrderResponseDTO implements IOrderResponseDTO {
       address: order.client.address,
     };
     this.createdAt = order.createdAt;
-    this.lines = order.Lines.map((line) => ({
+    this.lines = order.lines.map((line) => ({
       id: line.id,
       product: {
         id: line.product.id,

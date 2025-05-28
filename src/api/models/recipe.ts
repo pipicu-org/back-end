@@ -21,9 +21,9 @@ export class Recipe implements IRecipe {
   @OneToMany(() => Ingredient, (ingredient) => ingredient.id)
   ingredient!: Ingredient;
 
-  @Column({ type: 'float', precision: 10, scale: 2 })
+  @Column({ type: 'numeric', precision: 10, scale: 2 })
   quantity!: number;
 
-  @Column({ type: 'float', precision: 10, scale: 2 })
+  @Column({ type: 'numeric', precision: 10, scale: 2 })
   totalPrice!: number;
 }

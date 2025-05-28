@@ -14,7 +14,7 @@ interface IOrder {
   state: State;
   client: Client;
   createdAt: Date;
-  Lines: Line[];
+  lines: Line[];
 }
 
 @Entity('order')
@@ -32,11 +32,11 @@ export class Order implements IOrder {
   createdAt!: Date;
 
   @OneToMany(() => Line, (line) => line.id)
-  Lines!: Line[];
+  lines!: Line[];
 
   constructor(state: State, client: Client, lines: Line[]) {
     this.state = state;
     this.client = client;
-    this.Lines = lines;
+    this.lines = lines;
   }
 }

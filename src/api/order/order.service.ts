@@ -1,6 +1,6 @@
 import { OrderRequestDTO } from '../models/DTO/request/orderRequestDTO';
 import { OrderResponseDTO } from '../models/DTO/response/orderResponseDTO';
-import { IOrderRepository, OrderRepositoryImpl } from './orderRepository';
+import { IOrderRepository } from './order.repository';
 
 export interface IOrderService {
   create(order: OrderRequestDTO): Promise<OrderResponseDTO>;
@@ -11,7 +11,7 @@ export interface IOrderService {
 
 export class OrderService implements IOrderService {
   constructor(
-    private readonly orderRepository: IOrderRepository = new OrderRepositoryImpl(),
+    private readonly orderRepository: IOrderRepository,
   ) {}
 
   async create(order: OrderRequestDTO): Promise<OrderResponseDTO> {
@@ -27,10 +27,10 @@ export class OrderService implements IOrderService {
   async get(id: number): Promise<OrderResponseDTO> {
     try {
       const order = await this.orderRepository.get(id);
-      if (!order || order.length === 0) {
+      if (!order) {
         throw new Error('Order not found');
       }
-      return new OrderResponseDTO(order[0]);
+      return new OrderResponseDTO(order);
     } catch (error) {
       console.error('Error en encontrar la orden:', error);
       throw new Error('No se ha podido encontrar la orden');
@@ -40,7 +40,6 @@ export class OrderService implements IOrderService {
   async update(id: number, order: OrderRequestDTO): Promise<OrderResponseDTO> {
     try {
       const updatedOrder = await this.orderRepository.update(id, order);
-
       if (!updatedOrder) {
         throw new Error('Orden no encontrada');
       }

@@ -5,17 +5,17 @@ import { State } from '../../state';
 interface IOrderRequestDTO {
   state: State;
   client: Client;
-  line: Line[];
+  lines: Line[];
 }
 
 export class OrderRequestDTO implements IOrderRequestDTO {
   state: State;
   client: Client;
-  line: Line[];
+  lines: Line[];
 
-  constructor(state: State, client: Client, line: Line[]) {
+  constructor(state: State, client: Client, lines: Line[]) {
     this.state = state;
     this.client = client;
-    this.line = line;
+    this.lines = lines;
   }
 }

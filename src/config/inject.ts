@@ -1,67 +1,23 @@
-import { Client } from 'pg';
+import { Order } from '../api/models';
 import { OrderController } from '../api/order/order.controller';
+import { OrderRepository } from '../api/order/order.repository';
 import { OrderService } from '../api/order/order.service';
-import config from './config';
-import { DataSource } from 'typeorm';
+import { AppDataSource, initializeDataSource } from './initializeDatabase';
 
-export const client = new Client({
-  host: config.postgres.host,
-  port: config.postgres.port,
-  user: config.postgres.user,
-  password: config.postgres.password,
-  database: config.postgres.database,
-});
-
-async function connect() {
-  await client.connect();
-  try {
-    const res = await client.query('SELECT $1::text as message', [
-      'Hello world!',
-    ]);
-    console.log(res.rows[0].message); // Deberia de decir "Hello World!"
-  } catch (err) {
-    console.error(err);
-  }
-}
-
-connect().catch((err) =>
-  console.error('Error conectando a la base de datos', err),
-);
-
-const AppDataSource = new DataSource({
-  type: `postgres`,
-  host: config.postgres.host,
-  port: config.postgres.port,
-  username: config.postgres.user,
-  password: config.postgres.password,
-  database: config.postgres.database,
-});
-
-async function initializeDataSource() {
-  await AppDataSource.initialize()
-    .then(() => {
-      console.log(
-        'Se ha establecido la conexión con la base de datos con typeORM',
-      );
-    })
-    .catch((err) => {
-      console.error(
-        'Ha habido un error con la conexion a la base de datos con typeORM',
-        err,
-      );
-    });
-}
+// import config from './config';
 
 initializeDataSource().catch((err) =>
   console.error('Error inicializando la fuente de datos', err),
 );
 
+// Tables
+export const dbOrderRepository = AppDataSource.getRepository<Order>('Order').extend({});
+
 // Repositories
-export const getOrderRepository = () =>
-  AppDataSource.getRepository('Order').extend({});
+export const orderRepository = new OrderRepository(dbOrderRepository);
 
 // Services
-export const orderService = new OrderService();
+export const orderService = new OrderService(orderRepository);
 
 // Controllers
 export const orderController = new OrderController(orderService);

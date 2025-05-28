@@ -22,10 +22,10 @@ export class Line implements ILine {
   @OneToMany(() => Product, (product) => product.id)
   product!: Product;
 
-  @Column({ type: 'int', precision: 10, scale: 2 })
+  @Column({ type: 'numeric', precision: 10, scale: 2 })
   quantity!: number;
 
-  @Column({ type: 'float', precision: 10, scale: 2 })
+  @Column({ type: 'numeric', precision: 10, scale: 2 })
   totalPrice!: number;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
