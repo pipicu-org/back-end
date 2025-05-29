@@ -10,9 +10,7 @@ export interface IOrderService {
 }
 
 export class OrderService implements IOrderService {
-  constructor(
-    private readonly orderRepository: IOrderRepository,
-  ) {}
+  constructor(private readonly orderRepository: IOrderRepository) {}
 
   async create(order: OrderRequestDTO): Promise<OrderResponseDTO> {
     try {
@@ -26,7 +24,7 @@ export class OrderService implements IOrderService {
 
   async get(id: number): Promise<OrderResponseDTO> {
     try {
-      const order = await this.orderRepository.get(id);
+      const order = await this.orderRepository.getById(id);
       if (!order) {
         throw new Error('Order not found');
       }

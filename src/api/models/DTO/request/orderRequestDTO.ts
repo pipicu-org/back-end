@@ -7,7 +7,6 @@ interface IOrderRequestDTO {
   client: Client;
   lines: Line[];
 }
-
 export class OrderRequestDTO implements IOrderRequestDTO {
   state: State;
   client: Client;

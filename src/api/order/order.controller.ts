@@ -11,19 +11,18 @@ export class OrderController {
       const order = await this.orderService.create(orderRequestDTO);
       res.status(201).json(order);
     } catch (error) {
-      res.status(500).json(error);
+      next(error);
     }
-    next();
   }
 
-  async get(req: Request, res: Response, next: NextFunction) {
+  async getById(req: Request, res: Response, next: NextFunction) {
     try {
-      const orders = await this.orderService.get(req.body.id);
+      const id = Number(req.params.id);
+      const orders = await this.orderService.get(id);
       res.status(200).json(orders);
     } catch (error) {
-      res.status(500).json(error);
+      next(error);
     }
-    next();
   }
 
   async update(req: Request, res: Response, next: NextFunction) {
@@ -32,9 +31,8 @@ export class OrderController {
       const updatedOrder = await this.orderService.update(1, orderRequestDTO);
       res.status(200).json(updatedOrder);
     } catch (error) {
-      res.status(500).json(error);
+      next(error);
     }
-    next();
   }
 
   async delete(req: Request, res: Response, next: NextFunction) {
@@ -42,8 +40,15 @@ export class OrderController {
       const order = await this.orderService.delete(1);
       res.status(200).json(order);
     } catch (error) {
-      res.status(500).json(error);
+      next(error);
     }
-    next();
+  }
+
+  async ping(req: Request, res: Response, next: NextFunction) {
+    try {
+      res.status(200).json({ message: 'pong' });
+    } catch (error) {
+      next(error);
+    }
   }
 }

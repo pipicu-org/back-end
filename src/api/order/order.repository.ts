@@ -4,7 +4,7 @@ import { Order } from '../models';
 export interface IOrderRepository {
   create(order: Partial<Order>): Promise<Order>;
 
-  get(id: number): Promise<Order | null>;
+  getById(id: number): Promise<Order | null>;
 
   update(id: number, newOrder: Partial<Order>): Promise<Order | null>;
 
@@ -26,7 +26,7 @@ export class OrderRepository implements IOrderRepository {
     }
   }
 
-  async get(id: number): Promise<Order | null> {
+  async getById(id: number): Promise<Order | null> {
     try {
       const order = await this.order.findOneBy({ id });
       return order;
@@ -55,7 +55,7 @@ export class OrderRepository implements IOrderRepository {
 
   async delete(id: number): Promise<Order | null> {
     try {
-      const order = await this.get(id);
+      const order = await this.getById(id);
       await this.order.delete(id);
       return order ?? null;
     } catch (error) {

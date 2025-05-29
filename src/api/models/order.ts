@@ -8,6 +8,7 @@ import {
 import { Client } from './client';
 import { State } from './state';
 import { Line } from './line';
+import { IsArray } from 'class-validator';
 
 interface IOrder {
   id: number;
@@ -31,7 +32,13 @@ export class Order implements IOrder {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt!: Date;
 
-  @OneToMany(() => Line, (line) => line.id)
+  @OneToMany(() => Line, (line) => line.id, {
+    cascade: true,
+    eager: true,
+  })
+  @IsArray({
+    message: 'Lines must be an array of Line objects',
+  })
   lines!: Line[];
 
   constructor(state: State, client: Client, lines: Line[]) {
