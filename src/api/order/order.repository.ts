@@ -9,6 +9,9 @@ export interface IOrderRepository {
   update(id: number, newOrder: Partial<Order>): Promise<Order | null>;
 
   delete(id: number): Promise<Order | null>;
+
+  getTotalPriceById(id: number): Promise<number | null>;
+  getOrdersByClientId(clientId: number): Promise<Order[]>;
 }
 
 export class OrderRepository implements IOrderRepository {
@@ -61,6 +64,30 @@ export class OrderRepository implements IOrderRepository {
     } catch (error) {
       console.error('Error al eliminar la orden:', error);
       throw new Error('No se ha podido eliminar la orden');
+    }
+  }
+
+  async getTotalPriceById(id: number): Promise<number | null> {
+    try {
+      const order = await this.getById(id);
+      if (!order) return null;
+      return order.lines.reduce((total, line) => total + line.totalPrice, 0);
+    } catch (error) {
+      console.error('Error al obtener el precio total de la orden:', error);
+      throw new Error('No se ha podido obtener el precio total de la orden');
+    }
+  }
+
+  async getOrdersByClientId(clientId: number): Promise<Order[]> {
+    try {
+      const orders = await this.order.find({
+        where: { client: { id: clientId } },
+        relations: ['lines', 'state'],
+      });
+      return orders;
+    } catch (error) {
+      console.error('Error al obtener las ordenes por clientId:', error);
+      throw new Error('No se han podido obtener las ordenes por clientId');
     }
   }
 }

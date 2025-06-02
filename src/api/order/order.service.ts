@@ -7,6 +7,8 @@ export interface IOrderService {
   get(id: number): Promise<OrderResponseDTO>;
   update(id: number, order: OrderRequestDTO): Promise<OrderResponseDTO>;
   delete(id: number): Promise<OrderResponseDTO>;
+  getByClientId(clientId: number): Promise<OrderResponseDTO[]>;
+  getTotalPriceById(id: number): Promise<number | null>;
 }
 
 export class OrderService implements IOrderService {
@@ -58,6 +60,25 @@ export class OrderService implements IOrderService {
     } catch (error) {
       console.error('Error en eliminar la orden:', error);
       throw new Error('No se ha podido eliminar la orden');
+    }
+  }
+
+  async getByClientId(clientId: number): Promise<OrderResponseDTO[]> {
+    try {
+      const orders = await this.orderRepository.getOrdersByClientId(clientId);
+      return orders.map((order) => new OrderResponseDTO(order));
+    } catch (error) {
+      console.error('Error en obtener las ordenes por cliente:', error);
+      throw new Error('No se ha podido obtener las ordenes por cliente');
+    }
+  }
+
+  async getTotalPriceById(id: number): Promise<number | null> {
+    try {
+      return await this.orderRepository.getTotalPriceById(id);
+    } catch (error) {
+      console.error('Error en obtener el precio total de la orden:', error);
+      throw new Error('No se ha podido obtener el precio total de la orden');
     }
   }
 }

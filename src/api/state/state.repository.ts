@@ -9,12 +9,12 @@ export interface IStateRepository {
 }
 
 export class StateRepository implements IStateRepository {
-  constructor(private readonly state: Repository<State>) {}
+  constructor(private readonly stateRepository: Repository<State>) {}
 
   async create(state: Partial<State>): Promise<State> {
     try {
       if (!state.name) throw new Error('Name should be defined');
-      return this.state.save(new State(state.name));
+      return this.stateRepository.save(new State(state.name));
     } catch (error) {
       console.error('Error creating state:', error);
       throw new Error('Could not create state');
@@ -23,7 +23,7 @@ export class StateRepository implements IStateRepository {
 
   async getById(id: number): Promise<State | null> {
     try {
-      const state = await this.state.findOneBy({ id });
+      const state = await this.stateRepository.findOneBy({ id });
       return state;
     } catch (error) {
       console.error('Error getting state:', error);
@@ -34,8 +34,8 @@ export class StateRepository implements IStateRepository {
   async update(id: number, newState: Partial<State>): Promise<State | null> {
     try {
       if (!newState.name) throw new Error('Name should be defined');
-      await this.state.update(id, new State(newState.name));
-      const updatedState = await this.state.findOneBy({ id });
+      await this.stateRepository.update(id, new State(newState.name));
+      const updatedState = await this.stateRepository.findOneBy({ id });
       return updatedState;
     } catch (error) {
       console.error('Error updating state:', error);
@@ -46,7 +46,7 @@ export class StateRepository implements IStateRepository {
   async delete(id: number): Promise<State | null> {
     try {
       const state = await this.getById(id);
-      await this.state.delete(id);
+      await this.stateRepository.delete(id);
       return state ?? null;
     } catch (error) {
       console.error('Error deleting state:', error);

@@ -44,9 +44,21 @@ export class OrderController {
     }
   }
 
-  async ping(req: Request, res: Response, next: NextFunction) {
+  async getTotalPriceById(req: Request, res: Response, next: NextFunction) {
     try {
-      res.status(200).json({ message: 'pong' });
+      const id = Number(req.params.id);
+      const totalPrice = await this.orderService.getTotalPriceById(id);
+      res.status(200).json({ totalPrice });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getByClientId(req: Request, res: Response, next: NextFunction) {
+    try {
+      const clientId = Number(req.params.clientId);
+      const orders = await this.orderService.getByClientId(clientId);
+      res.status(200).json(orders);
     } catch (error) {
       next(error);
     }

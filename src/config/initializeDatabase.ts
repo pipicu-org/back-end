@@ -1,7 +1,7 @@
-import { DataSource } from "typeorm";
-import config from "./config";
-import { Client } from "pg";
-import * as models from "../api/models";
+import { DataSource } from 'typeorm';
+import config from './config';
+import { Client } from 'pg';
+import * as models from '../api/models';
 
 export const client = new Client({
   host: config.postgres.host,
@@ -20,7 +20,7 @@ export const AppDataSource = new DataSource({
   database: config.postgres.database,
   entities: models,
   synchronize: true,
-  logging: true
+  logging: true,
 });
 
 export async function initializeDataSource() {
@@ -33,6 +33,17 @@ export async function initializeDataSource() {
     .catch((err) => {
       console.error(
         'Ha habido un error con la conexion a la base de datos con typeORM',
+        err,
+      );
+    });
+  await client
+    .connect()
+    .then(() => {
+      console.info('Se ha establecido la conexión con la base de datos con pg');
+    })
+    .catch((err) => {
+      console.error(
+        'Ha habido un error con la conexion a la base de datos con pg',
         err,
       );
     });
