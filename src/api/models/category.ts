@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
 
 interface ICategory {
   id: number;
@@ -11,5 +11,6 @@ export class Category implements ICategory {
   id!: number;
 
   @Column({ type: 'varchar', length: 255 })
+  @Unique(['name'])
   name!: string;
 }

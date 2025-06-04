@@ -15,7 +15,7 @@ export function initializeWebSocket(): void {
   console.info('WebSocket inicializado en el puerto 3000');
 }
 
-export function emitWebSocketEvent(event: string, data: any): void {
+export function emitWebSocketEvent(event: string, data: object): void {
   io.emit(event, data);
   console.log(`Evento WebSocket emitido: ${event}`, data);
 }

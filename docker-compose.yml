@@ -25,13 +25,15 @@ services:
       db-pipicucu:
         condition: service_healthy
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db-pipicucu:5432/pipicucu?createDatabaseIfNotExist=true
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
+      - POSTGRES_HOST=db-pipicucu
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=pipicucu
     networks:
       - pipicucu-network
     ports:
-      - 9091:8080
+      - 9091:9091
 networks:
   pipicucu-network:
     driver: bridge

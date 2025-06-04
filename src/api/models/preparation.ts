@@ -1,6 +1,14 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  AfterInsert,
+  AfterUpdate,
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Line } from './line';
 import { State } from './state';
+import { emitWebSocketEvent } from '../../middlewares/webSocket';
 
 interface IPreparation {
   id: number;
@@ -22,4 +30,14 @@ export class Preparation implements IPreparation {
 
   @ManyToOne(() => State, (state) => state.id, { nullable: false })
   state!: State;
+
+  @AfterUpdate()
+  @AfterInsert()
+  emitUpdate() {
+    if (this.state.name == 'Cocinandose' || this.state.name == 'Listo') {
+      emitWebSocketEvent('preparationUpdate', {
+        productId: this.Line.product.id,
+      });
+    }
+  }
 }

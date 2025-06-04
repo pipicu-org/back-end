@@ -1,4 +1,12 @@
-import { Line, Order, State } from '../api/models';
+import {
+  Category,
+  Client,
+  Line,
+  Order,
+  Product,
+  Recipe,
+  State,
+} from '../api/models';
 import { LineRepository } from '../api/line/line.repository';
 import { OrderController } from '../api/order/order.controller';
 import { OrderRepository } from '../api/order/order.repository';
@@ -8,8 +16,17 @@ import { StateRepository } from '../api/state/state.repository';
 import { StateService } from '../api/state/state.service';
 import { AppDataSource, initializeDataSource } from './initializeDatabase';
 import { initializeWebSocket } from '../middlewares/webSocket';
-
-// import config from './config';
+import { LineService } from '../api/line/line.service';
+import { ProductRepository } from '../api/product/product.repository';
+import { LineController } from '../api/line/line.controller';
+import { ClientRepository } from '../api/client/client.repository';
+import { OrderFactory } from '../api/models/factory/orderFactory';
+import { LineFactory } from '../api/models/factory/lineFactory';
+import { ClientFactory } from '../api/models/factory/clientFactory';
+import { ClientService } from '../api/client/client.service';
+import { ClientController } from '../api/client/client.controller';
+import { RecipeRepository } from '../api/recipe/recipe.repository';
+import { CategoryRepository } from '../api/category/category.repository';
 
 initializeDataSource().catch((err) =>
   console.error('Error inicializando la fuente de datos', err),
@@ -30,6 +47,22 @@ export const dbLineRepository = AppDataSource.getRepository<Line>(
   'Line',
 ).extend({});
 
+export const dbProductRepository = AppDataSource.getRepository<Product>(
+  'Product',
+).extend({});
+
+export const dbClientRepository = AppDataSource.getRepository<Client>(
+  'Client',
+).extend({});
+
+export const dbRecipeRepository = AppDataSource.getRepository<Recipe>(
+  'Recipe',
+).extend({});
+
+export const dbCategoryRepository = AppDataSource.getRepository<Category>(
+  'Category',
+).extend({});
+
 // Repositories
 
 export const stateRepository = new StateRepository(dbStateRepository);
@@ -38,13 +71,41 @@ export const orderRepository = new OrderRepository(dbOrderRepository);
 
 export const lineRepository = new LineRepository(dbLineRepository);
 
+export const productRepository = new ProductRepository(dbProductRepository);
+
+export const clientRepository = new ClientRepository(dbClientRepository);
+
+export const recipeRepository = new RecipeRepository(dbRecipeRepository);
+
+export const categoryRepository = new CategoryRepository(dbCategoryRepository);
+
 // Services
 
 export const orderService = new OrderService(orderRepository);
 
 export const stateService = new StateService(stateRepository);
 
+export const lineService = new LineService(lineRepository);
+
+export const clientService = new ClientService(clientRepository);
+
 // Controllers
 export const orderController = new OrderController(orderService);
 
 export const stateController = new StateController(stateService);
+
+export const lineController = new LineController(lineService);
+
+export const clientController = new ClientController(clientService);
+
+// Factory
+
+export const orderFactory = new OrderFactory(
+  clientRepository,
+  stateRepository,
+  lineRepository,
+);
+
+export const lineFactory = new LineFactory(orderRepository, productRepository);
+
+export const clientFactory = new ClientFactory();

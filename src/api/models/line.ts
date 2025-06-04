@@ -1,15 +1,6 @@
-import {
-  AfterInsert,
-  AfterRemove,
-  AfterUpdate,
-  Column,
-  Entity,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Order } from './order';
 import { Product } from './product';
-import { emitWebSocketEvent } from '../../middlewares/webSocket';
 
 interface ILine {
   id: number;
@@ -39,14 +30,4 @@ export class Line implements ILine {
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   addedAt!: Date;
-
-  @AfterInsert()
-  @AfterUpdate()
-  @AfterRemove()
-  emitEvent(): void {
-    console.log('Line event emitted:', this);
-    emitWebSocketEvent('tableChanged', {
-      productId: this.product.id,
-    });
-  }
 }

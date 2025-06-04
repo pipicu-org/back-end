@@ -47,4 +47,19 @@ export async function initializeDataSource() {
         err,
       );
     });
+  addPreloadData();
+}
+
+async function addPreloadData(): Promise<void> {
+  console.info('Añadiendo datos de pre-carga a la base de datos');
+  try {
+    AppDataSource.createQueryBuilder()
+      .insert()
+      .into('Category')
+      .values({ name: 'Default Category' })
+      .orIgnore()
+      .execute();
+  } catch (error) {
+    console.error('Error al insertar datos de pre-carga:', error);
+  }
 }

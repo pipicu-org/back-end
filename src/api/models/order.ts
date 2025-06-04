@@ -32,7 +32,7 @@ export class Order implements IOrder {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt!: Date;
 
-  @OneToMany(() => Line, (line) => line.id, {
+  @OneToMany(() => Line, (line) => line.order, {
     cascade: true,
     eager: true,
   })

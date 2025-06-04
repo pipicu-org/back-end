@@ -1,5 +1,4 @@
 import { Order } from '../../order';
-import { Recipe } from '../../recipe';
 
 interface IOrderResponseDTO {
   id: number;
@@ -20,7 +19,16 @@ interface IOrderResponseDTO {
       id: number;
       name: string;
       price: number;
-      ingredients: Recipe[];
+      recipe: {
+        id: number;
+        ingredient: {
+          id: number;
+          name: string;
+          price: number;
+        };
+        quantity: number;
+        totalPrice: number;
+      }[];
     };
     quantity: number;
     totalPrice: number;
@@ -47,7 +55,16 @@ export class OrderResponseDTO implements IOrderResponseDTO {
       id: number;
       name: string;
       price: number;
-      ingredients: Recipe[];
+      recipe: {
+        id: number;
+        ingredient: {
+          id: number;
+          name: string;
+          price: number;
+        };
+        quantity: number;
+        totalPrice: number;
+      }[];
     };
     quantity: number;
     totalPrice: number;
@@ -73,7 +90,16 @@ export class OrderResponseDTO implements IOrderResponseDTO {
         id: line.product.id,
         name: line.product.name,
         price: line.product.price,
-        ingredients: line.product.ingredients,
+        recipe: line.product.recipes.map((recipe) => ({
+          id: recipe.id,
+          ingredient: {
+            id: recipe.ingredient.id,
+            name: recipe.ingredient.name,
+            price: recipe.ingredient.price,
+          },
+          quantity: recipe.quantity,
+          totalPrice: recipe.totalPrice,
+        })),
       },
       quantity: line.quantity,
       totalPrice: line.totalPrice,

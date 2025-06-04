@@ -1,20 +1,16 @@
-import { Client } from '../../client';
-import { Line } from '../../line';
-import { State } from '../../state';
-
 interface IOrderRequestDTO {
-  state: State;
-  client: Client;
-  lines: Line[];
+  stateId: number;
+  clientId: number;
+  linesId: number[];
 }
 export class OrderRequestDTO implements IOrderRequestDTO {
-  state: State;
-  client: Client;
-  lines: Line[];
+  stateId: number;
+  clientId: number;
+  linesId: number[];
 
-  constructor(state: State, client: Client, lines: Line[]) {
-    this.state = state;
-    this.client = client;
-    this.lines = lines;
+  constructor(stateId: number, clientId: number, linesId: number[]) {
+    this.stateId = stateId;
+    this.clientId = clientId;
+    this.linesId = linesId;
   }
 }

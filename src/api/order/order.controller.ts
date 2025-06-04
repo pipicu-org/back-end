@@ -44,16 +44,6 @@ export class OrderController {
     }
   }
 
-  async getTotalPriceById(req: Request, res: Response, next: NextFunction) {
-    try {
-      const id = Number(req.params.id);
-      const totalPrice = await this.orderService.getTotalPriceById(id);
-      res.status(200).json({ totalPrice });
-    } catch (error) {
-      next(error);
-    }
-  }
-
   async getByClientId(req: Request, res: Response, next: NextFunction) {
     try {
       const clientId = Number(req.params.clientId);

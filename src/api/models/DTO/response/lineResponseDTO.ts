@@ -17,7 +17,25 @@ interface ILineResponseDTO {
     createdAt: Date;
     Lines: {
       id: number;
-      productId: number;
+      product: {
+        id: number;
+        name: string;
+        price: number;
+        category: {
+          id: number;
+          name: string;
+        };
+        ingredients: {
+          id: number;
+          ingredient: {
+            id: number;
+            name: string;
+            price: number;
+          };
+          quantity: number;
+          totalPrice: number;
+        }[];
+      };
       quantity: number;
       price: number;
     }[];
@@ -44,7 +62,25 @@ export class LineResponseDTO implements ILineResponseDTO {
     createdAt: Date;
     Lines: {
       id: number;
-      productId: number;
+      product: {
+        id: number;
+        name: string;
+        price: number;
+        category: {
+          id: number;
+          name: string;
+        };
+        ingredients: {
+          id: number;
+          ingredient: {
+            id: number;
+            name: string;
+            price: number;
+          };
+          quantity: number;
+          totalPrice: number;
+        }[];
+      };
       quantity: number;
       price: number;
     }[];
@@ -69,7 +105,25 @@ export class LineResponseDTO implements ILineResponseDTO {
       createdAt: line.order.createdAt,
       Lines: line.order.lines.map((l) => ({
         id: l.id,
-        productId: l.product.id,
+        product: {
+          id: l.product.id,
+          name: l.product.name,
+          price: l.product.price,
+          category: {
+            id: l.product.Category.id,
+            name: l.product.Category.name,
+          },
+          ingredients: l.product.recipes.map((ingredient) => ({
+            id: ingredient.id,
+            ingredient: {
+              id: ingredient.ingredient.id,
+              name: ingredient.ingredient.name,
+              price: ingredient.ingredient.price,
+            },
+            quantity: ingredient.quantity,
+            totalPrice: ingredient.totalPrice,
+          })),
+        },
         quantity: l.quantity,
         price: l.totalPrice,
       })),

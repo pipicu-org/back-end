@@ -7,7 +7,7 @@ interface IProduct {
   Category: Category;
   name: string;
   price: number;
-  ingredients: Recipe[];
+  recipes: Recipe[];
 }
 
 @Entity('Product')
@@ -25,5 +25,5 @@ export class Product implements IProduct {
   price!: number;
 
   @OneToMany(() => Recipe, (recipe) => recipe.id)
-  ingredients!: Recipe[];
+  recipes!: Recipe[];
 }
