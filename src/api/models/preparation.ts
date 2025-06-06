@@ -1,14 +1,12 @@
 import {
-  AfterInsert,
-  AfterUpdate,
   Column,
   Entity,
+  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Line } from './line';
 import { State } from './state';
-import { emitWebSocketEvent } from '../../middlewares/webSocket';
 
 interface IPreparation {
   id: number;
@@ -25,19 +23,11 @@ export class Preparation implements IPreparation {
   @Column({ type: 'varchar', length: 255, nullable: true })
   note!: string;
 
-  @ManyToOne(() => Line, (line) => line.id, { nullable: false })
+  @ManyToOne(() => Line, (line) => line.preparations, { nullable: false })
+  @JoinColumn([{ name: 'lineId', referencedColumnName: 'id' }])
   Line!: Line;
 
-  @ManyToOne(() => State, (state) => state.id, { nullable: false })
+  @ManyToOne(() => State, (state) => state.preparations, { nullable: false })
+  @JoinColumn([{ name: 'stateId', referencedColumnName: 'id' }])
   state!: State;
-
-  @AfterUpdate()
-  @AfterInsert()
-  emitUpdate() {
-    if (this.state.name == 'Cocinandose' || this.state.name == 'Listo') {
-      emitWebSocketEvent('preparationUpdate', {
-        productId: this.Line.product.id,
-      });
-    }
-  }
 }

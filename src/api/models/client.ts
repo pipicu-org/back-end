@@ -1,5 +1,6 @@
 import { IsNotEmpty } from 'class-validator';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Order } from './order';
 
 interface IClient {
   id: number;
@@ -26,4 +27,10 @@ export class Client implements IClient {
     message: 'Address is required',
   })
   address!: string;
+
+  @OneToMany(() => Order, (order) => order.client, {
+    cascade: true,
+    eager: true,
+  })
+  orders!: Order[];
 }

@@ -1,5 +1,8 @@
 import { IsNotEmpty } from 'class-validator';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Preparation } from './preparation';
+import { Order } from './order';
+import { Transition } from './transition';
 
 interface IState {
   id: number;
@@ -16,6 +19,30 @@ export class State implements IState {
     message: 'State name is required',
   })
   name!: string;
+
+  @OneToMany(() => Preparation, (preparation) => preparation.state, {
+    cascade: true,
+    eager: true,
+  })
+  preparations!: Preparation[];
+
+  @OneToMany(() => Order, (order) => order.state, {
+    cascade: true,
+    eager: true,
+  })
+  orders!: Order[];
+
+  @OneToMany(() => Transition, (transition) => transition.toState, {
+    cascade: true,
+    eager: true,
+  })
+  toTransitions!: Transition[];
+
+  @OneToMany(() => Transition, (transition) => transition.fromState, {
+    cascade: true,
+    eager: true,
+  })
+  fromTransitions!: Transition[];
 
   constructor(name: string) {
     this.name = name;

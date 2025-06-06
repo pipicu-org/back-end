@@ -1,5 +1,12 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Ingredient } from './ingredient';
+import { Product } from './product';
 
 interface IRecipe {
   id: number;
@@ -13,7 +20,8 @@ export class Recipe implements IRecipe {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @OneToMany(() => Ingredient, (ingredient) => ingredient.id)
+  @ManyToOne(() => Ingredient, (ingredient) => ingredient.recipes)
+  @JoinColumn([{ name: 'ingredientId', referencedColumnName: 'id' }])
   ingredient!: Ingredient;
 
   @Column({ type: 'numeric', precision: 10, scale: 2 })
@@ -21,4 +29,11 @@ export class Recipe implements IRecipe {
 
   @Column({ type: 'numeric', precision: 10, scale: 2 })
   totalPrice!: number;
+
+  @ManyToOne(() => Product, (product) => product.recipes, {
+    cascade: true,
+    eager: true,
+  })
+  @JoinColumn([{ name: 'productId', referencedColumnName: 'id' }])
+  product!: Product;
 }

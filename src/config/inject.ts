@@ -1,6 +1,7 @@
 import {
   Category,
   Client,
+  Ingredient,
   Line,
   Order,
   Product,
@@ -27,6 +28,12 @@ import { ClientService } from '../api/client/client.service';
 import { ClientController } from '../api/client/client.controller';
 import { RecipeRepository } from '../api/recipe/recipe.repository';
 import { CategoryRepository } from '../api/category/category.repository';
+import { IngredientRepository } from '../api/ingredient/ingredient.repository';
+import { ProductFactory } from '../api/models/factory/productFactory';
+import { RecipeFactory } from '../api/models/factory/recipeFactory';
+import { ProductService } from '../api/product/product.service';
+import { RecipeService } from '../api/recipe/recipe.service';
+import { ProductController } from '../api/product/product.controller';
 
 initializeDataSource().catch((err) =>
   console.error('Error inicializando la fuente de datos', err),
@@ -63,6 +70,10 @@ export const dbCategoryRepository = AppDataSource.getRepository<Category>(
   'Category',
 ).extend({});
 
+export const dbIngredientRepository = AppDataSource.getRepository<Ingredient>(
+  'Ingredient',
+).extend({});
+
 // Repositories
 
 export const stateRepository = new StateRepository(dbStateRepository);
@@ -79,6 +90,10 @@ export const recipeRepository = new RecipeRepository(dbRecipeRepository);
 
 export const categoryRepository = new CategoryRepository(dbCategoryRepository);
 
+export const ingredientRepository = new IngredientRepository(
+  dbIngredientRepository,
+);
+
 // Services
 
 export const orderService = new OrderService(orderRepository);
@@ -89,6 +104,10 @@ export const lineService = new LineService(lineRepository);
 
 export const clientService = new ClientService(clientRepository);
 
+export const productService = new ProductService(productRepository);
+
+export const recipeService = new RecipeService(recipeRepository);
+
 // Controllers
 export const orderController = new OrderController(orderService);
 
@@ -98,6 +117,7 @@ export const lineController = new LineController(lineService);
 
 export const clientController = new ClientController(clientService);
 
+export const productController = new ProductController(productService);
 // Factory
 
 export const orderFactory = new OrderFactory(
@@ -109,3 +129,10 @@ export const orderFactory = new OrderFactory(
 export const lineFactory = new LineFactory(orderRepository, productRepository);
 
 export const clientFactory = new ClientFactory();
+
+export const productFactory = new ProductFactory(
+  recipeRepository,
+  categoryRepository,
+);
+
+export const recipeFactory = new RecipeFactory(ingredientRepository);

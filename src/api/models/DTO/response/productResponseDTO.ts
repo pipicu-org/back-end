@@ -42,8 +42,8 @@ export class ProductResponseDTO implements IProductResponseDTO {
   constructor(product: Product) {
     this.id = product.id;
     this.category = {
-      id: product.Category.id,
-      name: product.Category.name,
+      id: product.category.id,
+      name: product.category.name,
     };
     this.name = product.name;
     this.price = product.price;

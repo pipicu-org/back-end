@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -23,10 +24,12 @@ export class Order implements IOrder {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @ManyToOne(() => State, (state) => state.id)
+  @ManyToOne(() => State, (state) => state.orders)
+  @JoinColumn([{ name: 'stateId', referencedColumnName: 'id' }])
   state!: State;
 
-  @ManyToOne(() => Client, (client) => client.id)
+  @ManyToOne(() => Client, (client) => client.orders)
+  @JoinColumn([{ name: 'clientId', referencedColumnName: 'id' }])
   client!: Client;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

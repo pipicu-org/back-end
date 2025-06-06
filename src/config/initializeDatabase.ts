@@ -56,7 +56,39 @@ async function addPreloadData(): Promise<void> {
     AppDataSource.createQueryBuilder()
       .insert()
       .into('Category')
-      .values({ name: 'Default Category' })
+      .values({ name: 'Hamurguesas' })
+      .orIgnore()
+      .execute();
+
+    await AppDataSource.createQueryBuilder()
+      .insert()
+      .into('Ingredient')
+      .values([
+        {
+          name: 'Jamon',
+          price: 1.0,
+        },
+      ])
+      .orIgnore()
+      .execute();
+
+    await AppDataSource.createQueryBuilder()
+      .insert()
+      .into('State')
+      .values([
+        {
+          name: 'Pendiente',
+        },
+        {
+          name: 'En preparación',
+        },
+        {
+          name: 'Listo',
+        },
+        {
+          name: 'Entregado',
+        },
+      ])
       .orIgnore()
       .execute();
   } catch (error) {

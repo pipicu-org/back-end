@@ -110,8 +110,8 @@ export class LineResponseDTO implements ILineResponseDTO {
           name: l.product.name,
           price: l.product.price,
           category: {
-            id: l.product.Category.id,
-            name: l.product.Category.name,
+            id: l.product.category.id,
+            name: l.product.category.name,
           },
           ingredients: l.product.recipes.map((ingredient) => ({
             id: ingredient.id,

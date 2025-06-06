@@ -1,5 +1,6 @@
 import { IsNotEmpty } from 'class-validator';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Recipe } from './recipe';
 
 interface IIngredient {
   id: number;
@@ -23,4 +24,10 @@ export class Ingredient implements IIngredient {
     message: 'Price of ingredient is required',
   })
   price!: number;
+
+  @OneToMany(() => Recipe, (recipe) => recipe.ingredient, {
+    cascade: true,
+    eager: true,
+  })
+  recipes!: Recipe[];
 }

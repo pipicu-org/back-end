@@ -7,6 +7,7 @@ export interface IProductRepository {
   create(product: Product): Promise<Product>;
   update(id: number, product: Product): Promise<Product | null>;
   delete(id: number): Promise<Product | void>;
+  getByCategoryId(categoryId: number): Promise<Product[]>;
 }
 
 export class ProductRepository implements IProductRepository {
@@ -65,6 +66,20 @@ export class ProductRepository implements IProductRepository {
     } catch (error) {
       console.error(`Error deleting product with id ${id}:`, error);
       throw new Error('Could not delete product');
+    }
+  }
+
+  async getByCategoryId(categoryId: number): Promise<Product[]> {
+    try {
+      return await this.dbProductRepository.find({
+        where: { category: { id: categoryId } },
+      });
+    } catch (error) {
+      console.error(
+        `Error finding products by category id ${categoryId}:`,
+        error,
+      );
+      return [];
     }
   }
 }

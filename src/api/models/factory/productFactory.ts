@@ -20,7 +20,7 @@ export class ProductFactory {
       if (!category) {
         throw new Error(`Category with ID: ${requestDTO.categoryId} not found`);
       }
-      product.Category = category;
+      product.category = category;
       product.name = requestDTO.name;
       product.price = requestDTO.price;
       const recipes = await Promise.all(
