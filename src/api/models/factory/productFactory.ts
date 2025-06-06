@@ -29,6 +29,7 @@ export class ProductFactory {
           if (!recipe) {
             throw new Error(`Recipe with ID: ${recipeId} not found`);
           }
+          recipe.product = product; // Set the product reference in the recipe
           return recipe;
         }),
       );

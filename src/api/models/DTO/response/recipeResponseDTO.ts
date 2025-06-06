@@ -20,6 +20,7 @@ export class RecipeResponseDTO implements IRecipeResponseDTO {
   };
   quantity: number;
   totalPrice: number;
+  productId?: number;
 
   constructor(recipe: Recipe) {
     this.id = recipe.id;
@@ -30,5 +31,6 @@ export class RecipeResponseDTO implements IRecipeResponseDTO {
     };
     this.quantity = recipe.quantity;
     this.totalPrice = recipe.totalPrice;
+    this.productId = recipe.product?.id;
   }
 }

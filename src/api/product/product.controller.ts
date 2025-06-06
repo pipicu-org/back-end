@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { IProductService } from './product.service';
+import { ProductRequestDTO } from '../models/DTO/request/productRequestDTO';
 
 export class ProductController {
   constructor(private readonly productService: IProductService) {}
@@ -28,7 +29,7 @@ export class ProductController {
 
   async createProduct(req: Request, res: Response, next: NextFunction) {
     try {
-      const productRequestDTO = req.body;
+      const productRequestDTO = req.body as unknown as ProductRequestDTO;
       const product =
         await this.productService.createProduct(productRequestDTO);
       res.status(201).json(product);

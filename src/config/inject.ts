@@ -34,6 +34,10 @@ import { RecipeFactory } from '../api/models/factory/recipeFactory';
 import { ProductService } from '../api/product/product.service';
 import { RecipeService } from '../api/recipe/recipe.service';
 import { ProductController } from '../api/product/product.controller';
+import { RecipeController } from '../api/recipe/recipe.controller';
+import { IngredientFactory } from '../api/models/factory/ingredientFactory';
+import { IngredientService } from '../api/ingredient/ingredient.service';
+import { IngredientController } from '../api/ingredient/ingredient.controller';
 
 initializeDataSource().catch((err) =>
   console.error('Error inicializando la fuente de datos', err),
@@ -108,6 +112,8 @@ export const productService = new ProductService(productRepository);
 
 export const recipeService = new RecipeService(recipeRepository);
 
+export const ingredientService = new IngredientService(ingredientRepository);
+
 // Controllers
 export const orderController = new OrderController(orderService);
 
@@ -118,6 +124,10 @@ export const lineController = new LineController(lineService);
 export const clientController = new ClientController(clientService);
 
 export const productController = new ProductController(productService);
+
+export const recipeController = new RecipeController(recipeService);
+
+export const ingredientController = new IngredientController(ingredientService);
 // Factory
 
 export const orderFactory = new OrderFactory(
@@ -136,3 +146,5 @@ export const productFactory = new ProductFactory(
 );
 
 export const recipeFactory = new RecipeFactory(ingredientRepository);
+
+export const ingredientFactory = new IngredientFactory();

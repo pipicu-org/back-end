@@ -5,6 +5,8 @@ import { stateRouter } from './api/state/state.router';
 import { clientRouter } from './api/client/client.router';
 import { lineRouter } from './api/line/line.router';
 import { productRouter } from './api/product/product.router';
+import { ingredientRouter } from './api/ingredient/ingredient.router';
+import { recipeRouter } from './api/recipe/recipe.router';
 
 const app = express();
 
@@ -16,6 +18,8 @@ app.use('/api', stateRouter());
 app.use('/api', clientRouter());
 app.use('/api', lineRouter());
 app.use('/api', productRouter());
+app.use('/api', ingredientRouter());
+app.use('/api', recipeRouter());
 
 // Global error handler (should be after routes)
 app.use(errorHandler);

@@ -1,0 +1,84 @@
+import { Request, Response, NextFunction } from 'express';
+import { IIngredientService } from './ingredient.service';
+import { IngredientRequestDTO } from '../models/DTO/request/ingredientRequestDTO';
+
+export class IngredientController {
+  constructor(
+    private readonly ingredientService: IIngredientService = ingredientService,
+  ) {}
+  async create(req: Request, res: Response, next: NextFunction) {
+    try {
+      const ingredientRequestDTO = req.body as unknown as IngredientRequestDTO;
+      const ingredient =
+        await this.ingredientService.createIngredient(ingredientRequestDTO);
+      res.status(201).json(ingredient);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getById(req: Request, res: Response, next: NextFunction) {
+    try {
+      const id = Number(req.params.id);
+      if (isNaN(id)) {
+        throw new Error('Invalid ingredient ID');
+      }
+      const ingredient = await this.ingredientService.getIngredientById(id);
+      if (ingredient) {
+        res.status(200).json(ingredient);
+      } else {
+        res.status(404).json({ message: 'Ingredient not found' });
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getAll(req: Request, res: Response, next: NextFunction) {
+    try {
+      const ingredients = await this.ingredientService.getAllIngredients();
+      res.status(200).json(ingredients);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async update(req: Request, res: Response, next: NextFunction) {
+    try {
+      const id = Number(req.params.id);
+      if (isNaN(id)) {
+        throw new Error('Invalid ingredient ID');
+      }
+      const ingredientRequestDTO = req.body as unknown as IngredientRequestDTO;
+      const updatedIngredient = await this.ingredientService.updateIngredient(
+        id,
+        ingredientRequestDTO,
+      );
+      if (updatedIngredient) {
+        res.status(200).json(updatedIngredient);
+      } else {
+        res.status(404).json({ message: 'Ingredient not found' });
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async delete(req: Request, res: Response, next: NextFunction) {
+    try {
+      const id = Number(req.params.id);
+      if (isNaN(id)) {
+        throw new Error('Invalid ingredient ID');
+      }
+      const deletedIngredient =
+        await this.ingredientService.deleteIngredient(id);
+      if (deletedIngredient) {
+        res.status(200).json(deletedIngredient);
+      } else {
+        res.status(404).json({ message: 'Ingredient not found' });
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+}
