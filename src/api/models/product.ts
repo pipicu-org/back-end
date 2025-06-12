@@ -15,7 +15,7 @@ interface IProduct {
   category: Category;
   name: string;
   price: number;
-  recipes: Recipe[];
+  recipe: Recipe;
   lines: Line[];
 }
 
@@ -34,8 +34,8 @@ export class Product implements IProduct {
   @Column({ type: 'numeric', precision: 10, scale: 2 })
   price!: number;
 
-  @OneToMany(() => Recipe, (recipe) => recipe.product)
-  recipes!: Recipe[];
+  @ManyToOne(() => Recipe, (recipe) => recipe.product)
+  recipe!: Recipe;
 
   @OneToMany(() => Line, (line) => line.product, {
     cascade: true,

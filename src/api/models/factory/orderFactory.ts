@@ -1,14 +1,17 @@
 import { ICLientRepository } from '../../client/client.repository';
-import { ILineRepository } from '../../line/line.repository';
-import { IStateRepository } from '../../state/state.repository';
 import { Order } from '../order';
 import { OrderRequestDTO } from '../DTO/request/orderRequestDTO';
+import { Repository } from 'typeorm';
+import { State } from '../state';
+import { Product } from '../product';
+import { Line } from '../line';
+import { IProductRepository } from '../../product/product.repository';
 
 export class OrderFactory {
   constructor(
     private readonly clientRepository: ICLientRepository,
-    private readonly stateRepository: IStateRepository,
-    private readonly lineRepository: ILineRepository,
+    private readonly stateRepository: Repository<State>,
+    private readonly productRepository: IProductRepository,
   ) {}
   public async createOrderFromRequestDTO(
     requestDTO: OrderRequestDTO,
@@ -16,26 +19,31 @@ export class OrderFactory {
     try {
       const client = await this.clientRepository.getById(requestDTO.clientId);
       if (!client) {
-        throw new Error('Client not found');
+        throw new Error(`Client with ID ${requestDTO.clientId} not found`);
       }
-
-      const state = await this.stateRepository.getById(requestDTO.stateId);
+      const state = await this.stateRepository.findOne({
+        where: { id: requestDTO.stateId },
+      });
       if (!state) {
-        throw new Error('State not found');
+        throw new Error(`State with ID ${requestDTO.stateId} not found`);
       }
-
-      const lines = await Promise.all(
-        requestDTO.linesId.map(async (lineId) => {
-          const line = await this.lineRepository.getById(lineId);
-          if (!line) {
-            throw new Error(`Line with ID: ${lineId} not found`);
+      const lines: Line[] = await Promise.all(
+        requestDTO.lines.map(async (line) => {
+          const lineItem = new Line();
+          const product = await this.productRepository.findById(line.productId);
+          if (!product) {
+            throw new Error(`Product with ID ${line.productId} not found`);
           }
-          return line;
+          lineItem.product = product;
+          lineItem.quantity = line.quantity;
+          lineItem.totalPrice = product.price * line.quantity;
+          return lineItem;
         }),
       );
 
       const order = new Order(state, client, lines);
-
+      order.state = state;
+      order.client = client;
       return order;
     } catch (error) {
       console.error('Error creating order from request DTO:', error);

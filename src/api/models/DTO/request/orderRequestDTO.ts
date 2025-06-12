@@ -1,16 +1,32 @@
 interface IOrderRequestDTO {
   stateId: number;
   clientId: number;
-  linesId: number[];
+  lines: Array<{
+    productId: number;
+    quantity: number;
+  }>;
 }
 export class OrderRequestDTO implements IOrderRequestDTO {
   stateId: number;
   clientId: number;
-  linesId: number[];
+  lines: Array<{
+    productId: number;
+    quantity: number;
+  }>;
 
-  constructor(stateId: number, clientId: number, linesId: number[]) {
+  constructor(
+    stateId: number,
+    clientId: number,
+    lines: Array<{
+      productId: number;
+      quantity: number;
+    }>,
+  ) {
     this.stateId = stateId;
     this.clientId = clientId;
-    this.linesId = linesId;
+    this.lines = lines.map((line) => ({
+      productId: line.productId,
+      quantity: line.quantity,
+    }));
   }
 }
