@@ -12,7 +12,8 @@ export interface IOrderService {
 }
 
 export class OrderService implements IOrderService {
-  constructor(private readonly orderRepository: IOrderRepository) {}
+  constructor(
+    private readonly orderRepository: IOrderRepository) {}
   async create(orderRequestDTO: OrderRequestDTO): Promise<OrderResponseDTO> {
     try {
       const newOrder =

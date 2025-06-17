@@ -1,4 +1,5 @@
 import {
+  BeforeInsert,
   Column,
   Entity,
   JoinColumn,
@@ -9,7 +10,7 @@ import {
 import { Client } from './client';
 import { State } from './state';
 import { Line } from './line';
-import { IsArray } from 'class-validator';
+import { IsArray, IsEmpty } from 'class-validator';
 
 interface IOrder {
   id: number;
@@ -35,6 +36,18 @@ export class Order implements IOrder {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt!: Date;
 
+  @Column({
+    type: 'timestamp',
+    nullable: false,
+  })
+  deliveryTime!: Date;
+
+  @Column({ type: 'varchar', length: 255, nullable: false })
+  @IsEmpty({
+    message: 'Payment method cannot be empty',
+  })
+  paymentMethod!: string;
+
   @OneToMany(() => Line, (line) => line.order, {
     cascade: true,
     eager: true,
@@ -44,9 +57,10 @@ export class Order implements IOrder {
   })
   lines!: Line[];
 
-  constructor(state: State, client: Client, lines: Line[]) {
-    this.state = state;
-    this.client = client;
-    this.lines = lines;
+  @BeforeInsert()
+  setHorarioEntrega() {
+    if (!this.deliveryTime) {
+      this.deliveryTime = new Date(Date.now() + 30 * 60 * 1000); // 30 minutos despues
+    }
   }
 }

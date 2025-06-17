@@ -1,109 +1,61 @@
 import { Order } from '../../order';
 
 interface IOrderResponseDTO {
-  id: number;
-  state: {
-    id: number;
-    name: string;
-  };
-  client: {
-    id: number;
-    name: string;
-    phone: string;
-    address: string;
-  };
-  createdAt: Date;
-  lines: {
-    id: number;
-    product: {
-      id: number;
-      name: string;
-      price: number;
-      recipe: {
-        id: number;
-        ingredient: {
-          id: number;
-          name: string;
-          price: number;
-        };
-        quantity: number;
-        totalPrice: number;
-      }[];
-    };
+  id: string;
+  state: string;
+  client: string;
+  phone: string;
+  address: string;
+  horarioEntrega: Date;
+  paymentMethod: string;
+  lines: Array<{
+    product: string;
     quantity: number;
+    note: string | null;
     totalPrice: number;
-    addedAt: Date;
-  }[];
+    preparation: {
+      id: string;
+      state: string;
+    };
+  }>;
 }
 
 export class OrderResponseDTO implements IOrderResponseDTO {
-  id: number;
-  state: {
-    id: number;
-    name: string;
-  };
-  client: {
-    id: number;
-    name: string;
-    phone: string;
-    address: string;
-  };
-  createdAt: Date;
-  lines: {
-    id: number;
-    product: {
-      id: number;
-      name: string;
-      price: number;
-      recipe: {
-        id: number;
-        ingredient: {
-          id: number;
-          name: string;
-          price: number;
-        };
-        quantity: number;
-        totalPrice: number;
-      }[];
-    };
+  id: string;
+  state: string;
+  client: string;
+  phone: string;
+  address: string;
+  horarioEntrega: Date;
+  paymentMethod: string;
+  lines: Array<{
+    product: string;
     quantity: number;
+    note: string | null;
     totalPrice: number;
-    addedAt: Date;
-  }[];
+    preparation: {
+      id: string;
+      state: string;
+    };
+  }>;
 
   constructor(order: Order) {
-    this.id = order.id;
-    this.state = {
-      id: order.state.id,
-      name: order.state.name,
-    };
-    this.client = {
-      id: order.client.id,
-      name: order.client.name,
-      phone: order.client.phoneNumber,
-      address: order.client.address,
-    };
-    this.createdAt = order.createdAt;
+    this.id = order.id.toString();
+    this.state = order.state.name;
+    this.client = order.client.name;
+    this.phone = order.client.phoneNumber;
+    this.address = order.client.address;
+    this.horarioEntrega = order.deliveryTime;
+    this.paymentMethod = order.paymentMethod;
     this.lines = order.lines.map((line) => ({
-      id: line.id,
-      product: {
-        id: line.product.id,
-        name: line.product.name,
-        price: line.product.price,
-        recipe: line.product.recipes.map((recipe) => ({
-          id: recipe.id,
-          ingredient: {
-            id: recipe.ingredient.id,
-            name: recipe.ingredient.name,
-            price: recipe.ingredient.price,
-          },
-          quantity: recipe.quantity,
-          totalPrice: recipe.totalPrice,
-        })),
-      },
+      product: line.product.name,
       quantity: line.quantity,
-      totalPrice: line.totalPrice,
-      addedAt: line.addedAt,
+      note: line.note?.note ?? null,
+      totalPrice: parseFloat(line.totalPrice.toFixed(2)),
+      preparation: {
+        id: line.preparation.id.toString(),
+        state: line.preparation.state.name,
+      },
     }));
   }
 }

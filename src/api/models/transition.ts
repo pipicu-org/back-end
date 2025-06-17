@@ -1,5 +1,4 @@
 import {
-  AfterInsert,
   Column,
   Entity,
   JoinColumn,
@@ -8,7 +7,6 @@ import {
 } from 'typeorm';
 import { TransitionType } from './transitionType';
 import { State } from './state';
-import { emitWebSocketEvent } from '../../middlewares/webSocket';
 
 interface ITransition {
   id: number;
@@ -51,17 +49,4 @@ export class Transition implements ITransition {
 
   @Column({ type: 'bigint', nullable: true })
   duration!: number;
-
-  @AfterInsert()
-  emitUpdate() {
-    emitWebSocketEvent('newTransition', {
-      transitionId: this.id,
-      fromStateId: this.fromState.id,
-      toStateId: this.toState.id,
-      transitionTypeId: this.transitionType.id,
-      transitionatorId: this.transitionatorId,
-      createdAt: this.createdAt,
-      duration: this.duration,
-    });
-  }
 }

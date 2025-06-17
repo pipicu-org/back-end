@@ -9,12 +9,14 @@ import {
 import { Category } from './category';
 import { Recipe } from './recipe';
 import { Line } from './line';
+import { Family } from './family';
 
 interface IProduct {
   id: number;
   category: Category;
   name: string;
   price: number;
+  stock: number;
   recipe: Recipe;
   lines: Line[];
 }
@@ -34,7 +36,11 @@ export class Product implements IProduct {
   @Column({ type: 'numeric', precision: 10, scale: 2 })
   price!: number;
 
+  @Column({ type: 'number', nullable: true })
+  stock!: number;
+
   @ManyToOne(() => Recipe, (recipe) => recipe.product)
+  @JoinColumn([{ name: 'recipeId', referencedColumnName: 'id' }])
   recipe!: Recipe;
 
   @OneToMany(() => Line, (line) => line.product, {
@@ -42,4 +48,11 @@ export class Product implements IProduct {
     eager: true,
   })
   lines!: Line[];
+
+  @ManyToOne(() => Family, (family) => family.products, {
+    cascade: true,
+    eager: true,
+  })
+  @JoinColumn([{ name: 'familyId', referencedColumnName: 'id' }])
+  family!: Family;
 }

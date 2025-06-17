@@ -3,7 +3,6 @@ import { Order } from '../order';
 import { OrderRequestDTO } from '../DTO/request/orderRequestDTO';
 import { Repository } from 'typeorm';
 import { State } from '../state';
-import { Product } from '../product';
 import { Line } from '../line';
 import { IProductRepository } from '../../product/product.repository';
 
@@ -22,11 +21,13 @@ export class OrderFactory {
         throw new Error(`Client with ID ${requestDTO.clientId} not found`);
       }
       const state = await this.stateRepository.findOne({
-        where: { id: requestDTO.stateId },
+        where: { name: 'Pendiente' },
       });
       if (!state) {
-        throw new Error(`State with ID ${requestDTO.stateId} not found`);
+        throw new Error(`No hay un estado 'Pendiente' definido`);
       }
+      const horarioEntrega = requestDTO.horarioEntrega;
+
       const lines: Line[] = await Promise.all(
         requestDTO.lines.map(async (line) => {
           const lineItem = new Line();
@@ -41,9 +42,11 @@ export class OrderFactory {
         }),
       );
 
-      const order = new Order(state, client, lines);
+      const order = new Order();
       order.state = state;
       order.client = client;
+      order.lines = lines;
+      order.horarioEntrega = horarioEntrega;
       return order;
     } catch (error) {
       console.error('Error creating order from request DTO:', error);

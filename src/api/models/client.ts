@@ -21,6 +21,12 @@ export class Client implements IClient {
   @IsNotEmpty({
     message: 'Name is required',
   })
+  @Column({ type: 'varchar', length: 255, nullable: true, unique: true })
+  facebookUsername!: string | null;
+
+  @Column({ type: 'varchar', length: 255, nullable: true, unique: true })
+  instagramUsername!: string | null;
+
   name!: string;
   @Column({ type: 'varchar', length: 255, nullable: false })
   @IsNotEmpty({

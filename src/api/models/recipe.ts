@@ -21,7 +21,6 @@ export class Recipe implements IRecipe {
   id!: number;
 
   @ManyToMany(() => Ingredient, (ingredient) => ingredient.recipes)
-  @JoinColumn([{ name: 'ingredientId', referencedColumnName: 'id' }])
   ingredients!: Ingredient[];
 
   @Column({ type: 'numeric', precision: 10, scale: 2 })

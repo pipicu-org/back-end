@@ -22,7 +22,15 @@ export class OrderRepository implements IOrderRepository {
       if (!order.state) throw new Error('State should be defined');
       if (!order.client) throw new Error('Client should be defined');
       if (!order.lines) throw new Error('Lines should be defined');
-      return this.order.save(new Order(order.state, order.client, order.lines));
+      const newOrder = new Order();
+      newOrder.state = order.state;
+      newOrder.client = order.client;
+      newOrder.lines = order.lines;
+      newOrder.horarioEntrega = order.horarioEntrega
+        ? new Date(order.horarioEntrega)
+        : new Date(Date.now() + 30 * 60 * 1000);
+      newOrder.paymentMethod = order.paymentMethod ?? 'Efectivo';
+      return this.order.save(newOrder);
     } catch (error) {
       console.error('Error en la creacion de ordenes:', error);
       throw new Error('No se ha podido crear la orden');
@@ -44,10 +52,7 @@ export class OrderRepository implements IOrderRepository {
       if (!newOrder.state) throw new Error('State should be defined');
       if (!newOrder.client) throw new Error('Client should be defined');
       if (!newOrder.lines) throw new Error('Lines should be defined');
-      await this.order.update(
-        id,
-        new Order(newOrder.state, newOrder.client, newOrder.lines),
-      );
+      await this.order.update(id, newOrder);
       const updatedOrder = await this.order.findOneBy({ id });
       return updatedOrder;
     } catch (error) {
