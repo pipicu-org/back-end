@@ -22,7 +22,6 @@ export class Category implements ICategory {
   name!: string;
 
   @OneToMany(() => Product, (product) => product.category, {
-    cascade: true,
     eager: true,
   })
   products!: Product[];

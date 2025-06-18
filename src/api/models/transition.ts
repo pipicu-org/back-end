@@ -39,6 +39,7 @@ export class Transition implements ITransition {
     (transitionType) => transitionType.transitions,
     {
       nullable: false,
+      eager: true,
     },
   )
   @JoinColumn([{ name: 'transitionTypeId', referencedColumnName: 'id' }])

@@ -6,17 +6,15 @@ interface IOrderResponseDTO {
   client: string;
   phone: string;
   address: string;
-  horarioEntrega: Date;
+  deliveryTime: string;
   paymentMethod: string;
+  totalPrice: number;
   lines: Array<{
     product: string;
     quantity: number;
     note: string | null;
     totalPrice: number;
-    preparation: {
-      id: string;
-      state: string;
-    };
+    state: string;
   }>;
 }
 
@@ -26,17 +24,15 @@ export class OrderResponseDTO implements IOrderResponseDTO {
   client: string;
   phone: string;
   address: string;
-  horarioEntrega: Date;
+  deliveryTime: string;
   paymentMethod: string;
+  totalPrice: number;
   lines: Array<{
     product: string;
     quantity: number;
     note: string | null;
     totalPrice: number;
-    preparation: {
-      id: string;
-      state: string;
-    };
+    state: string;
   }>;
 
   constructor(order: Order) {
@@ -45,17 +41,15 @@ export class OrderResponseDTO implements IOrderResponseDTO {
     this.client = order.client.name;
     this.phone = order.client.phoneNumber;
     this.address = order.client.address;
-    this.horarioEntrega = order.deliveryTime;
+    this.deliveryTime = order.deliveryTime.toISOString();
     this.paymentMethod = order.paymentMethod;
+    this.totalPrice = parseFloat(order.totalPrice.toFixed(2));
     this.lines = order.lines.map((line) => ({
       product: line.product.name,
       quantity: line.quantity,
       note: line.note?.note ?? null,
       totalPrice: parseFloat(line.totalPrice.toFixed(2)),
-      preparation: {
-        id: line.preparation.id.toString(),
-        state: line.preparation.state.name,
-      },
+      state: line.preparation.state.name,
     }));
   }
 }

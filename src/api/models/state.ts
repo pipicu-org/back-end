@@ -20,31 +20,15 @@ export class State implements IState {
   })
   name!: string;
 
-  @OneToMany(() => Preparation, (preparation) => preparation.state, {
-    cascade: true,
-    eager: true,
-  })
+  @OneToMany(() => Preparation, (preparation) => preparation.state, {})
   preparations!: Preparation[];
 
-  @OneToMany(() => Order, (order) => order.state, {
-    cascade: true,
-    eager: true,
-  })
+  @OneToMany(() => Order, (order) => order.state, {})
   orders!: Order[];
 
-  @OneToMany(() => Transition, (transition) => transition.toState, {
-    cascade: true,
-    eager: true,
-  })
+  @OneToMany(() => Transition, (transition) => transition.toState, {})
   toTransitions!: Transition[];
 
-  @OneToMany(() => Transition, (transition) => transition.fromState, {
-    cascade: true,
-    eager: true,
-  })
+  @OneToMany(() => Transition, (transition) => transition.fromState, {})
   fromTransitions!: Transition[];
-
-  constructor(name: string) {
-    this.name = name;
-  }
 }

@@ -20,14 +20,15 @@ export class Recipe implements IRecipe {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @ManyToMany(() => Ingredient, (ingredient) => ingredient.recipes)
-  ingredients!: Ingredient[];
-
   @Column({ type: 'numeric', precision: 10, scale: 2 })
   totalPrice!: number;
 
+  @ManyToMany(() => Ingredient, (ingredient) => ingredient.recipes, {
+    eager: true,
+  })
+  ingredients!: Ingredient[];
+
   @OneToMany(() => Product, (product) => product.recipe, {
-    cascade: true,
     eager: true,
   })
   @JoinColumn([{ name: 'productId', referencedColumnName: 'id' }])

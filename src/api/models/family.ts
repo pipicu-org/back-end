@@ -15,7 +15,6 @@ export class Family implements IFamily {
   name!: string;
 
   @OneToMany(() => Product, (product) => product.family, {
-    cascade: true,
     eager: true,
   })
   products!: Product[];

@@ -7,7 +7,6 @@ export interface IClientRequestDTO {
   address: string;
   facebookusername: string | null;
   instagramusername: string | null;
-  lastOrderId: number | null;
 }
 export class ClientResponseDTO implements IClientRequestDTO {
   id: number;
@@ -16,7 +15,6 @@ export class ClientResponseDTO implements IClientRequestDTO {
   address: string;
   facebookusername: string | null;
   instagramusername: string | null;
-  lastOrderId: number | null;
 
   constructor(client: Client) {
     this.id = client.id;
@@ -25,9 +23,5 @@ export class ClientResponseDTO implements IClientRequestDTO {
     this.address = client.address;
     this.facebookusername = client.facebookUsername;
     this.instagramusername = client.instagramUsername;
-    this.lastOrderId =
-      client.orders.length > 0
-        ? client.orders[client.orders.length - 1].id
-        : null;
   }
 }

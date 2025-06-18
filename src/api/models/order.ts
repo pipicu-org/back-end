@@ -18,12 +18,18 @@ interface IOrder {
   client: Client;
   createdAt: Date;
   lines: Line[];
+  deliveryTime: Date;
+  paymentMethod: string;
+  totalPrice: number;
 }
 
 @Entity('Order')
 export class Order implements IOrder {
   @PrimaryGeneratedColumn()
   id!: number;
+
+  @Column({ type: 'numeric', precision: 10, scale: 2, default: 0 })
+  totalPrice!: number;
 
   @ManyToOne(() => State, (state) => state.orders)
   @JoinColumn([{ name: 'stateId', referencedColumnName: 'id' }])
@@ -49,7 +55,6 @@ export class Order implements IOrder {
   paymentMethod!: string;
 
   @OneToMany(() => Line, (line) => line.order, {
-    cascade: true,
     eager: true,
   })
   @IsArray({

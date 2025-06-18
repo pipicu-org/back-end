@@ -1,45 +1,40 @@
-interface IOrderRequestDTO {
-  clientId: number | null;
+export interface IOrderRequestDTO {
+  state: string;
+  client: string;
+  phone: string;
+  address: string;
+  deliveryTime: string;
+  paymentMethod: string;
   lines: Array<{
-    productId: number;
+    product: string;
     quantity: number;
-    paymentMethod: string;
-    deliveryTime: Date;
-    note: {
-      note: string | null;
-    };
+    note: string | null;
   }>;
 }
+
 export class OrderRequestDTO implements IOrderRequestDTO {
-  clientId: number;
+  state: string;
+  client: string;
+  phone: string;
+  address: string;
+  deliveryTime: string;
+  paymentMethod: string;
   lines: Array<{
-    productId: number;
+    product: string;
     quantity: number;
-    paymentMethod: string;
-    deliveryTime: Date;
-    note: {
-      note: string | null;
-    };
+    note: string | null;
   }>;
 
-  constructor(
-    clientId: number,
-    lines: Array<{
-      productId: number;
-      quantity: number;
-      paymentMethod: string;
-      deliveryTime: Date;
-      note: {
-        note: string | null;
-      };
-    }>,
-  ) {
-    this.clientId = clientId;
-    this.lines = lines.map((line) => ({
-      productId: line.productId,
+  constructor(orderRequestDTO: IOrderRequestDTO) {
+    this.state = orderRequestDTO.state;
+    this.client = orderRequestDTO.client;
+    this.phone = orderRequestDTO.phone;
+    this.address = orderRequestDTO.address;
+    this.deliveryTime = orderRequestDTO.deliveryTime;
+    this.paymentMethod = orderRequestDTO.paymentMethod;
+    this.lines = orderRequestDTO.lines.map((line) => ({
+      product: line.product,
       quantity: line.quantity,
-      paymentMethod: line.paymentMethod,
-      deliveryTime: line.deliveryTime,
       note: line.note,
     }));
   }

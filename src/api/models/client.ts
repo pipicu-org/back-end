@@ -35,7 +35,6 @@ export class Client implements IClient {
   address!: string;
 
   @OneToMany(() => Order, (order) => order.client, {
-    cascade: true,
     eager: true,
   })
   orders!: Order[];

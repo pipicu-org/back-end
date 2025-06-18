@@ -38,19 +38,21 @@ export class Line implements ILine {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   addedAt!: Date;
 
-  @ManyToOne(() => Product, (product) => product.lines)
+  @ManyToOne(() => Product, (product) => product.lines, {
+    eager: true,
+  })
   @JoinColumn([{ name: 'productId', referencedColumnName: 'id' }])
   product!: Product;
 
   @OneToOne(() => Preparation, (preparation) => preparation.Line, {
-    cascade: true,
+    cascade: ['insert', 'update', 'remove'],
     eager: true,
   })
   @JoinColumn([{ name: 'preparationId', referencedColumnName: 'id' }])
   preparation!: Preparation;
 
   @OneToOne(() => Note, (note) => note.line, {
-    cascade: true,
+    cascade: ['insert', 'update', 'remove'],
     eager: true,
     nullable: true,
   })

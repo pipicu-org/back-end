@@ -1,6 +1,14 @@
 import { IsNotEmpty } from 'class-validator';
-import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Recipe } from './recipe';
+import { Note } from './note';
 
 interface IIngredient {
   id: number;
@@ -8,6 +16,7 @@ interface IIngredient {
   price: number;
   quantity: number;
   recipes: Recipe[];
+  note: Note[];
 }
 
 @Entity('Ingredient')
@@ -34,8 +43,12 @@ export class Ingredient implements IIngredient {
   price!: number;
 
   @ManyToMany(() => Recipe, (recipe) => recipe.ingredients, {
-    cascade: true,
     eager: true,
   })
   recipes!: Recipe[];
+
+  @OneToMany(() => Note, (note) => note.ingredient, {
+    nullable: true,
+  })
+  note!: Note[];
 }

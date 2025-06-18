@@ -8,8 +8,8 @@ export interface IClientRequestDTO {
 
 export class ClientRequestDTO implements IClientRequestDTO {
   name: string;
-  phoneNumber: string;
   address: string;
+  phoneNumber: string;
   facebookUsername?: string;
   instagramUsername?: string;
 
