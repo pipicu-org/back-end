@@ -26,8 +26,8 @@ export class OrderRepository implements IOrderRepository {
       newOrder.state = order.state;
       newOrder.client = order.client;
       newOrder.lines = order.lines;
-      newOrder.horarioEntrega = order.horarioEntrega
-        ? new Date(order.horarioEntrega)
+      newOrder.deliveryTime = order.deliveryTime
+        ? new Date(order.deliveryTime)
         : new Date(Date.now() + 30 * 60 * 1000);
       newOrder.paymentMethod = order.paymentMethod ?? 'Efectivo';
       return this.order.save(newOrder);

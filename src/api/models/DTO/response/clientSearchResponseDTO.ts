@@ -41,7 +41,7 @@ export class ClientSearchResponseDTO implements IClientSearchResponseDTO {
       address: string;
       instagramUsername?: string | null;
       facebookUsername?: string | null;
-      lastOrder?: string | null;
+      lastOrder: string | null;
     }>,
   ) {
     this.search = search;

@@ -3,6 +3,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -25,10 +26,6 @@ export class Line implements ILine {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @ManyToOne(() => Order, (order) => order.lines)
-  @JoinColumn([{ name: 'orderId', referencedColumnName: 'id' }])
-  order!: Order;
-
   @Column({ type: 'numeric', precision: 10, scale: 2 })
   quantity!: number;
 
@@ -37,6 +34,10 @@ export class Line implements ILine {
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   addedAt!: Date;
+
+  @ManyToOne(() => Order, (order) => order.lines)
+  @JoinColumn([{ name: 'orderId', referencedColumnName: 'id' }])
+  order!: Order;
 
   @ManyToOne(() => Product, (product) => product.lines, {
     eager: true,
@@ -51,11 +52,10 @@ export class Line implements ILine {
   @JoinColumn([{ name: 'preparationId', referencedColumnName: 'id' }])
   preparation!: Preparation;
 
-  @OneToOne(() => Note, (note) => note.line, {
+  @OneToMany(() => Note, (note) => note.line, {
     cascade: ['insert', 'update', 'remove'],
     eager: true,
     nullable: true,
   })
-  @JoinColumn([{ name: 'noteId', referencedColumnName: 'id' }])
-  note!: Note;
+  note!: Note[];
 }

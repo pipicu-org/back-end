@@ -9,3 +9,4 @@ export * from './recipe';
 export * from './state';
 export * from './transition';
 export * from './transitionType';
+export * from './note';

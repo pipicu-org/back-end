@@ -23,6 +23,12 @@ export class Transition implements ITransition {
   @PrimaryGeneratedColumn()
   id!: number;
 
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt!: Date;
+
+  @Column({ type: 'bigint', nullable: true })
+  duration!: number;
+
   @ManyToOne(() => State, (state) => state.fromTransitions, { nullable: false })
   @JoinColumn([{ name: 'fromStateId', referencedColumnName: 'id' }])
   fromState!: State;
@@ -31,7 +37,7 @@ export class Transition implements ITransition {
   @JoinColumn([{ name: 'toStateId', referencedColumnName: 'id' }])
   toState!: State;
 
-  @Column()
+  @Column({ type: 'bigint', nullable: false })
   transitionatorId!: number;
 
   @ManyToOne(
@@ -39,15 +45,10 @@ export class Transition implements ITransition {
     (transitionType) => transitionType.transitions,
     {
       nullable: false,
+
       eager: true,
     },
   )
   @JoinColumn([{ name: 'transitionTypeId', referencedColumnName: 'id' }])
   transitionType!: TransitionType;
-
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  createdAt!: Date;
-
-  @Column({ type: 'bigint', nullable: true })
-  duration!: number;
 }

@@ -1,9 +1,8 @@
 import {
   Column,
   Entity,
-  JoinColumn,
   ManyToMany,
-  OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Ingredient } from './ingredient';
@@ -28,9 +27,8 @@ export class Recipe implements IRecipe {
   })
   ingredients!: Ingredient[];
 
-  @OneToMany(() => Product, (product) => product.recipe, {
+  @OneToOne(() => Product, (product) => product.recipe, {
     eager: true,
   })
-  @JoinColumn([{ name: 'productId', referencedColumnName: 'id' }])
   product!: Product;
 }

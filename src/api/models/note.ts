@@ -12,7 +12,7 @@ import { Ingredient } from './ingredient';
 
 export interface INote {
   id: number;
-  note: string;
+  description: string;
   line: Line;
 }
 
@@ -22,9 +22,12 @@ export class Note implements INote {
   id!: number;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
-  note!: string;
+  description!: string;
 
-  @OneToOne(() => Line, (line) => line.note, { nullable: false })
+  @Column({ type: 'numeric', precision: 10, scale: 2, default: 0 })
+  quantity!: number;
+
+  @ManyToOne(() => Line, (line) => line.note, { nullable: false })
   @JoinColumn([{ name: 'lineId', referencedColumnName: 'id' }])
   line!: Line;
 

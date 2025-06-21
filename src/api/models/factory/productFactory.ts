@@ -1,5 +1,4 @@
 import { ICategoryRepository } from '../../category/category.repository';
-import { IRecipeRepository } from '../../recipe/recipe.repository';
 import { IProductRequestDTO } from '../DTO/request/productRequestDTO';
 import { Product } from '../product';
 

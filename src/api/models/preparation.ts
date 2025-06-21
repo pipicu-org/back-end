@@ -24,6 +24,5 @@ export class Preparation implements IPreparation {
   state!: State;
 
   @OneToOne(() => Line, (line) => line.preparation, { nullable: false })
-  @JoinColumn([{ name: 'lineId', referencedColumnName: 'id' }])
   Line!: Line;
 }

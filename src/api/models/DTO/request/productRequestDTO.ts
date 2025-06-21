@@ -1,33 +1,35 @@
 export interface IProductRequestDTO {
-  categoryId: number;
+  category: string;
   name: string;
   stock: number;
   price: number;
-  recipeId: number;
-  familyId: number;
+  ingredients: Array<{
+    name: string;
+    quantity: number;
+  }>;
 }
 
 export class ProductRequestDTO implements IProductRequestDTO {
-  categoryId: number;
+  category: string;
   name: string;
   price: number;
   stock: number;
-  recipeId: number;
-  familyId: number;
+  ingredients: Array<{
+    name: string;
+    quantity: number;
+  }>;
 
   constructor(
-    categoryId: number,
+    category: string,
     name: string,
     price: number,
-    recipeId: number,
-    familyId: number,
     stock: number,
+    ingredients: Array<{ name: string; quantity: number }>,
   ) {
-    this.categoryId = categoryId;
+    this.category = category;
     this.name = name;
     this.price = price;
-    this.recipeId = recipeId;
-    this.familyId = familyId;
     this.stock = stock;
+    this.ingredients = ingredients;
   }
 }

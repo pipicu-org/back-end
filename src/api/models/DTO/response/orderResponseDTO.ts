@@ -10,11 +10,17 @@ interface IOrderResponseDTO {
   paymentMethod: string;
   totalPrice: number;
   lines: Array<{
+    id: string;
     product: string;
     quantity: number;
-    note: string | null;
     totalPrice: number;
     state: string;
+    note: Array<{
+      id: string;
+      description: string;
+      ingredient: string;
+      quantity: number;
+    }> | null;
   }>;
 }
 
@@ -28,11 +34,17 @@ export class OrderResponseDTO implements IOrderResponseDTO {
   paymentMethod: string;
   totalPrice: number;
   lines: Array<{
+    id: string;
     product: string;
     quantity: number;
-    note: string | null;
     totalPrice: number;
     state: string;
+    note: Array<{
+      id: string;
+      description: string;
+      ingredient: string;
+      quantity: number;
+    }> | null;
   }>;
 
   constructor(order: Order) {
@@ -45,11 +57,19 @@ export class OrderResponseDTO implements IOrderResponseDTO {
     this.paymentMethod = order.paymentMethod;
     this.totalPrice = parseFloat(order.totalPrice.toFixed(2));
     this.lines = order.lines.map((line) => ({
+      id: line.id.toString(),
       product: line.product.name,
       quantity: line.quantity,
-      note: line.note?.note ?? null,
       totalPrice: parseFloat(line.totalPrice.toFixed(2)),
       state: line.preparation.state.name,
+      note: line.note
+        ? line.note.map((note) => ({
+            id: note.id.toString(),
+            description: note.description,
+            ingredient: note.ingredient.name,
+            quantity: note.quantity,
+          }))
+        : null,
     }));
   }
 }

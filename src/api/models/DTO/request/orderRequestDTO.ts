@@ -8,7 +8,11 @@ export interface IOrderRequestDTO {
   lines: Array<{
     product: string;
     quantity: number;
-    note: string | null;
+    note: Array<{
+      description: string;
+      ingredient: string;
+      quantity: number;
+    }> | null;
   }>;
 }
 
@@ -22,7 +26,11 @@ export class OrderRequestDTO implements IOrderRequestDTO {
   lines: Array<{
     product: string;
     quantity: number;
-    note: string | null;
+    note: Array<{
+      description: string;
+      ingredient: string;
+      quantity: number;
+    }> | null;
   }>;
 
   constructor(orderRequestDTO: IOrderRequestDTO) {
@@ -35,7 +43,12 @@ export class OrderRequestDTO implements IOrderRequestDTO {
     this.lines = orderRequestDTO.lines.map((line) => ({
       product: line.product,
       quantity: line.quantity,
-      note: line.note,
+      note:
+        line.note?.map((note) => ({
+          description: note.description,
+          ingredient: note.ingredient,
+          quantity: note.quantity,
+        })) || null,
     }));
   }
 }

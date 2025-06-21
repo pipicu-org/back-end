@@ -35,13 +35,6 @@ export class Order implements IOrder {
   @JoinColumn([{ name: 'stateId', referencedColumnName: 'id' }])
   state!: State;
 
-  @ManyToOne(() => Client, (client) => client.orders)
-  @JoinColumn([{ name: 'clientId', referencedColumnName: 'id' }])
-  client!: Client;
-
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  createdAt!: Date;
-
   @Column({
     type: 'timestamp',
     nullable: false,
@@ -54,7 +47,15 @@ export class Order implements IOrder {
   })
   paymentMethod!: string;
 
+  @ManyToOne(() => Client, (client) => client.orders)
+  @JoinColumn([{ name: 'clientId', referencedColumnName: 'id' }])
+  client!: Client;
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt!: Date;
+
   @OneToMany(() => Line, (line) => line.order, {
+    cascade: ['insert', 'update', 'remove'],
     eager: true,
   })
   @IsArray({
