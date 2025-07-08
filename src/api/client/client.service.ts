@@ -1,6 +1,7 @@
-import { clientFactory } from '../../config';
 import { ClientRequestDTO } from '../models/DTO/request/clientRequestDTO';
 import { ClientResponseDTO } from '../models/DTO/response/clientResponseDTO';
+import { ClientSearchResponseDTO } from '../models/DTO/response/clientSearchResponseDTO';
+import { ClientMapper } from '../models/mappers/clientMapper';
 import { ICLientRepository } from './client.repository';
 
 export interface IClientService {
@@ -11,17 +12,23 @@ export interface IClientService {
     client: ClientRequestDTO,
   ): Promise<ClientResponseDTO | null>;
   deleteClient(id: number): Promise<ClientResponseDTO | null>;
-  getAllClients(): Promise<ClientResponseDTO[]>;
+  searchClients(
+    search: string,
+    page: number,
+    limit: number,
+  ): Promise<ClientSearchResponseDTO | []>;
 }
 
 export class ClientService implements IClientService {
-  constructor(private readonly clientRepository: ICLientRepository) {}
+  constructor(
+    private readonly _clientRepository: ICLientRepository,
+    private readonly _clientMapper: ClientMapper,
+  ) {}
 
   async createClient(client: ClientRequestDTO): Promise<ClientResponseDTO> {
     try {
-      const newClient = clientFactory.createClientFromRequestDTO(client);
-      const createdClient = await this.clientRepository.create(newClient);
-      return new ClientResponseDTO(createdClient);
+      const newClient = this._clientMapper.createClientFromRequestDTO(client);
+      return await this._clientRepository.create(newClient);
     } catch (error) {
       console.error('Error creating client:', error);
       throw new Error('Failed to create client');
@@ -30,11 +37,7 @@ export class ClientService implements IClientService {
 
   async getClientById(id: number): Promise<ClientResponseDTO | null> {
     try {
-      const client = await this.clientRepository.getById(id);
-      if (!client) {
-        return null;
-      }
-      return new ClientResponseDTO(client);
+      return await this._clientRepository.getById(id);
     } catch (error) {
       console.error(`Error fetching client with ID: ${id}`, error);
       throw new Error('Failed to fetch client');
@@ -46,12 +49,8 @@ export class ClientService implements IClientService {
     client: ClientRequestDTO,
   ): Promise<ClientResponseDTO | null> {
     try {
-      const updatedClient = clientFactory.createClientFromRequestDTO(client);
-      const result = await this.clientRepository.update(id, updatedClient);
-      if (!result) {
-        return null;
-      }
-      return new ClientResponseDTO(result);
+      const newClient = this._clientMapper.createClientFromRequestDTO(client);
+      return await this._clientRepository.update(id, newClient);
     } catch (error) {
       console.error(`Error updating client with ID: ${id}`, error);
       throw new Error('Failed to update client');
@@ -60,24 +59,23 @@ export class ClientService implements IClientService {
 
   async deleteClient(id: number): Promise<ClientResponseDTO | null> {
     try {
-      const deletedClient = await this.clientRepository.delete(id);
-      if (!deletedClient) {
-        return null;
-      }
-      return new ClientResponseDTO(deletedClient);
+      return (await this._clientRepository.delete(id)) ?? null;
     } catch (error) {
       console.error(`Error deleting client with ID: ${id}`, error);
       throw new Error('Failed to delete client');
     }
   }
 
-  async getAllClients(): Promise<ClientResponseDTO[]> {
+  async searchClients(
+    search: string,
+    page: number,
+    limit: number,
+  ): Promise<ClientSearchResponseDTO | []> {
     try {
-      const clients = await this.clientRepository.getAll();
-      return clients.map((client) => new ClientResponseDTO(client));
+      return await this._clientRepository.searchByName(search, page, limit);
     } catch (error) {
-      console.error('Error fetching all clients:', error);
-      throw new Error('Failed to fetch clients');
+      console.error(`Error searching clients with query "${search}":`, error);
+      throw new Error('Failed to search clients');
     }
   }
 }

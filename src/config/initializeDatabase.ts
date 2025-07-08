@@ -1,7 +1,7 @@
 import { DataSource } from 'typeorm';
 import config from './config';
 import { Client } from 'pg';
-import * as models from '../api/models';
+import * as models from '../api/models/entity';
 
 export const client = new Client({
   host: config.postgres.host,

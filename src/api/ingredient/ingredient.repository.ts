@@ -1,5 +1,5 @@
 import { Repository } from 'typeorm';
-import { Ingredient } from '../models';
+import { Ingredient } from '../models/entity';
 
 export interface IIngredientRepository {
   findAll(): Promise<Ingredient[]>;

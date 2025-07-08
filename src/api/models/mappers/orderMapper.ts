@@ -1,12 +1,9 @@
 import { ICLientRepository } from '../../client/client.repository';
-import { Order } from '../order';
 import { OrderRequestDTO } from '../DTO/request/orderRequestDTO';
 import { Repository } from 'typeorm';
-import { State } from '../state';
-import { Line } from '../line';
 import { IProductRepository } from '../../product/product.repository';
 
-export class OrderFactory {
+export class OrderMapper {
   constructor(
     private readonly clientRepository: ICLientRepository,
     private readonly stateRepository: Repository<State>,
@@ -16,7 +13,7 @@ export class OrderFactory {
     requestDTO: OrderRequestDTO,
   ): Promise<Order> {
     try {
-      const client = await this.clientRepository.getById(requestDTO.clientId);
+      const client = await this.clientRepository.getById(requestDTO.client);
       if (!client) {
         throw new Error(`Client with ID ${requestDTO.clientId} not found`);
       }

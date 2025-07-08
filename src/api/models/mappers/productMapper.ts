@@ -2,7 +2,7 @@ import { ICategoryRepository } from '../../category/category.repository';
 import { IProductRequestDTO } from '../DTO/request/productRequestDTO';
 import { Product } from '../product';
 
-export class ProductFactory {
+export class ProductMapper {
   constructor(
     private readonly recipeRepository: IRecipeRepository,
     private readonly categoryRepository: ICategoryRepository,
@@ -13,22 +13,22 @@ export class ProductFactory {
   ): Promise<Product> {
     try {
       const product = new Product();
-      const category = await this.categoryRepository.findById(
-        requestDTO.categoryId,
+      const category = await this.categoryRepository.findByName(
+        requestDTO.category,
       );
       if (!category) {
-        throw new Error(`Category with ID: ${requestDTO.categoryId} not found`);
+        throw new Error(`Category with ID: ${requestDTO.category} not found`);
       }
       product.category = category;
       product.name = requestDTO.name;
       product.price = requestDTO.price;
       const recipes = await Promise.all(
-        requestDTO.recipesId.map(async (recipeId) => {
+        requestDTO..map(async (recipeId) => {
           const recipe = await this.recipeRepository.findById(recipeId);
           if (!recipe) {
             throw new Error(`Recipe with ID: ${recipeId} not found`);
           }
-          recipe.product = product; // Set the product reference in the recipe
+          recipe.product = product;
           return recipe;
         }),
       );

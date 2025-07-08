@@ -7,23 +7,19 @@ import {
   Product,
   Recipe,
   State,
-} from '../api/models';
+} from '../api/models/entity';
 import { OrderController } from '../api/order/order.controller';
 import { OrderRepository } from '../api/order/order.repository';
 import { OrderService } from '../api/order/order.service';
 import { AppDataSource, initializeDataSource } from './initializeDatabase';
 import { ProductRepository } from '../api/product/product.repository';
 import { ClientRepository } from '../api/client/client.repository';
-import { OrderFactory } from '../api/models/factory/orderFactory';
-import { ClientFactory } from '../api/models/factory/clientFactory';
 import { ClientService } from '../api/client/client.service';
 import { ClientController } from '../api/client/client.controller';
 import { CategoryRepository } from '../api/category/category.repository';
 import { IngredientRepository } from '../api/ingredient/ingredient.repository';
-import { ProductFactory } from '../api/models/factory/productFactory';
 import { ProductService } from '../api/product/product.service';
 import { ProductController } from '../api/product/product.controller';
-import { IngredientFactory } from '../api/models/factory/ingredientFactory';
 import { IngredientService } from '../api/ingredient/ingredient.service';
 import { IngredientController } from '../api/ingredient/ingredient.controller';
 
@@ -98,17 +94,3 @@ export const productController = new ProductController(productService);
 export const ingredientController = new IngredientController(ingredientService);
 // Factory
 
-export const orderFactory = new OrderFactory(
-  clientRepository,
-  dbStateRepository,
-  productRepository,
-);
-
-export const clientFactory = new ClientFactory();
-
-export const productFactory = new ProductFactory(
-  dbRecipeRepository,
-  categoryRepository,
-);
-
-export const ingredientFactory = new IngredientFactory();

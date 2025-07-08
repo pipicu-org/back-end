@@ -1,4 +1,4 @@
-import { Product } from '../../product';
+import { Product } from '../../entity/product';
 
 export interface IProductResponseDTO {
   id: number;

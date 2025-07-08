@@ -1,14 +1,6 @@
-import { Client } from '../../client';
+import { Client } from '../../entity/client';
 
-export interface IClientRequestDTO {
-  id: number;
-  name: string;
-  phone: string;
-  address: string;
-  facebookusername: string | null;
-  instagramusername: string | null;
-}
-export class ClientResponseDTO implements IClientRequestDTO {
+export class ClientResponseDTO {
   id: number;
   name: string;
   phone: string;

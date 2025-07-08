@@ -1,6 +1,6 @@
-import { orderFactory } from '../../config';
 import { OrderRequestDTO } from '../models/DTO/request/orderRequestDTO';
 import { OrderResponseDTO } from '../models/DTO/response/orderResponseDTO';
+import { Order } from '../models/entity';
 import { IOrderRepository } from './order.repository';
 
 export interface IOrderService {
@@ -12,31 +12,21 @@ export interface IOrderService {
 }
 
 export class OrderService implements IOrderService {
-  constructor(
-    private readonly orderRepository: IOrderRepository) {}
+  constructor(private readonly _orderRepository: IOrderRepository) {}
   async create(orderRequestDTO: OrderRequestDTO): Promise<OrderResponseDTO> {
     try {
-      const newOrder =
-        await orderFactory.createOrderFromRequestDTO(orderRequestDTO);
-      const order = await this.orderRepository.create(newOrder);
-      return new OrderResponseDTO(order);
+      return await this._orderRepository.create();
     } catch (error) {
       console.error('Error creating order:', error);
       throw new Error('Failed to create order');
     }
   }
 
-  async get(id: number): Promise<OrderResponseDTO> {
-    try {
-      const order = await this.orderRepository.getById(id);
-      if (!order) {
-        throw new Error(`Order with ID: ${id} not found`);
-      }
-      return new OrderResponseDTO(order);
-    } catch (error) {
-      console.error('Error fetching order:', error);
-      throw new Error('Failed to fetch order');
-    }
+  async get(id: number): Promise<Order | null> {
+      return await this._orderRepository.getById(id)
+      .then(order => {
+        order.
+      });
   }
 
   async update(

@@ -1,5 +1,5 @@
 import { Repository } from 'typeorm';
-import { Order } from '../models';
+import { Order } from '../models/entity';
 
 export interface IOrderRepository {
   create(order: Partial<Order>): Promise<Order>;

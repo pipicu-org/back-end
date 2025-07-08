@@ -1,4 +1,4 @@
-import { Order } from '../../order';
+import { Order } from '../../entity/order';
 
 interface IOrderResponseDTO {
   id: string;

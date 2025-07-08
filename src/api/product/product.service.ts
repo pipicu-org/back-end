@@ -1,5 +1,5 @@
 import { productFactory } from '../../config';
-import { Product } from '../models';
+import { Product } from '../models/entity';
 import { ProductRequestDTO } from '../models/DTO/request/productRequestDTO';
 import { ProductResponseDTO } from '../models/DTO/response/productResponseDTO';
 import { IProductRepository } from './product.repository';

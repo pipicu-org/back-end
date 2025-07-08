@@ -1,4 +1,4 @@
-import { Ingredient } from '../../ingredient';
+import { Ingredient } from '../../entity/ingredient';
 
 interface IIngredientResponseDTO {
   id: number;

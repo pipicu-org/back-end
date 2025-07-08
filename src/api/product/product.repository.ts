@@ -1,5 +1,5 @@
 import { Repository } from 'typeorm';
-import { Product } from '../models';
+import { Product } from '../models/entity';
 
 export interface IProductRepository {
   findById(id: number): Promise<Product | null>;

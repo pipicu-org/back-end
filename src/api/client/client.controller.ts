@@ -58,9 +58,16 @@ export class ClientController {
     }
   }
 
-  async getAllClients(req: Request, res: Response, next: NextFunction) {
+  async searchClients(req: Request, res: Response, next: NextFunction) {
     try {
-      const clients = await this.clientService.getAllClients();
+      const { search, page = 1, limit = 10 } = req.query;
+      const parsedPage = parseInt(page as string, 10);
+      const parsedLimit = parseInt(limit as string, 10);
+      const clients = await this.clientService.searchClients(
+        search as string,
+        parsedPage,
+        parsedLimit,
+      );
       res.status(200).json(clients);
     } catch (error) {
       next(error);
