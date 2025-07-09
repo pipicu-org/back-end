@@ -8,6 +8,7 @@ export interface IProductRepository {
   update(id: number, product: Product): Promise<Product | null>;
   delete(id: number): Promise<Product | void>;
   getByCategoryId(categoryId: number): Promise<Product[]>;
+  getByName(name: string): Promise<Product | null>;
 }
 
 export class ProductRepository implements IProductRepository {
@@ -80,6 +81,18 @@ export class ProductRepository implements IProductRepository {
         error,
       );
       return [];
+    }
+  }
+
+  async getByName(name: string): Promise<Product | null> {
+    try {
+      const product = await this.dbProductRepository.findOne({
+        where: { name },
+      });
+      return product;
+    } catch (error) {
+      console.error(`Error finding product by name "${name}":`, error);
+      return null;
     }
   }
 }

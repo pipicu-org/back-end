@@ -15,12 +15,6 @@ interface IOrderResponseDTO {
     quantity: number;
     totalPrice: number;
     state: string;
-    note: Array<{
-      id: string;
-      description: string;
-      ingredient: string;
-      quantity: number;
-    }> | null;
   }>;
 }
 
@@ -39,12 +33,6 @@ export class OrderResponseDTO implements IOrderResponseDTO {
     quantity: number;
     totalPrice: number;
     state: string;
-    note: Array<{
-      id: string;
-      description: string;
-      ingredient: string;
-      quantity: number;
-    }> | null;
   }>;
 
   constructor(order: Order) {
@@ -62,14 +50,6 @@ export class OrderResponseDTO implements IOrderResponseDTO {
       quantity: line.quantity,
       totalPrice: parseFloat(line.totalPrice.toFixed(2)),
       state: line.preparation.state.name,
-      note: line.note
-        ? line.note.map((note) => ({
-            id: note.id.toString(),
-            description: note.description,
-            ingredient: note.ingredient.name,
-            quantity: note.quantity,
-          }))
-        : null,
     }));
   }
 }

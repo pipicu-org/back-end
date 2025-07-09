@@ -66,7 +66,7 @@ export class Order implements IOrder {
   @BeforeInsert()
   setHorarioEntrega() {
     if (!this.deliveryTime) {
-      this.deliveryTime = new Date(Date.now() + 30 * 60 * 1000); //TODO: 30 minutos despues pedidos a futuro o en el dia?
+      this.deliveryTime = new Date(Date.now() + 30 * 60 * 1000);
     }
   }
 }

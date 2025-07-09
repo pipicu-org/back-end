@@ -1,98 +1,108 @@
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { Order } from '../models/entity';
+import { OrderMapper } from '../models/mappers/orderMapper';
+import { OrderSearchResponseDTO } from '../models/DTO/response/orderSearchResponseDTO';
+import { OrderResponseDTO } from '../models/DTO/response/orderResponseDTO';
 
 export interface IOrderRepository {
-  create(order: Partial<Order>): Promise<Order>;
+  create(order: Partial<Order>): Promise<OrderResponseDTO>;
 
-  getById(id: number): Promise<Order | null>;
+  getOrdersByClientName(
+    clientName: string,
+    page?: number,
+    limit?: number,
+  ): Promise<OrderSearchResponseDTO | []>;
 
-  update(id: number, newOrder: Partial<Order>): Promise<Order | null>;
+  getById(id: number): Promise<OrderResponseDTO | null>;
 
-  delete(id: number): Promise<Order | null>;
+  update(
+    id: number,
+    newOrder: Partial<Order>,
+  ): Promise<OrderResponseDTO | null>;
 
-  getTotalPriceById(id: number): Promise<number | null>;
-  getOrdersByClientId(clientId: number): Promise<Order[]>;
+  delete(id: number): Promise<OrderResponseDTO | null>;
 }
 
 export class OrderRepository implements IOrderRepository {
-  constructor(private readonly order: Repository<Order>) {}
+  constructor(
+    private readonly _dbOrderRepository: Repository<Order>,
+    private readonly _orderMapper: OrderMapper,
+  ) {}
 
-  async create(order: Partial<Order>): Promise<Order> {
+  async create(order: Partial<Order>): Promise<OrderResponseDTO> {
     try {
-      if (!order.state) throw new Error('State should be defined');
-      if (!order.client) throw new Error('Client should be defined');
-      if (!order.lines) throw new Error('Lines should be defined');
-      const newOrder = new Order();
-      newOrder.state = order.state;
-      newOrder.client = order.client;
-      newOrder.lines = order.lines;
-      newOrder.deliveryTime = order.deliveryTime
-        ? new Date(order.deliveryTime)
-        : new Date(Date.now() + 30 * 60 * 1000);
-      newOrder.paymentMethod = order.paymentMethod ?? 'Efectivo';
-      return this.order.save(newOrder);
+      const createdOrder = await this._dbOrderRepository.save(order);
+      return this._orderMapper.orderToOrderResponseDTO(createdOrder);
     } catch (error) {
-      console.error('Error en la creacion de ordenes:', error);
-      throw new Error('No se ha podido crear la orden');
+      console.error('Error creating order:', error);
+      throw new Error('Failed to create order');
     }
   }
 
-  async getById(id: number): Promise<Order | null> {
+  async getOrdersByClientName(
+    clientName: string,
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<OrderSearchResponseDTO | []> {
     try {
-      const order = await this.order.findOneBy({ id });
-      return order;
+      const orders = await this._dbOrderRepository.findAndCount({
+        where: {
+          client: {
+            name: Like(`%${clientName}%`),
+          },
+        },
+        relations: ['client', 'state'],
+        skip: (page - 1) * limit,
+        take: limit,
+      });
+      return this._orderMapper.ordersToOrderSearchResponseDTO(
+        orders,
+        clientName,
+        page,
+        limit,
+      );
     } catch (error) {
-      console.error('Error al obtener la orden:', error);
-      throw new Error('No se ha podido obtener la orden');
+      console.error('Error fetching orders by client name:', error);
+      return [];
     }
   }
 
-  async update(id: number, newOrder: Partial<Order>): Promise<Order | null> {
+  async getById(id: number): Promise<OrderResponseDTO | null> {
     try {
-      if (!newOrder.state) throw new Error('State should be defined');
-      if (!newOrder.client) throw new Error('Client should be defined');
-      if (!newOrder.lines) throw new Error('Lines should be defined');
-      await this.order.update(id, newOrder);
-      const updatedOrder = await this.order.findOneBy({ id });
-      return updatedOrder;
+      const order = await this._dbOrderRepository.findOne({
+        where: { id },
+        relations: ['client', 'state'],
+      });
+      if (!order) return null;
+      return this._orderMapper.orderToOrderResponseDTO(order);
     } catch (error) {
-      console.error('Error al actualizar la orden:', error);
-      throw new Error('No se ha podido actualizar la orden');
+      console.error('Error fetching order by ID:', error);
+      return null;
     }
   }
 
-  async delete(id: number): Promise<Order | null> {
+  async update(
+    id: number,
+    newOrder: Partial<Order>,
+  ): Promise<OrderResponseDTO | null> {
     try {
-      const order = await this.getById(id);
-      await this.order.delete(id);
-      return order ?? null;
+      await this._dbOrderRepository.update(id, newOrder);
+      return await this.getById(id);
     } catch (error) {
-      console.error('Error al eliminar la orden:', error);
-      throw new Error('No se ha podido eliminar la orden');
+      console.error('Error updating order:', error);
+      return null;
     }
   }
 
-  async getTotalPriceById(id: number): Promise<number | null> {
+  async delete(id: number): Promise<OrderResponseDTO | null> {
     try {
       const order = await this.getById(id);
       if (!order) return null;
-      return order.lines.reduce((total, line) => total + line.totalPrice, 0);
+      await this._dbOrderRepository.delete(id);
+      return order;
     } catch (error) {
-      console.error('Error al obtener el precio total de la orden:', error);
-      throw new Error('No se ha podido obtener el precio total de la orden');
-    }
-  }
-
-  async getOrdersByClientId(clientId: number): Promise<Order[]> {
-    try {
-      const orders = await this.order.find({
-        where: { client: { id: clientId } },
-        relations: ['lines', 'state'],
-      });
-      return orders;
-    } catch (error) {
-      console.error('Error al obtener las ordenes por clientId:', error);
-      throw new Error('No se han podido obtener las ordenes por clientId');
+      console.error('Error deleting order:', error);
+      return null;
     }
   }
 }

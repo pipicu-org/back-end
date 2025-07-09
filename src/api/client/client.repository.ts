@@ -14,6 +14,7 @@ export interface ICLientRepository {
   create(client: Client): Promise<ClientResponseDTO>;
   update(id: number, client: Client): Promise<ClientResponseDTO | null>;
   delete(id: number): Promise<ClientResponseDTO | void>;
+  getClientByName(name: string): Promise<Client | null>;
 }
 
 export class ClientRepository implements ICLientRepository {
@@ -97,6 +98,18 @@ export class ClientRepository implements ICLientRepository {
       }
     } catch (error) {
       console.error(`Error deleting client with id ${id}:`, error);
+    }
+  }
+
+  async getClientByName(name: string): Promise<Client | null> {
+    try {
+      const client = await this.dbClientRepository.findOne({
+        where: { name },
+      });
+      return client;
+    } catch (error) {
+      console.error(`Error fetching client by name "${name}":`, error);
+      return null;
     }
   }
 }

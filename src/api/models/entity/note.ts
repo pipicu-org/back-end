@@ -1,17 +1,8 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
-import { Line } from './line';
-import { Ingredient } from './ingredient';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 export interface INote {
   id: number;
   description: string;
-  line: Line;
 }
 
 @Entity('Note')
@@ -24,14 +15,4 @@ export class Note implements INote {
 
   @Column({ type: 'numeric', precision: 10, scale: 2, default: 0 })
   quantity!: number;
-
-  @ManyToOne(() => Line, (line) => line.note, { nullable: false })
-  @JoinColumn([{ name: 'lineId', referencedColumnName: 'id' }])
-  line!: Line;
-
-  @ManyToOne(() => Ingredient, (ingredient) => ingredient.note, {
-    eager: true,
-  })
-  @JoinColumn([{ name: 'ingredientId', referencedColumnName: 'id' }])
-  ingredient!: Ingredient;
 }

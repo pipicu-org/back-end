@@ -22,6 +22,7 @@ import { ProductService } from '../api/product/product.service';
 import { ProductController } from '../api/product/product.controller';
 import { IngredientService } from '../api/ingredient/ingredient.service';
 import { IngredientController } from '../api/ingredient/ingredient.controller';
+import { ClientMapper } from '../api/models/mappers/clientMapper';
 
 initializeDataSource().catch((err) =>
   console.error('Error inicializando la fuente de datos', err),
@@ -60,13 +61,20 @@ export const dbIngredientRepository = AppDataSource.getRepository<Ingredient>(
   'Ingredient',
 ).extend({});
 
+// Mappers
+
+export const clientMapper = new ClientMapper();
+
 // Repositories
 
 export const orderRepository = new OrderRepository(dbOrderRepository);
 
 export const productRepository = new ProductRepository(dbProductRepository);
 
-export const clientRepository = new ClientRepository(dbClientRepository);
+export const clientRepository = new ClientRepository(
+  dbClientRepository,
+  clientMapper,
+);
 
 export const categoryRepository = new CategoryRepository(dbCategoryRepository);
 
@@ -78,7 +86,7 @@ export const ingredientRepository = new IngredientRepository(
 
 export const orderService = new OrderService(orderRepository);
 
-export const clientService = new ClientService(clientRepository);
+export const clientService = new ClientService(clientRepository, clientMapper);
 
 export const productService = new ProductService(productRepository);
 
@@ -92,5 +100,3 @@ export const clientController = new ClientController(clientService);
 export const productController = new ProductController(productService);
 
 export const ingredientController = new IngredientController(ingredientService);
-// Factory
-

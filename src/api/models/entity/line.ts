@@ -10,7 +10,6 @@ import {
 import { Order } from './order';
 import { Product } from './product';
 import { Preparation } from './preparation';
-import { Note } from './note';
 
 interface ILine {
   id: number;
@@ -51,11 +50,4 @@ export class Line implements ILine {
   })
   @JoinColumn([{ name: 'preparationId', referencedColumnName: 'id' }])
   preparation!: Preparation;
-
-  @OneToMany(() => Note, (note) => note.line, {
-    cascade: ['insert', 'update', 'remove'],
-    eager: true,
-    nullable: true,
-  })
-  note!: Note[];
 }

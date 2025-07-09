@@ -1,3 +1,5 @@
+import { Order } from '../../entity';
+
 export interface IOrderRequestDTO {
   state: string;
   client: string;
@@ -8,11 +10,6 @@ export interface IOrderRequestDTO {
   lines: Array<{
     product: string;
     quantity: number;
-    note: Array<{
-      description: string;
-      ingredient: string;
-      quantity: number;
-    }> | null;
   }>;
 }
 
@@ -26,29 +23,18 @@ export class OrderRequestDTO implements IOrderRequestDTO {
   lines: Array<{
     product: string;
     quantity: number;
-    note: Array<{
-      description: string;
-      ingredient: string;
-      quantity: number;
-    }> | null;
   }>;
 
-  constructor(orderRequestDTO: IOrderRequestDTO) {
-    this.state = orderRequestDTO.state;
-    this.client = orderRequestDTO.client;
-    this.phone = orderRequestDTO.phone;
-    this.address = orderRequestDTO.address;
-    this.deliveryTime = orderRequestDTO.deliveryTime;
-    this.paymentMethod = orderRequestDTO.paymentMethod;
-    this.lines = orderRequestDTO.lines.map((line) => ({
-      product: line.product,
+  constructor(order: Order) {
+    this.state = order.state.name;
+    this.client = order.client.name;
+    this.phone = order.client.phoneNumber;
+    this.address = order.client.address;
+    this.deliveryTime = order.deliveryTime.toISOString();
+    this.paymentMethod = order.paymentMethod;
+    this.lines = order.lines.map((line) => ({
+      product: line.product.name,
       quantity: line.quantity,
-      note:
-        line.note?.map((note) => ({
-          description: note.description,
-          ingredient: note.ingredient,
-          quantity: note.quantity,
-        })) || null,
     }));
   }
 }

@@ -21,7 +21,7 @@ export class OrderController {
       if (isNaN(id)) {
         throw new Error('Invalid order ID');
       }
-      const orders = await this.orderService.get(id);
+      const orders = await this.orderService.getById(id);
       res.status(200).json(orders);
     } catch (error) {
       next(error);
@@ -47,10 +47,21 @@ export class OrderController {
     }
   }
 
-  async getByClientId(req: Request, res: Response, next: NextFunction) {
+  async getOrdersByClientName(req: Request, res: Response, next: NextFunction) {
     try {
-      const clientId = Number(req.params.clientId);
-      const orders = await this.orderService.getByClientId(clientId);
+      const clientName = req.query.clientName as string;
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 10;
+
+      if (!clientName) {
+        throw new Error('Client name is required');
+      }
+
+      const orders = await this.orderService.getOrdersByClientName(
+        clientName,
+        page,
+        limit,
+      );
       res.status(200).json(orders);
     } catch (error) {
       next(error);

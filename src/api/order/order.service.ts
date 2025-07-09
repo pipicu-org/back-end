@@ -1,72 +1,84 @@
 import { OrderRequestDTO } from '../models/DTO/request/orderRequestDTO';
 import { OrderResponseDTO } from '../models/DTO/response/orderResponseDTO';
-import { Order } from '../models/entity';
+import { OrderSearchResponseDTO } from '../models/DTO/response/orderSearchResponseDTO';
+import { OrderMapper } from '../models/mappers/orderMapper';
 import { IOrderRepository } from './order.repository';
 
 export interface IOrderService {
   create(order: OrderRequestDTO): Promise<OrderResponseDTO>;
-  get(id: number): Promise<OrderResponseDTO>;
-  update(id: number, order: OrderRequestDTO): Promise<OrderResponseDTO>;
-  delete(id: number): Promise<OrderResponseDTO>;
-  getByClientId(clientId: number): Promise<OrderResponseDTO[]>;
+  getById(id: number): Promise<OrderResponseDTO | null>;
+  update(id: number, order: OrderRequestDTO): Promise<OrderResponseDTO | null>;
+  delete(id: number): Promise<OrderResponseDTO | null>;
+  getOrdersByClientName(
+    clientName: string,
+    page?: number,
+    limit?: number,
+  ): Promise<OrderSearchResponseDTO | []>;
 }
 
 export class OrderService implements IOrderService {
-  constructor(private readonly _orderRepository: IOrderRepository) {}
-  async create(orderRequestDTO: OrderRequestDTO): Promise<OrderResponseDTO> {
+  constructor(
+    private readonly _orderRepository: IOrderRepository,
+    private readonly _orderMapper: OrderMapper,
+  ) {}
+
+  async create(orderRequest: OrderRequestDTO): Promise<OrderResponseDTO> {
     try {
-      return await this._orderRepository.create();
+      const order =
+        await this._orderMapper.orderRequestDTOToOrder(orderRequest);
+      return await this._orderRepository.create(order);
     } catch (error) {
       console.error('Error creating order:', error);
       throw new Error('Failed to create order');
     }
   }
 
-  async get(id: number): Promise<Order | null> {
-      return await this._orderRepository.getById(id)
-      .then(order => {
-        order.
-      });
+  async getById(id: number): Promise<OrderResponseDTO | null> {
+    try {
+      return await this._orderRepository.getById(id);
+    } catch (error) {
+      console.error(`Error fetching order with id ${id}:`, error);
+      throw new Error('Failed to fetch order');
+    }
   }
 
   async update(
     id: number,
-    orderRequestDTO: OrderRequestDTO,
-  ): Promise<OrderResponseDTO> {
+    orderRequest: OrderRequestDTO,
+  ): Promise<OrderResponseDTO | null> {
     try {
-      const updatedOrder =
-        await orderFactory.createOrderFromRequestDTO(orderRequestDTO);
-      const order = await this.orderRepository.update(id, updatedOrder);
-      if (!order) {
-        throw new Error(`Order with ID: ${id} not found`);
-      }
-      return new OrderResponseDTO(order);
+      const order =
+        await this._orderMapper.orderRequestDTOToOrder(orderRequest);
+      return await this._orderRepository.update(id, order);
     } catch (error) {
-      console.error('Error updating order:', error);
+      console.error(`Error updating order with id ${id}:`, error);
       throw new Error('Failed to update order');
     }
   }
 
-  async delete(id: number): Promise<OrderResponseDTO> {
+  async delete(id: number): Promise<OrderResponseDTO | null> {
     try {
-      const order = await this.orderRepository.delete(id);
-      if (!order) {
-        throw new Error(`Order with ID: ${id} not found`);
-      }
-      return new OrderResponseDTO(order);
+      return await this._orderRepository.delete(id);
     } catch (error) {
-      console.error('Error deleting order:', error);
+      console.error(`Error deleting order with id ${id}:`, error);
       throw new Error('Failed to delete order');
     }
   }
 
-  async getByClientId(clientId: number): Promise<OrderResponseDTO[]> {
+  async getOrdersByClientName(
+    clientName: string,
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<OrderSearchResponseDTO | []> {
     try {
-      const orders = await this.orderRepository.getOrdersByClientId(clientId);
-      return orders.map((order) => new OrderResponseDTO(order));
+      return await this._orderRepository.getOrdersByClientName(
+        clientName,
+        page,
+        limit,
+      );
     } catch (error) {
-      console.error('Error fetching orders by client ID:', error);
-      throw new Error('Failed to fetch orders by client ID');
+      console.error(`Error fetching orders for client ${clientName}:`, error);
+      return [];
     }
   }
 }

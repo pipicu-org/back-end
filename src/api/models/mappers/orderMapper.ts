@@ -1,53 +1,84 @@
 import { ICLientRepository } from '../../client/client.repository';
-import { OrderRequestDTO } from '../DTO/request/orderRequestDTO';
 import { Repository } from 'typeorm';
 import { IProductRepository } from '../../product/product.repository';
+import { Line, Order, State } from '../entity';
+import { OrderSearchResponseDTO } from '../DTO/response/orderSearchResponseDTO';
+import { OrderResponseDTO } from '../DTO/response/orderResponseDTO';
+import { OrderRequestDTO } from '../DTO/request/orderRequestDTO';
 
 export class OrderMapper {
   constructor(
     private readonly clientRepository: ICLientRepository,
-    private readonly stateRepository: Repository<State>,
     private readonly productRepository: IProductRepository,
+    private readonly stateRepository: Repository<State>,
   ) {}
-  public async createOrderFromRequestDTO(
-    requestDTO: OrderRequestDTO,
+
+  public ordersToOrderSearchResponseDTO(
+    resultsAndCount: [Order[], number],
+    search: string,
+    page: number,
+    limit: number,
+  ): OrderSearchResponseDTO {
+    return new OrderSearchResponseDTO(
+      search,
+      resultsAndCount[1],
+      page,
+      limit,
+      resultsAndCount[0].map((order) => ({
+        id: order.id.toString(),
+        name: order.client.name,
+        horario: order.deliveryTime.toISOString(),
+        state: order.state.name,
+        totalPrice: order.totalPrice,
+      })),
+    );
+  }
+
+  public orderToOrderResponseDTO(order: Order): OrderResponseDTO {
+    return new OrderResponseDTO(order);
+  }
+
+  public async orderRequestDTOToOrder(
+    orderRequest: OrderRequestDTO,
   ): Promise<Order> {
-    try {
-      const client = await this.clientRepository.getById(requestDTO.client);
-      if (!client) {
-        throw new Error(`Client with ID ${requestDTO.clientId} not found`);
-      }
-      const state = await this.stateRepository.findOne({
-        where: { name: 'Pendiente' },
-      });
-      if (!state) {
-        throw new Error(`No hay un estado 'Pendiente' definido`);
-      }
-      const horarioEntrega = requestDTO.horarioEntrega;
-
-      const lines: Line[] = await Promise.all(
-        requestDTO.lines.map(async (line) => {
-          const lineItem = new Line();
-          const product = await this.productRepository.findById(line.productId);
-          if (!product) {
-            throw new Error(`Product with ID ${line.productId} not found`);
-          }
-          lineItem.product = product;
-          lineItem.quantity = line.quantity;
-          lineItem.totalPrice = product.price * line.quantity;
-          return lineItem;
-        }),
-      );
-
-      const order = new Order();
-      order.state = state;
-      order.client = client;
-      order.lines = lines;
-      order.horarioEntrega = horarioEntrega;
-      return order;
-    } catch (error) {
-      console.error('Error creating order from request DTO:', error);
-      throw new Error('Failed to create order');
+    const order = new Order();
+    const client = await this.clientRepository.getClientByName(
+      orderRequest.client,
+    );
+    if (!client) {
+      throw new Error(`Client with name ${orderRequest.client} not found`);
     }
+    order.client = client;
+    order.deliveryTime = new Date(orderRequest.deliveryTime);
+    order.totalPrice = await orderRequest.lines.reduce(async (total, line) => {
+      const product = await this.productRepository.getByName(line.product);
+      if (!product) {
+        throw new Error(`Product with name ${line.product} not found`);
+      }
+      return (await total) + product.price * line.quantity;
+    }, Promise.resolve(0));
+    order.paymentMethod = orderRequest.paymentMethod;
+    const state = await this.stateRepository.findOneBy({
+      name: orderRequest.state,
+    });
+    if (!state) {
+      throw new Error(`State with name ${orderRequest.state} not found`);
+    }
+    order.state = state;
+    order.createdAt = new Date();
+    order.lines = await Promise.all(
+      orderRequest.lines.map(async (line) => {
+        const entityLine = new Line();
+        const product = await this.productRepository.getByName(line.product);
+        if (!product) {
+          throw new Error(`Product with name ${line.product} not found`);
+        }
+        entityLine.product = product;
+        entityLine.quantity = line.quantity;
+        entityLine.totalPrice = product.price * line.quantity;
+        return entityLine;
+      }),
+    );
+    return order;
   }
 }
