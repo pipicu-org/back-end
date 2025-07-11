@@ -21,8 +21,6 @@ export class Category implements ICategory {
   @Unique(['name'])
   name!: string;
 
-  @OneToMany(() => Product, (product) => product.category, {
-    eager: true,
-  })
+  @OneToMany(() => Product, (product) => product.category, {})
   products!: Product[];
 }

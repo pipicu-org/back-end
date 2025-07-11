@@ -1,6 +1,7 @@
-import { ingredientFactory, ingredientRepository } from '../../config';
+import { ingredientRepository } from '../../config';
 import { IngredientRequestDTO } from '../models/DTO/request/ingredientRequestDTO';
 import { IngredientResponseDTO } from '../models/DTO/response/ingredientResponseDTO';
+import { IngredientMapper } from '../models/mappers/ingredientMapper';
 import { IIngredientRepository } from './ingredient.repository';
 
 export interface IIngredientService {
@@ -19,16 +20,16 @@ export interface IIngredientService {
 export class IngredientService implements IIngredientService {
   constructor(
     private readonly repository: IIngredientRepository = ingredientRepository,
+    private readonly _ingredientMapper: IngredientMapper,
   ) {}
 
   async createIngredient(
     requestDTO: IngredientRequestDTO,
   ): Promise<IngredientResponseDTO> {
     try {
-      const ingredient =
-        await ingredientFactory.createIngredientFromRequestDTO(requestDTO);
+      const ingredient = this._ingredientMapper.requestDTOToEntity(requestDTO);
       const createdIngredient = await this.repository.create(ingredient);
-      return new IngredientResponseDTO(createdIngredient);
+      return this._ingredientMapper.toResponseDTO(createdIngredient);
     } catch (error) {
       throw new Error(`Error creating ingredient: ${error}`);
     }
@@ -63,7 +64,7 @@ export class IngredientService implements IIngredientService {
   ): Promise<IngredientResponseDTO | null> {
     try {
       const updatedIngredient =
-        await ingredientFactory.createIngredientFromRequestDTO(requestDTO);
+        this._ingredientMapper.requestDTOToEntity(requestDTO);
       const ingredient = await this.repository.update(id, updatedIngredient);
       if (!ingredient) {
         return null;

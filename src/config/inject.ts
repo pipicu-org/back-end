@@ -23,6 +23,9 @@ import { ProductController } from '../api/product/product.controller';
 import { IngredientService } from '../api/ingredient/ingredient.service';
 import { IngredientController } from '../api/ingredient/ingredient.controller';
 import { ClientMapper } from '../api/models/mappers/clientMapper';
+import { OrderMapper } from '../api/models/mappers/orderMapper';
+import { ProductMapper } from '../api/models/mappers/productMapper';
+import { IngredientMapper } from '../api/models/mappers/ingredientMapper';
 
 initializeDataSource().catch((err) =>
   console.error('Error inicializando la fuente de datos', err),
@@ -65,11 +68,27 @@ export const dbIngredientRepository = AppDataSource.getRepository<Ingredient>(
 
 export const clientMapper = new ClientMapper();
 
+export const orderMapper = new OrderMapper(
+  dbClientRepository,
+  dbProductRepository,
+  dbStateRepository,
+);
+
+export const productMapper = new ProductMapper(dbCategoryRepository);
+
+export const ingredientMapper = new IngredientMapper();
+
 // Repositories
 
-export const orderRepository = new OrderRepository(dbOrderRepository);
+export const orderRepository = new OrderRepository(
+  dbOrderRepository,
+  orderMapper,
+);
 
-export const productRepository = new ProductRepository(dbProductRepository);
+export const productRepository = new ProductRepository(
+  dbProductRepository,
+  productMapper,
+);
 
 export const clientRepository = new ClientRepository(
   dbClientRepository,
@@ -84,13 +103,19 @@ export const ingredientRepository = new IngredientRepository(
 
 // Services
 
-export const orderService = new OrderService(orderRepository);
+export const orderService = new OrderService(orderRepository, orderMapper);
 
 export const clientService = new ClientService(clientRepository, clientMapper);
 
-export const productService = new ProductService(productRepository);
+export const productService = new ProductService(
+  productRepository,
+  productMapper,
+);
 
-export const ingredientService = new IngredientService(ingredientRepository);
+export const ingredientService = new IngredientService(
+  ingredientRepository,
+  ingredientMapper,
+);
 
 // Controllers
 export const orderController = new OrderController(orderService);

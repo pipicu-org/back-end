@@ -18,7 +18,7 @@ export const clientRouter = (controller = clientController): Router => {
   router.delete(`${PATH}/:id`, (req, res, next) => {
     controller.deleteClient(req, res, next);
   });
-  router.get(`${PATH}?:search&:page&:limit`, (req, res, next) => {
+  router.get(`${PATH}`, (req, res, next) => {
     controller.searchClients(req, res, next);
   });
 

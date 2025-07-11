@@ -5,7 +5,7 @@ import { productController } from '../../config';
 
 export const productRouter = (controller = productController): Router => {
   const router = Router();
-  router.get(`${PATH}?:search&:page&:limit`, (req, res, next) =>
+  router.get(`${PATH}`, (req, res, next) =>
     controller.searchProducts(req, res, next),
   );
   router.get(`${PATH}/:id`, (req, res, next) =>

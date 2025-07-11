@@ -31,6 +31,7 @@ export class Product {
   @OneToOne(() => Recipe, (recipe) => recipe.product, {
     eager: true,
     cascade: ['insert', 'update', 'remove'],
+    nullable: false,
   })
   @JoinColumn([{ name: 'recipeId', referencedColumnName: 'id' }])
   recipe!: Recipe;

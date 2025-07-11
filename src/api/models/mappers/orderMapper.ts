@@ -1,15 +1,13 @@
-import { ICLientRepository } from '../../client/client.repository';
 import { Repository } from 'typeorm';
-import { IProductRepository } from '../../product/product.repository';
-import { Line, Order, State } from '../entity';
+import { Client, Line, Order, Product, State } from '../entity';
 import { OrderSearchResponseDTO } from '../DTO/response/orderSearchResponseDTO';
 import { OrderResponseDTO } from '../DTO/response/orderResponseDTO';
 import { OrderRequestDTO } from '../DTO/request/orderRequestDTO';
 
 export class OrderMapper {
   constructor(
-    private readonly clientRepository: ICLientRepository,
-    private readonly productRepository: IProductRepository,
+    private readonly clientRepository: Repository<Client>,
+    private readonly productRepository: Repository<Product>,
     private readonly stateRepository: Repository<State>,
   ) {}
 
@@ -42,16 +40,18 @@ export class OrderMapper {
     orderRequest: OrderRequestDTO,
   ): Promise<Order> {
     const order = new Order();
-    const client = await this.clientRepository.getClientByName(
-      orderRequest.client,
-    );
+    const client = await this.clientRepository.findOneBy({
+      name: orderRequest.client,
+    });
     if (!client) {
       throw new Error(`Client with name ${orderRequest.client} not found`);
     }
     order.client = client;
     order.deliveryTime = new Date(orderRequest.deliveryTime);
     order.totalPrice = await orderRequest.lines.reduce(async (total, line) => {
-      const product = await this.productRepository.getByName(line.product);
+      const product = await this.productRepository.findOneBy({
+        name: line.product,
+      });
       if (!product) {
         throw new Error(`Product with name ${line.product} not found`);
       }
@@ -69,7 +69,9 @@ export class OrderMapper {
     order.lines = await Promise.all(
       orderRequest.lines.map(async (line) => {
         const entityLine = new Line();
-        const product = await this.productRepository.getByName(line.product);
+        const product = await this.productRepository.findOneBy({
+          name: line.product,
+        });
         if (!product) {
           throw new Error(`Product with name ${line.product} not found`);
         }

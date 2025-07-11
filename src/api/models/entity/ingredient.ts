@@ -33,8 +33,6 @@ export class Ingredient implements IIngredient {
   })
   price!: number;
 
-  @ManyToMany(() => Recipe, (recipe) => recipe.ingredients, {
-    eager: true,
-  })
+  @ManyToMany(() => Recipe, (recipe) => recipe.ingredients, {})
   recipes!: Recipe[];
 }

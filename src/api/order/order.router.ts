@@ -19,7 +19,7 @@ export default function getRouter(controller = orderController): Router {
   router.delete(`${PATH}/:id`, (req, res, next) =>
     controller.delete(req, res, next),
   );
-  router.get(`${PATH}/reception?:search&:page&:limit`, (req, res, next) =>
+  router.get(`${PATH}/reception`, (req, res, next) =>
     controller.getOrdersByClientName(req, res, next),
   );
 

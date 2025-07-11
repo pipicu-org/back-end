@@ -66,7 +66,8 @@ async function addPreloadData(): Promise<void> {
       .values([
         {
           name: 'Jamon',
-          price: 1.0,
+          quantity: 100,
+          price: 100,
         },
       ])
       .orIgnore()

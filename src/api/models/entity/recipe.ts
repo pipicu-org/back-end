@@ -29,9 +29,7 @@ export class Recipe implements IRecipe {
   })
   ingredients!: Ingredient[];
 
-  @OneToOne(() => Product, (product) => product.recipe, {
-    eager: true,
-  })
+  @OneToOne(() => Product, (product) => product.recipe, {})
   product!: Product;
 
   @BeforeInsert()
