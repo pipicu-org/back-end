@@ -1,12 +1,5 @@
 import { IsNotEmpty } from 'class-validator';
-import {
-  Column,
-  Entity,
-  ManyToMany,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Recipe } from './recipe';
 
 interface IIngredient {

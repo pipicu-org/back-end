@@ -1,11 +1,15 @@
-import { productFactory } from '../../config';
-import { Product } from '../models/entity';
 import { ProductRequestDTO } from '../models/DTO/request/productRequestDTO';
 import { ProductResponseDTO } from '../models/DTO/response/productResponseDTO';
 import { IProductRepository } from './product.repository';
+import { ProductSearchResponseDTO } from '../models/DTO/response/productSearchResponseDTO';
+import { ProductMapper } from '../models/mappers/productMapper';
 
 export interface IProductService {
-  getAllProducts(): Promise<ProductResponseDTO[]>;
+  getByName(
+    name: string,
+    page: number,
+    limit: number,
+  ): Promise<ProductSearchResponseDTO | []>;
   getProductById(id: number): Promise<ProductResponseDTO | null>;
   createProduct(product: ProductRequestDTO): Promise<ProductResponseDTO>;
   updateProduct(
@@ -13,53 +17,57 @@ export interface IProductService {
     product: ProductRequestDTO,
   ): Promise<ProductResponseDTO | null>;
   deleteProduct(id: number): Promise<ProductResponseDTO | null>;
-  getProductsByCategoryId(categoryId: number): Promise<ProductResponseDTO[]>;
+  getProductsByCategoryId(
+    categoryId: number,
+    page: number,
+    limit: number,
+  ): Promise<ProductSearchResponseDTO | []>;
 }
 
 export class ProductService implements IProductService {
-  constructor(private readonly productRepository: IProductRepository) {}
-
-  async getAllProducts(): Promise<ProductResponseDTO[]> {
-    const products = await this.productRepository.findAll();
-    return products.map((product: Product) => new ProductResponseDTO(product));
-  }
+  constructor(
+    private readonly productRepository: IProductRepository,
+    private readonly _productMapper: ProductMapper,
+  ) {}
 
   async getProductById(id: number): Promise<ProductResponseDTO | null> {
-    const product = await this.productRepository.findById(id);
-    return product ? new ProductResponseDTO(product) : null;
+    return this.productRepository.findById(id);
   }
 
-  async createProduct(
-    productRequestDTO: ProductRequestDTO,
-  ): Promise<ProductResponseDTO> {
-    const product =
-      await productFactory.createProductFromRequestDTO(productRequestDTO);
-    const createdProduct = await this.productRepository.create(product);
-    return new ProductResponseDTO(createdProduct);
+  async getByName(
+    name: string,
+    page: number,
+    limit: number,
+  ): Promise<ProductSearchResponseDTO | []> {
+    return this.productRepository.getByName(name, page, limit);
+  }
+
+  async createProduct(product: ProductRequestDTO): Promise<ProductResponseDTO> {
+    const productEntity = await this._productMapper.requestDTOToEntity(product);
+    return await this.productRepository.create(productEntity);
   }
 
   async updateProduct(
     id: number,
-    productRequestDTO: ProductRequestDTO,
+    product: ProductRequestDTO,
   ): Promise<ProductResponseDTO | null> {
-    const productToUpdate =
-      await productFactory.createProductFromRequestDTO(productRequestDTO);
-    const updatedProduct = await this.productRepository.update(
-      id,
-      productToUpdate,
-    );
-    return updatedProduct ? new ProductResponseDTO(updatedProduct) : null;
+    const productEntity = await this._productMapper.requestDTOToEntity(product);
+    return this.productRepository.update(id, productEntity);
   }
 
   async deleteProduct(id: number): Promise<ProductResponseDTO | null> {
-    const deletedProduct = await this.productRepository.delete(id);
-    return deletedProduct ? new ProductResponseDTO(deletedProduct) : null;
+    return this.productRepository.delete(id);
   }
 
   async getProductsByCategoryId(
     categoryId: number,
-  ): Promise<ProductResponseDTO[]> {
-    const products = await this.productRepository.getByCategoryId(categoryId);
-    return products.map((product) => new ProductResponseDTO(product));
+    page: number,
+    limit: number,
+  ): Promise<ProductSearchResponseDTO | []> {
+    return await this.productRepository.getByCategoryId(
+      categoryId,
+      page,
+      limit,
+    );
   }
 }

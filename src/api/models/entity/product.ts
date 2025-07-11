@@ -11,18 +11,8 @@ import { Category } from './category';
 import { Recipe } from './recipe';
 import { Line } from './line';
 
-interface IProduct {
-  id: number;
-  category: Category;
-  name: string;
-  price: number;
-  stock: number;
-  recipe: Recipe;
-  lines: Line[];
-}
-
 @Entity('Product')
-export class Product implements IProduct {
+export class Product {
   @PrimaryGeneratedColumn()
   id!: number;
 
@@ -31,9 +21,6 @@ export class Product implements IProduct {
 
   @Column({ type: 'numeric', precision: 10, scale: 2 })
   price!: number;
-
-  @Column({ type: 'number' })
-  stock!: number;
 
   @ManyToOne(() => Category, (category) => category.products, {
     eager: true,

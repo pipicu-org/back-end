@@ -49,16 +49,16 @@ export class OrderController {
 
   async getOrdersByClientName(req: Request, res: Response, next: NextFunction) {
     try {
-      const clientName = req.query.clientName as string;
+      const search = req.query.search as string;
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
 
-      if (!clientName) {
+      if (!search) {
         throw new Error('Client name is required');
       }
 
       const orders = await this.orderService.getOrdersByClientName(
-        clientName,
+        search,
         page,
         limit,
       );

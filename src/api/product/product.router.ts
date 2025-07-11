@@ -1,12 +1,12 @@
-const PATH = '/product';
+const PATH = '/products';
 
 import { Router } from 'express';
 import { productController } from '../../config';
 
 export const productRouter = (controller = productController): Router => {
   const router = Router();
-  router.get(`${PATH}`, (req, res, next) =>
-    controller.getAllProducts(req, res, next),
+  router.get(`${PATH}?:search&:page&:limit`, (req, res, next) =>
+    controller.searchProducts(req, res, next),
   );
   router.get(`${PATH}/:id`, (req, res, next) =>
     controller.getProductById(req, res, next),
@@ -14,7 +14,7 @@ export const productRouter = (controller = productController): Router => {
   router.post(`${PATH}`, (req, res, next) =>
     controller.createProduct(req, res, next),
   );
-  router.put(`${PATH}/:id`, (req, res, next) =>
+  router.patch(`${PATH}/:id`, (req, res, next) =>
     controller.updateProduct(req, res, next),
   );
   router.delete(`${PATH}/:id`, (req, res, next) =>

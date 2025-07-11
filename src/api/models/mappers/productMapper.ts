@@ -1,42 +1,44 @@
 import { ICategoryRepository } from '../../category/category.repository';
-import { IProductRequestDTO } from '../DTO/request/productRequestDTO';
-import { Product } from '../product';
+import { ProductRequestDTO } from '../DTO/request/productRequestDTO';
+import { ProductResponseDTO } from '../DTO/response/productResponseDTO';
+import { ProductSearchResponseDTO } from '../DTO/response/productSearchResponseDTO';
+import { Ingredient, Product } from '../entity';
 
 export class ProductMapper {
-  constructor(
-    private readonly recipeRepository: IRecipeRepository,
-    private readonly categoryRepository: ICategoryRepository,
-  ) {}
+  constructor(private readonly categoryRepository: ICategoryRepository) {}
 
-  public async createProductFromRequestDTO(
-    requestDTO: IProductRequestDTO,
+  public searchToResponseDTO(
+    findAndCount: [Product[], number],
+    search: string,
+    page: number,
+    limit: number,
+  ): ProductSearchResponseDTO {
+    return new ProductSearchResponseDTO(findAndCount, search, page, limit);
+  }
+
+  public toResponseDTO(product: Product): ProductResponseDTO {
+    return new ProductResponseDTO(product);
+  }
+
+  public async requestDTOToEntity(
+    requestDTO: ProductRequestDTO,
   ): Promise<Product> {
-    try {
-      const product = new Product();
-      const category = await this.categoryRepository.findByName(
-        requestDTO.category,
-      );
-      if (!category) {
-        throw new Error(`Category with ID: ${requestDTO.category} not found`);
-      }
-      product.category = category;
-      product.name = requestDTO.name;
-      product.price = requestDTO.price;
-      const recipes = await Promise.all(
-        requestDTO..map(async (recipeId) => {
-          const recipe = await this.recipeRepository.findById(recipeId);
-          if (!recipe) {
-            throw new Error(`Recipe with ID: ${recipeId} not found`);
-          }
-          recipe.product = product;
-          return recipe;
-        }),
-      );
-      product.recipes = recipes;
-      return product;
-    } catch (error) {
-      console.error('Error creating product from request DTO:', error);
-      throw new Error('Failed to create product');
+    const product = new Product();
+    product.name = requestDTO.name;
+    product.price = requestDTO.price;
+    const category = await this.categoryRepository.findByName(
+      requestDTO.category,
+    );
+    if (!category) {
+      throw new Error(`Category with name ${requestDTO.category} not found`);
     }
+    product.category = category;
+    product.recipe.ingredients = requestDTO.ingredients.map((ingredient) => {
+      const ingredientEntity = new Ingredient();
+      ingredientEntity.name = ingredient.name;
+      ingredientEntity.quantity = ingredient.quantity;
+      return ingredientEntity;
+    });
+    return product;
   }
 }

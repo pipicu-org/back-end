@@ -1,19 +1,6 @@
-interface IProductSearchDTO {
-  search: string;
-  total: number;
-  page: number;
-  limit: number;
-  data: Array<{
-    id: string;
-    name: string;
-    category: string;
-    family: string;
-    stock: number;
-    price: number;
-  }>;
-}
+import { Product } from '../../entity';
 
-export class ProductSearchDTO implements IProductSearchDTO {
+export class ProductSearchResponseDTO {
   search: string;
   total: number;
   page: number;
@@ -22,32 +9,23 @@ export class ProductSearchDTO implements IProductSearchDTO {
     id: string;
     name: string;
     category: string;
-    family: string;
-    stock: number;
     price: number;
   }>;
 
   constructor(
+    findAndCount: [Product[], number],
     search: string,
-    total: number,
     page: number,
     limit: number,
-    data: Array<{
-      id: string;
-      name: string;
-      category: string;
-      family: string;
-      stock: number;
-      price: number;
-    }>,
   ) {
     this.search = search;
-    this.total = total;
+    this.total = findAndCount[1];
     this.page = page;
     this.limit = limit;
-    this.data = data.map((product) => ({
-      ...product,
-      stock: product.stock,
+    this.data = findAndCount[0].map((product) => ({
+      id: product.id.toString(),
+      name: product.name,
+      category: product.category.name,
       price: product.price,
     }));
   }

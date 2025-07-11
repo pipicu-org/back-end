@@ -1,20 +1,4 @@
-interface IClientSearchResponseDTO {
-  search: string;
-  total: number;
-  page: number;
-  limit: number;
-  data: Array<{
-    id: string;
-    name: string;
-    phone: string;
-    address: string;
-    instagramUsername: string | null;
-    facebookUsername: string | null;
-    lastOrder: string | null;
-  }>;
-}
-
-export class ClientSearchResponseDTO implements IClientSearchResponseDTO {
+export class ClientSearchResponseDTO {
   search: string;
   total: number;
   page: number;

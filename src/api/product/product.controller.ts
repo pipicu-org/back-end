@@ -4,10 +4,17 @@ import { ProductRequestDTO } from '../models/DTO/request/productRequestDTO';
 
 export class ProductController {
   constructor(private readonly productService: IProductService) {}
-  async getAllProducts(req: Request, res: Response, next: NextFunction) {
+  async searchProducts(req: Request, res: Response, next: NextFunction) {
     try {
-      const products = await this.productService.getAllProducts();
-      res.status(200).json(products);
+      const search = req.query.search as string;
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 10;
+      const findAndCount = await this.productService.getByName(
+        search,
+        page,
+        limit,
+      );
+      res.status(200).json(findAndCount);
     } catch (error) {
       next(error);
     }
@@ -76,8 +83,13 @@ export class ProductController {
   ) {
     try {
       const categoryId = Number(req.params.categoryId);
-      const products =
-        await this.productService.getProductsByCategoryId(categoryId);
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 10;
+      const products = await this.productService.getProductsByCategoryId(
+        categoryId,
+        page,
+        limit,
+      );
       res.status(200).json(products);
     } catch (error) {
       next(error);

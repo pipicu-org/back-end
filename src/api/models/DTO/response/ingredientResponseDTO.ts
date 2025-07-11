@@ -1,12 +1,6 @@
 import { Ingredient } from '../../entity/ingredient';
 
-interface IIngredientResponseDTO {
-  id: number;
-  name: string;
-  price: number;
-}
-
-export class IngredientResponseDTO implements IIngredientResponseDTO {
+export class IngredientResponseDTO {
   id: number;
   name: string;
   price: number;

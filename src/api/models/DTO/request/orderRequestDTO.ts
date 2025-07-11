@@ -1,19 +1,6 @@
 import { Order } from '../../entity';
 
-export interface IOrderRequestDTO {
-  state: string;
-  client: string;
-  phone: string;
-  address: string;
-  deliveryTime: string;
-  paymentMethod: string;
-  lines: Array<{
-    product: string;
-    quantity: number;
-  }>;
-}
-
-export class OrderRequestDTO implements IOrderRequestDTO {
+export class OrderRequestDTO {
   state: string;
   client: string;
   phone: string;

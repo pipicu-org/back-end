@@ -1,4 +1,6 @@
 import {
+  BeforeInsert,
+  BeforeUpdate,
   Column,
   Entity,
   ManyToMany,
@@ -31,4 +33,13 @@ export class Recipe implements IRecipe {
     eager: true,
   })
   product!: Product;
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  calculateTotalPrice(): void {
+    this.totalPrice = this.ingredients.reduce(
+      (total, ingredient) => total + ingredient.price,
+      0,
+    );
+  }
 }
