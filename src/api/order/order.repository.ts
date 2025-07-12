@@ -11,7 +11,7 @@ export interface IOrderRepository {
     clientName: string,
     page?: number,
     limit?: number,
-  ): Promise<OrderSearchResponseDTO | []>;
+  ): Promise<OrderSearchResponseDTO>;
 
   getById(id: number): Promise<OrderResponseDTO | null>;
 
@@ -43,18 +43,15 @@ export class OrderRepository implements IOrderRepository {
     clientName: string,
     page: number = 1,
     limit: number = 10,
-  ): Promise<OrderSearchResponseDTO | []> {
+  ): Promise<OrderSearchResponseDTO> {
     try {
-      const orders = await this._dbOrderRepository.findAndCount({
-        where: {
-          client: {
-            name: Like(`%${clientName}%`),
-          },
-        },
-        relations: ['client', 'state'],
-        skip: (page - 1) * limit,
-        take: limit,
-      });
+      const orders = await this._dbOrderRepository.createQueryBuilder('order')
+        .leftJoinAndSelect('order.client', 'client')
+        .leftJoinAndSelect('order.state', 'state')
+        .where('client.name LIKE :name', { name: `%${clientName}%` })
+        .skip((page - 1) * limit)
+        .take(limit)
+        .getManyAndCount();
       return this._orderMapper.ordersToOrderSearchResponseDTO(
         orders,
         clientName,
@@ -63,7 +60,7 @@ export class OrderRepository implements IOrderRepository {
       );
     } catch (error) {
       console.error('Error fetching orders by client name:', error);
-      return [];
+      throw new Error('Failed to fetch orders by client name');
     }
   }
 

@@ -13,7 +13,7 @@ export interface IOrderService {
     clientName: string,
     page?: number,
     limit?: number,
-  ): Promise<OrderSearchResponseDTO | []>;
+  ): Promise<OrderSearchResponseDTO>;
 }
 
 export class OrderService implements IOrderService {
@@ -69,7 +69,7 @@ export class OrderService implements IOrderService {
     clientName: string,
     page: number = 1,
     limit: number = 10,
-  ): Promise<OrderSearchResponseDTO | []> {
+  ): Promise<OrderSearchResponseDTO> {
     try {
       return await this._orderRepository.getOrdersByClientName(
         clientName,
@@ -78,7 +78,7 @@ export class OrderService implements IOrderService {
       );
     } catch (error) {
       console.error(`Error fetching orders for client ${clientName}:`, error);
-      return [];
+      throw error;
     }
   }
 }
