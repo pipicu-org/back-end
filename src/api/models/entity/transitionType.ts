@@ -6,7 +6,7 @@ interface ITransitionType {
   name: string;
   transitions: Transition[];
 }
-@Entity('Transition_type')
+@Entity('TransitionType')
 export class TransitionType implements ITransitionType {
   @PrimaryGeneratedColumn()
   id!: number;

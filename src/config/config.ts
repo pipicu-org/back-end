@@ -25,6 +25,5 @@ const config: Config = {
     database: process.env.POSTGRES_DB ?? 'pipicucu',
   },
 };
-console.log(config.postgres.host);
 
 export default config;
