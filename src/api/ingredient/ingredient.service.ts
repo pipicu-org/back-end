@@ -14,7 +14,7 @@ export interface IIngredientService {
     search: string,
     page: number,
     limit: number,
-  ): Promise<IngredientSearchResponseDTO | []>;
+  ): Promise<IngredientSearchResponseDTO | null>;
   updateIngredient(
     id: number,
     requestDTO: IngredientRequestDTO,
@@ -56,14 +56,9 @@ export class IngredientService implements IIngredientService {
     search: string,
     page: number,
     limit: number,
-  ): Promise<IngredientSearchResponseDTO | []> {
+  ): Promise<IngredientSearchResponseDTO | null> {
     try {
-      const results = await this.repository.searchIngredient(
-        search,
-        page,
-        limit,
-      );
-      return Array.isArray(results) ? results : [];
+      return await this.repository.searchIngredient(search, page, limit);
     } catch (error) {
       throw new Error(`Error fetching all ingredients: ${error}`);
     }

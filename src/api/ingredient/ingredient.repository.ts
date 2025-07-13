@@ -8,7 +8,7 @@ export interface IIngredientRepository {
     search: string,
     page: number,
     limit: number,
-  ): Promise<IngredientSearchResponseDTO | []>;
+  ): Promise<IngredientSearchResponseDTO | null>;
   findById(id: number): Promise<Ingredient | null>;
   create(ingredient: Ingredient): Promise<Ingredient>;
   update(id: number, ingredient: Ingredient): Promise<Ingredient | null>;
@@ -25,7 +25,7 @@ export class IngredientRepository implements IIngredientRepository {
     search: string,
     page: number,
     limit: number,
-  ): Promise<IngredientSearchResponseDTO | []> {
+  ): Promise<IngredientSearchResponseDTO | null> {
     try {
       const results = await this.dbIngredientRepository
         .createQueryBuilder('ingredient')
@@ -41,7 +41,7 @@ export class IngredientRepository implements IIngredientRepository {
       );
     } catch (error) {
       console.error('Error fetching all ingredients:', error);
-      return [];
+      return null;
     }
   }
 

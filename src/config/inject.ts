@@ -102,6 +102,7 @@ export const categoryRepository = new CategoryRepository(dbCategoryRepository);
 
 export const ingredientRepository = new IngredientRepository(
   dbIngredientRepository,
+  ingredientMapper,
 );
 
 // Services
