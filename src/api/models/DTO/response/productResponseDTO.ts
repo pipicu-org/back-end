@@ -13,8 +13,12 @@ export class ProductResponseDTO {
     totalPrice: number;
     ingredients: Array<{
       id: number;
-      name: string;
       quantity: number;
+      ingredient: {
+        id: number;
+        name: string;
+        price: number;
+      };
     }>;
   };
 
@@ -29,10 +33,14 @@ export class ProductResponseDTO {
     this.recipe = {
       id: product.recipe.id,
       totalPrice: product.recipe.totalPrice,
-      ingredients: product.recipe.ingredients.map((ingredient) => ({
-        id: ingredient.id,
-        name: ingredient.name,
-        quantity: ingredient.quantity,
+      ingredients: product.recipe.recipeIngredients.map((ingredientsList) => ({
+        id: ingredientsList.id,
+        quantity: ingredientsList.quantity,
+        ingredient: {
+          id: ingredientsList.ingredient.id,
+          name: ingredientsList.ingredient.name,
+          price: ingredientsList.ingredient.price,
+        },
       })),
     };
   }

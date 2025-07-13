@@ -1,5 +1,6 @@
 import { IngredientRequestDTO } from '../DTO/request/ingredientRequestDTO';
 import { IngredientResponseDTO } from '../DTO/response/ingredientResponseDTO';
+import { IngredientSearchResponseDTO } from '../DTO/response/ingredientSearchResponseDTO';
 import { Ingredient } from '../entity';
 
 export class IngredientMapper {
@@ -12,5 +13,32 @@ export class IngredientMapper {
     ingredient.name = requestDTO.name;
     ingredient.price = requestDTO.price;
     return ingredient;
+  }
+
+  public toEntity(ingredient: IngredientResponseDTO): Ingredient {
+    const entity = new Ingredient();
+    entity.id = ingredient.id;
+    entity.name = ingredient.name;
+    entity.price = ingredient.price;
+    return entity;
+  }
+
+  public createSearchToIngredientSearchDTO(
+    resultsAndCount: [Ingredient[], number],
+    search: string,
+    page: number,
+    limit: number,
+  ): IngredientSearchResponseDTO {
+    return new IngredientSearchResponseDTO(
+      search,
+      resultsAndCount[1],
+      page,
+      limit,
+      resultsAndCount[0].map((ingredient) => ({
+        id: ingredient.id.toString(),
+        name: ingredient.name,
+        price: ingredient.price,
+      })),
+    );
   }
 }

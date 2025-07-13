@@ -3,9 +3,13 @@ import { ProductRequestDTO } from '../DTO/request/productRequestDTO';
 import { ProductResponseDTO } from '../DTO/response/productResponseDTO';
 import { ProductSearchResponseDTO } from '../DTO/response/productSearchResponseDTO';
 import { Category, Ingredient, Product, Recipe } from '../entity';
+import { RecipeIngredients } from '../entity/recipeIngredients';
 
 export class ProductMapper {
-  constructor(private readonly categoryRepository: Repository<Category>) {}
+  constructor(
+    private readonly categoryRepository: Repository<Category>,
+    private readonly _ingredientRepository: Repository<Ingredient>,
+  ) {}
 
   public searchToResponseDTO(
     findAndCount: [Product[], number],
@@ -37,18 +41,23 @@ export class ProductMapper {
     }
     product.category = category;
     const recipe = new Recipe();
-    recipe.ingredients = requestDTO.ingredients.map((ingredient) => {
-      const ingredientEntity = new Ingredient();
-      ingredientEntity.name = ingredient.name;
-      ingredientEntity.quantity = ingredient.quantity;
-      ingredientEntity.price = ingredient.price;
-      return ingredientEntity;
-    });
-    recipe.totalPrice = requestDTO.ingredients.reduce(
-      (total, ingredient) => total + ingredient.quantity * ingredient.price,
-      0,
+    const recipeIngredients = await Promise.all(
+      requestDTO.ingredients.map(async (ingredient) => {
+        const ingredientEntity = await this._ingredientRepository.findOneBy({
+          name: ingredient.name,
+        });
+        if (!ingredientEntity) {
+          throw new Error(`Ingredient with name ${ingredient.name} not found`);
+        }
+        const recipeIngredient = new RecipeIngredients();
+        recipeIngredient.quantity = ingredient.quantity;
+        recipeIngredient.ingredient = ingredientEntity;
+        return recipeIngredient;
+      }),
     );
+    recipe.recipeIngredients = recipeIngredients;
     product.recipe = recipe;
+    console.log(product);
     return product;
   }
 }

@@ -1,6 +1,7 @@
 import { ingredientRepository } from '../../config';
 import { IngredientRequestDTO } from '../models/DTO/request/ingredientRequestDTO';
 import { IngredientResponseDTO } from '../models/DTO/response/ingredientResponseDTO';
+import { IngredientSearchResponseDTO } from '../models/DTO/response/ingredientSearchResponseDTO';
 import { IngredientMapper } from '../models/mappers/ingredientMapper';
 import { IIngredientRepository } from './ingredient.repository';
 
@@ -9,7 +10,11 @@ export interface IIngredientService {
     requestDTO: IngredientRequestDTO,
   ): Promise<IngredientResponseDTO>;
   getIngredientById(id: number): Promise<IngredientResponseDTO | null>;
-  getAllIngredients(): Promise<IngredientResponseDTO[]>;
+  searchIngredients(
+    search: string,
+    page: number,
+    limit: number,
+  ): Promise<IngredientSearchResponseDTO | []>;
   updateIngredient(
     id: number,
     requestDTO: IngredientRequestDTO,
@@ -47,12 +52,18 @@ export class IngredientService implements IIngredientService {
     }
   }
 
-  async getAllIngredients(): Promise<IngredientResponseDTO[]> {
+  async searchIngredients(
+    search: string,
+    page: number,
+    limit: number,
+  ): Promise<IngredientSearchResponseDTO | []> {
     try {
-      const ingredients = await this.repository.findAll();
-      return ingredients.map(
-        (ingredient) => new IngredientResponseDTO(ingredient),
+      const results = await this.repository.searchIngredient(
+        search,
+        page,
+        limit,
       );
+      return Array.isArray(results) ? results : [];
     } catch (error) {
       throw new Error(`Error fetching all ingredients: ${error}`);
     }

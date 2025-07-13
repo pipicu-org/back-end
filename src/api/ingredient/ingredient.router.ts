@@ -10,13 +10,15 @@ export const ingredientRouter = (controller = ingredientController): Router => {
   router.get(`${PATH}/:id`, (req, res, next) =>
     controller.getById(req, res, next),
   );
-  router.put(`${PATH}/:id`, (req, res, next) =>
+  router.patch(`${PATH}/:id`, (req, res, next) =>
     controller.update(req, res, next),
   );
   router.delete(`${PATH}/:id`, (req, res, next) =>
     controller.delete(req, res, next),
   );
-  router.get(`${PATH}`, (req, res, next) => controller.getAll(req, res, next));
+  router.get(`${PATH}`, (req, res, next) =>
+    controller.searchIngredients(req, res, next),
+  );
 
   return router;
 };

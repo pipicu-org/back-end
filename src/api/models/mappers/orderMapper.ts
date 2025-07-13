@@ -77,7 +77,6 @@ export class OrderMapper {
         }
         entityLine.product = product;
         entityLine.quantity = line.quantity;
-        entityLine.totalPrice = product.price * line.quantity;
         return entityLine;
       }),
     );

@@ -1,4 +1,4 @@
-import { Like, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Order } from '../models/entity';
 import { OrderMapper } from '../models/mappers/orderMapper';
 import { OrderSearchResponseDTO } from '../models/DTO/response/orderSearchResponseDTO';
@@ -45,7 +45,8 @@ export class OrderRepository implements IOrderRepository {
     limit: number = 10,
   ): Promise<OrderSearchResponseDTO> {
     try {
-      const orders = await this._dbOrderRepository.createQueryBuilder('order')
+      const orders = await this._dbOrderRepository
+        .createQueryBuilder('order')
         .leftJoinAndSelect('order.client', 'client')
         .leftJoinAndSelect('order.state', 'state')
         .where('client.name LIKE :name', { name: `%${clientName}%` })

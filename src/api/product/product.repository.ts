@@ -50,7 +50,10 @@ export class ProductRepository implements IProductRepository {
       throw new Error('Could not create product');
     }
   }
-  async update(id: number, product: Product): Promise<Product | null> {
+  async update(
+    id: number,
+    product: Product,
+  ): Promise<ProductResponseDTO | null> {
     try {
       const existingProduct = await this.dbProductRepository.update(
         id,
@@ -60,7 +63,12 @@ export class ProductRepository implements IProductRepository {
         console.warn(`No product found with id ${id} to update`);
         return null;
       }
-      return await this.dbProductRepository.findOneBy({ id });
+      const updatedProduct = await this.dbProductRepository.findOneBy({ id });
+      if (!updatedProduct) {
+        console.warn(`No product found with id ${id} after update`);
+        return null;
+      }
+      return this._productMapper.toResponseDTO(updatedProduct);
     } catch (error) {
       console.error(`Error updating product with id ${id}:`, error);
       return null;

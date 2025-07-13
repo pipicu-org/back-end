@@ -49,7 +49,8 @@ export class OrderController {
 
   async getOrdersByClientName(req: Request, res: Response, next: NextFunction) {
     try {
-      const search = req.query.search ? String(req.query.search) : '';
+      const search =
+        typeof req.query.search === 'string' ? req.query.search : '';
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
 

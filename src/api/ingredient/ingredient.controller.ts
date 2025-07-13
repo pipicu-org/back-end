@@ -34,9 +34,14 @@ export class IngredientController {
     }
   }
 
-  async getAll(req: Request, res: Response, next: NextFunction) {
+  async searchIngredients(req: Request, res: Response, next: NextFunction) {
     try {
-      const ingredients = await this.ingredientService.getAllIngredients();
+      const { search, page = 1, limit = 10 } = req.query;
+      const ingredients = await this.ingredientService.searchIngredients(
+        search as string,
+        Number(page),
+        Number(limit),
+      );
       res.status(200).json(ingredients);
     } catch (error) {
       next(error);

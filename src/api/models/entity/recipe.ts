@@ -1,19 +1,19 @@
 import {
-  BeforeInsert,
-  BeforeUpdate,
   Column,
   Entity,
-  ManyToMany,
+  JoinColumn,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Ingredient } from './ingredient';
 import { Product } from './product';
+import { RecipeIngredients } from './recipeIngredients';
 
 interface IRecipe {
   id: number;
-  ingredients: Ingredient[];
   totalPrice: number;
+  recipeIngredients: RecipeIngredients[];
+  product: Product;
 }
 
 @Entity('Recipe')
@@ -24,20 +24,19 @@ export class Recipe implements IRecipe {
   @Column({ type: 'numeric', precision: 10, scale: 2 })
   totalPrice!: number;
 
-  @ManyToMany(() => Ingredient, (ingredient) => ingredient.recipes, {
-    eager: true,
+  @OneToMany(
+    () => RecipeIngredients,
+    (recipeIngredient) => recipeIngredient.recipe,
+    {
+      cascade: ['insert', 'update', 'remove'],
+      eager: true,
+    },
+  )
+  recipeIngredients!: RecipeIngredients[];
+
+  @OneToOne(() => Product, (product) => product.recipe, {
+    nullable: true,
   })
-  ingredients!: Ingredient[];
-
-  @OneToOne(() => Product, (product) => product.recipe, {})
+  @JoinColumn({ name: 'productId', referencedColumnName: 'id' })
   product!: Product;
-
-  @BeforeInsert()
-  @BeforeUpdate()
-  calculateTotalPrice(): void {
-    this.totalPrice = this.ingredients.reduce(
-      (total, ingredient) => total + ingredient.price,
-      0,
-    );
-  }
 }

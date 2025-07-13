@@ -1,8 +1,14 @@
 import { Repository } from 'typeorm';
 import { Ingredient } from '../models/entity';
+import { IngredientSearchResponseDTO } from '../models/DTO/response/ingredientSearchResponseDTO';
+import { IngredientMapper } from '../models/mappers/ingredientMapper';
 
 export interface IIngredientRepository {
-  findAll(): Promise<Ingredient[]>;
+  searchIngredient(
+    search: string,
+    page: number,
+    limit: number,
+  ): Promise<IngredientSearchResponseDTO | []>;
   findById(id: number): Promise<Ingredient | null>;
   create(ingredient: Ingredient): Promise<Ingredient>;
   update(id: number, ingredient: Ingredient): Promise<Ingredient | null>;
@@ -12,11 +18,27 @@ export interface IIngredientRepository {
 export class IngredientRepository implements IIngredientRepository {
   constructor(
     private readonly dbIngredientRepository: Repository<Ingredient>,
+    private readonly _ingredientMapper: IngredientMapper,
   ) {}
 
-  async findAll(): Promise<Ingredient[]> {
+  async searchIngredient(
+    search: string,
+    page: number,
+    limit: number,
+  ): Promise<IngredientSearchResponseDTO | []> {
     try {
-      return await this.dbIngredientRepository.find();
+      const results = await this.dbIngredientRepository
+        .createQueryBuilder('ingredient')
+        .where('ingredient.name LIKE :search', { search: `%${search}%` })
+        .skip((page - 1) * limit)
+        .take(limit)
+        .getManyAndCount();
+      return this._ingredientMapper.createSearchToIngredientSearchDTO(
+        results,
+        search,
+        page,
+        limit,
+      );
     } catch (error) {
       console.error('Error fetching all ingredients:', error);
       return [];

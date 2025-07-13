@@ -12,7 +12,7 @@ export const clientRouter = (controller = clientController): Router => {
   router.get(`${PATH}/:id`, async (req, res, next) => {
     controller.getClientById(req, res, next);
   });
-  router.put(`${PATH}/:id`, (req, res, next) => {
+  router.patch(`${PATH}/:id`, (req, res, next) => {
     controller.updateClient(req, res, next);
   });
   router.delete(`${PATH}/:id`, (req, res, next) => {

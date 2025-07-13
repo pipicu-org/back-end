@@ -6,6 +6,8 @@ interface IClient {
   id: number;
   phoneNumber: string;
   name: string;
+  facebookUsername: string | null;
+  instagramUsername: string | null;
   address: string;
 }
 @Entity('Client')

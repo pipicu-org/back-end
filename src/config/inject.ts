@@ -74,7 +74,10 @@ export const orderMapper = new OrderMapper(
   dbStateRepository,
 );
 
-export const productMapper = new ProductMapper(dbCategoryRepository);
+export const productMapper = new ProductMapper(
+  dbCategoryRepository,
+  dbIngredientRepository,
+);
 
 export const ingredientMapper = new IngredientMapper();
 

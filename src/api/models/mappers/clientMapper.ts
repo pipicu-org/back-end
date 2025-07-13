@@ -11,7 +11,6 @@ export class ClientMapper {
       client.address = requestDTO.address;
       client.facebookUsername = requestDTO.facebookUsername ?? null;
       client.instagramUsername = requestDTO.instagramUsername ?? null;
-
       return client;
     } catch (error) {
       console.error('Error creating client from request DTO:', error);
@@ -35,8 +34,12 @@ export class ClientMapper {
         name: client.name,
         phone: client.phoneNumber,
         address: client.address,
-        instagramUsername: client.instagramUsername ?? null,
-        facebookUsername: client.facebookUsername ?? null,
+        instagramUsername: client.instagramUsername
+          ? client.instagramUsername
+          : null,
+        facebookUsername: client.facebookUsername
+          ? client.facebookUsername
+          : null,
         lastOrder:
           client.orders.length > 0
             ? client.orders[client.orders.length - 1].id.toString()

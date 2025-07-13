@@ -10,3 +10,4 @@ export * from './state';
 export * from './transition';
 export * from './transitionType';
 export * from './note';
+export * from './recipeIngredients';
