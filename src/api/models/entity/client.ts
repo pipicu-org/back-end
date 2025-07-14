@@ -40,7 +40,7 @@ export class Client implements IClient {
   address!: string;
 
   @OneToMany(() => Order, (order) => order.client, {
-    eager: true,
+    lazy: true,
   })
   orders!: Order[];
 }

@@ -1,7 +1,6 @@
 import {
   Column,
   Entity,
-  JoinColumn,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -37,6 +36,5 @@ export class Recipe implements IRecipe {
   @OneToOne(() => Product, (product) => product.recipe, {
     nullable: true,
   })
-  @JoinColumn({ name: 'productId', referencedColumnName: 'id' })
   product!: Product;
 }

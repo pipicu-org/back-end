@@ -47,7 +47,9 @@ export class Order implements IOrder {
   })
   paymentMethod!: string;
 
-  @ManyToOne(() => Client, (client) => client.orders)
+  @ManyToOne(() => Client, (client) => client.orders, {
+    eager: true,
+  })
   @JoinColumn([{ name: 'clientId', referencedColumnName: 'id' }])
   client!: Client;
 

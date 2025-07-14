@@ -1,6 +1,7 @@
 import { OrderRequestDTO } from '../models/DTO/request/orderRequestDTO';
 import { OrderResponseDTO } from '../models/DTO/response/orderResponseDTO';
 import { OrderSearchResponseDTO } from '../models/DTO/response/orderSearchResponseDTO';
+import { Line, Order, Product } from '../models/entity';
 import { OrderMapper } from '../models/mappers/orderMapper';
 import { IOrderRepository } from './order.repository';
 

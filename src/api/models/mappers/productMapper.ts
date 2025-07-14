@@ -52,12 +52,17 @@ export class ProductMapper {
         const recipeIngredient = new RecipeIngredients();
         recipeIngredient.quantity = ingredient.quantity;
         recipeIngredient.ingredient = ingredientEntity;
+        recipeIngredient.recipe = recipe;
         return recipeIngredient;
       }),
     );
+    recipe.totalPrice = recipeIngredients.reduce(
+      (total, ri) => total + ri.ingredient.price * ri.quantity,
+      0,
+    );
     recipe.recipeIngredients = recipeIngredients;
+    recipe.product = product;
     product.recipe = recipe;
-    console.log(product);
     return product;
   }
 }

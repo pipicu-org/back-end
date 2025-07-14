@@ -72,11 +72,9 @@ export class IngredientController {
   async delete(req: Request, res: Response, next: NextFunction) {
     try {
       const id = Number(req.params.id);
-      if (isNaN(id)) {
-        throw new Error('Invalid ingredient ID');
-      }
       const deletedIngredient =
         await this.ingredientService.deleteIngredient(id);
+      console.log(deletedIngredient);
       if (deletedIngredient) {
         res.status(200).json(deletedIngredient);
       } else {

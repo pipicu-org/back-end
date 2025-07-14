@@ -3,7 +3,6 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -34,7 +33,9 @@ export class Line implements ILine {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   addedAt!: Date;
 
-  @ManyToOne(() => Order, (order) => order.lines)
+  @ManyToOne(() => Order, (order) => order.lines, {
+    lazy: true,
+  })
   @JoinColumn([{ name: 'orderId', referencedColumnName: 'id' }])
   order!: Order;
 

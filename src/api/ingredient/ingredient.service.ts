@@ -83,11 +83,13 @@ export class IngredientService implements IIngredientService {
 
   async deleteIngredient(id: number): Promise<IngredientResponseDTO | null> {
     try {
-      const ingredient = await this.repository.delete(id);
+      const ingredient = await this.repository.findById(id);
       if (!ingredient) {
         return null;
       }
-      return new IngredientResponseDTO(ingredient);
+      await this.repository.delete(id);
+      const responseDTO = this._ingredientMapper.toResponseDTO(ingredient);
+      return responseDTO;
     } catch (error) {
       throw new Error(`Error deleting ingredient: ${error}`);
     }
