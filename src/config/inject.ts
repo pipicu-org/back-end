@@ -7,6 +7,8 @@ import {
   Product,
   Recipe,
   State,
+  Transition,
+  TransitionType,
 } from '../api/models/entity';
 import { OrderController } from '../api/order/order.controller';
 import { OrderRepository } from '../api/order/order.repository';
@@ -26,6 +28,10 @@ import { ClientMapper } from '../api/models/mappers/clientMapper';
 import { OrderMapper } from '../api/models/mappers/orderMapper';
 import { ProductMapper } from '../api/models/mappers/productMapper';
 import { IngredientMapper } from '../api/models/mappers/ingredientMapper';
+import { LineMapper } from '../api/models/mappers/lineMapper';
+import { LineController } from '../api/line/line.controller';
+import { LineService } from '../api/line/line.service';
+import { LineRepository } from '../api/line/line.repository';
 
 initializeDataSource().catch((err) =>
   console.error('Error inicializando la fuente de datos', err),
@@ -64,6 +70,12 @@ export const dbIngredientRepository = AppDataSource.getRepository<Ingredient>(
   'Ingredient',
 ).extend({});
 
+export const dbTransitionTypeRepository =
+  AppDataSource.getRepository<TransitionType>('TransitionType').extend({});
+
+export const dbTransitionRepository = AppDataSource.getRepository<Transition>(
+  'Transition',
+).extend({});
 // Mappers
 
 export const clientMapper = new ClientMapper();
@@ -81,10 +93,15 @@ export const productMapper = new ProductMapper(
 
 export const ingredientMapper = new IngredientMapper();
 
+export const lineMapper = new LineMapper();
+
 // Repositories
 
 export const orderRepository = new OrderRepository(
   dbOrderRepository,
+  dbStateRepository,
+  dbTransitionRepository,
+  dbTransitionTypeRepository,
   orderMapper,
 );
 
@@ -105,6 +122,14 @@ export const ingredientRepository = new IngredientRepository(
   ingredientMapper,
 );
 
+export const lineRepository = new LineRepository(
+  dbLineRepository,
+  dbStateRepository,
+  dbTransitionRepository,
+  dbTransitionTypeRepository,
+  lineMapper,
+);
+
 // Services
 
 export const orderService = new OrderService(orderRepository, orderMapper);
@@ -121,6 +146,8 @@ export const ingredientService = new IngredientService(
   ingredientMapper,
 );
 
+export const lineService = new LineService(lineRepository);
+
 // Controllers
 export const orderController = new OrderController(orderService);
 
@@ -129,3 +156,5 @@ export const clientController = new ClientController(clientService);
 export const productController = new ProductController(productService);
 
 export const ingredientController = new IngredientController(ingredientService);
+
+export const lineController = new LineController(lineService);

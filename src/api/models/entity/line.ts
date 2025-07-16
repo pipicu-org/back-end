@@ -33,9 +33,7 @@ export class Line implements ILine {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   addedAt!: Date;
 
-  @ManyToOne(() => Order, (order) => order.lines, {
-    lazy: true,
-  })
+  @ManyToOne(() => Order, (order) => order.lines, {})
   @JoinColumn([{ name: 'orderId', referencedColumnName: 'id' }])
   order!: Order;
 

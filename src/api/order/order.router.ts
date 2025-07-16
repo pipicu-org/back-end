@@ -1,19 +1,23 @@
 import { Router } from 'express';
 import { orderController } from '../../config/inject';
 
-export const PATH = '/orders';
+const PATH = '/orders';
 
-export default function getRouter(controller = orderController): Router {
+export const orderRouter = (controller = orderController): Router => {
   const router: Router = Router();
   router.post(`${PATH}/reception`, (req, res, next) =>
     controller.create(req, res, next),
   );
 
-  router.get(`${PATH}/receiption/:id`, (req, res, next) =>
+  router.get(`${PATH}/reception/:id`, (req, res, next) =>
     controller.getById(req, res, next),
   );
 
-  router.patch(`${PATH}/receiption/:id`, (req, res, next) =>
+  router.get(`${PATH}/comanda/kitchen`, (req, res, next) =>
+    controller.getComanda(req, res, next),
+  );
+
+  router.patch(`${PATH}/reception/:id`, (req, res, next) =>
     controller.update(req, res, next),
   );
   router.delete(`${PATH}/:id`, (req, res, next) =>
@@ -23,5 +27,9 @@ export default function getRouter(controller = orderController): Router {
     controller.getOrdersByClientName(req, res, next),
   );
 
+  router.patch(`${PATH}/state/:orderId/:stateId`, (req, res, next) =>
+    controller.changeStateOrder(req, res, next),
+  );
+
   return router;
-}
+};

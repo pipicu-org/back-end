@@ -6,7 +6,10 @@ export class LineResponseDTO {
     id: number;
     clientName: string;
   };
-  state: string;
+  state: {
+    id: number;
+    name: string;
+  };
   addedAt: string;
   product: {
     id: number;
@@ -17,18 +20,22 @@ export class LineResponseDTO {
   totalPrice: number;
   constructor(line: Line) {
     this.id = line.id;
+    console.log(line);
     this.order = {
       id: line.order.id,
       clientName: line.order.client.name,
     };
-    this.state = line.preparation.state.name;
+    this.state = {
+      id: line.preparation.state.id,
+      name: line.preparation.state.name,
+    };
     this.addedAt = line.addedAt.toISOString();
     this.product = {
       id: line.product.id,
       name: line.product.name,
-      price: parseFloat(line.product.price.toFixed(2)),
+      price: line.product.price,
     };
-    this.quantity = parseFloat(line.quantity.toFixed(2));
-    this.totalPrice = parseFloat(line.totalPrice.toFixed(2));
+    this.quantity = line.quantity;
+    this.totalPrice = line.totalPrice;
   }
 }

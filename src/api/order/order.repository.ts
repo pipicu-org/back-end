@@ -1,8 +1,9 @@
 import { Repository } from 'typeorm';
-import { Order } from '../models/entity';
+import { Order, State, Transition, TransitionType } from '../models/entity';
 import { OrderMapper } from '../models/mappers/orderMapper';
 import { OrderSearchResponseDTO } from '../models/DTO/response/orderSearchResponseDTO';
 import { OrderResponseDTO } from '../models/DTO/response/orderResponseDTO';
+import { ComandaResponseDTO } from '../models/DTO/response/comandaResponseDTO';
 
 export interface IOrderRepository {
   create(order: Partial<Order>): Promise<OrderResponseDTO>;
@@ -21,11 +22,21 @@ export interface IOrderRepository {
   ): Promise<OrderResponseDTO | null>;
 
   delete(id: number): Promise<OrderResponseDTO | null>;
+
+  changeStateOrder(
+    orderId: number,
+    stateId: number,
+  ): Promise<OrderResponseDTO | null>;
+
+  getComanda(page?: number, limit?: number): Promise<ComandaResponseDTO | null>;
 }
 
 export class OrderRepository implements IOrderRepository {
   constructor(
     private readonly _dbOrderRepository: Repository<Order>,
+    private readonly _dbStateRepository: Repository<State>,
+    private readonly _dbTransitionRepository: Repository<Transition>,
+    private readonly _dbTransitionTypeRepository: Repository<TransitionType>,
     private readonly _orderMapper: OrderMapper,
   ) {}
 
@@ -67,14 +78,85 @@ export class OrderRepository implements IOrderRepository {
 
   async getById(id: number): Promise<OrderResponseDTO | null> {
     try {
-      const order = await this._dbOrderRepository.findOne({
-        where: { id },
-        relations: ['client', 'state'],
-      });
+      const order = await this._dbOrderRepository
+        .createQueryBuilder('order')
+        .leftJoinAndSelect('order.client', 'client')
+        .leftJoinAndSelect('order.state', 'state')
+        .leftJoinAndSelect('order.lines', 'line')
+        .leftJoinAndSelect('line.preparation', 'preparation')
+        .leftJoinAndSelect('line.product', 'product')
+        .leftJoinAndSelect('preparation.state', 'preparationState')
+        .where('order.id = :id', { id })
+        .getOne();
+      console.log(id, order);
       if (!order) return null;
       return this._orderMapper.orderToOrderResponseDTO(order);
     } catch (error) {
       console.error('Error fetching order by ID:', error);
+      return null;
+    }
+  }
+
+  async changeStateOrder(
+    orderId: number,
+    stateId: number,
+  ): Promise<OrderResponseDTO | null> {
+    try {
+      const order = await this._dbOrderRepository.findOne({
+        where: { id: orderId },
+        relations: ['state'],
+      });
+      if (!order) {
+        throw new Error(`Order with id ${orderId} not found`);
+      }
+      const state = await this._dbStateRepository.findOne({
+        where: { id: stateId },
+        relations: ['state'],
+      });
+      if (!state) {
+        throw new Error(`State with id ${stateId} not found`);
+      }
+      order.state = state;
+      const transitionType = await this._dbTransitionTypeRepository.findOne({
+        where: { name: 'Order State Transition' },
+      });
+      if (!transitionType) {
+        throw new Error('Transition type "Order State Transition" not found');
+      }
+      await this._dbTransitionRepository
+        .createQueryBuilder('transition')
+        .insert()
+        .values({
+          transitionType: transitionType,
+          createdAt: new Date(),
+          fromState: order.state,
+          toState: state,
+          transitionatorId: order.id,
+          duration: Date.now() - order.createdAt.getTime(),
+        })
+        .execute();
+      await this._dbOrderRepository.update(orderId, order);
+      return this._orderMapper.orderToOrderResponseDTO(order);
+    } catch (error) {
+      console.error('Error changing order state:', error);
+      return null;
+    }
+  }
+
+  async getComanda(): Promise<ComandaResponseDTO | null> {
+    try {
+      const orders = await this._dbOrderRepository
+        .createQueryBuilder('order')
+        .leftJoinAndSelect('order.client', 'client')
+        .leftJoinAndSelect('order.state', 'state')
+        .leftJoinAndSelect('order.lines', 'line')
+        .leftJoinAndSelect('line.preparation', 'preparation')
+        .leftJoinAndSelect('line.product', 'product')
+        .where('state.name = :stateName', { stateName: 'Pendiente' })
+        .getManyAndCount();
+      return this._orderMapper.ordersToComandaResponseDTO(orders);
+    } catch (error) {
+      console.error('Error fetching comanda:', error);
       return null;
     }
   }

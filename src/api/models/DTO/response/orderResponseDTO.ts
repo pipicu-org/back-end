@@ -25,12 +25,12 @@ export class OrderResponseDTO {
     this.address = order.client.address;
     this.deliveryTime = order.deliveryTime.toISOString();
     this.paymentMethod = order.paymentMethod;
-    this.totalPrice = parseFloat(order.totalPrice.toFixed(2));
+    this.totalPrice = order.totalPrice;
     this.lines = order.lines.map((line) => ({
       id: line.id.toString(),
       product: line.product.name,
       quantity: line.quantity,
-      totalPrice: parseFloat(line.totalPrice.toFixed(2)),
+      totalPrice: line.product.price * line.quantity,
       state: line.preparation.state.name,
     }));
   }

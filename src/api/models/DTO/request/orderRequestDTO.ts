@@ -1,10 +1,7 @@
 import { Order } from '../../entity';
 
 export class OrderRequestDTO {
-  state: string;
   client: string;
-  phone: string;
-  address: string;
   deliveryTime: string;
   paymentMethod: string;
   lines: Array<{
@@ -13,10 +10,7 @@ export class OrderRequestDTO {
   }>;
 
   constructor(order: Order) {
-    this.state = order.state.name;
     this.client = order.client.name;
-    this.phone = order.client.phoneNumber;
-    this.address = order.client.address;
     this.deliveryTime = order.deliveryTime.toISOString();
     this.paymentMethod = order.paymentMethod;
     this.lines = order.lines.map((line) => ({

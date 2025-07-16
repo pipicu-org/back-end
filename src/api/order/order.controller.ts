@@ -31,7 +31,10 @@ export class OrderController {
   async update(req: Request, res: Response, next: NextFunction) {
     try {
       const orderRequestDTO = req.body as OrderRequestDTO;
-      const updatedOrder = await this.orderService.update(1, orderRequestDTO);
+      const updatedOrder = await this.orderService.update(
+        Number(req.params.id),
+        orderRequestDTO,
+      );
       res.status(200).json(updatedOrder);
     } catch (error) {
       next(error);
@@ -60,6 +63,34 @@ export class OrderController {
         limit,
       );
       res.status(200).json(ordersResponse);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async changeStateOrder(req: Request, res: Response, next: NextFunction) {
+    try {
+      const orderId = Number(req.params.orderId);
+      const stateId = Number(req.params.stateId);
+      if (isNaN(orderId) || isNaN(stateId)) {
+        throw new Error('Invalid order or state ID');
+      }
+      const updatedOrder = await this.orderService.changeStateOrder(
+        orderId,
+        stateId,
+      );
+      res.status(200).json(updatedOrder);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getComanda(req: Request, res: Response, next: NextFunction) {
+    try {
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 10;
+      const comanda = await this.orderService.getComanda(page, limit);
+      res.status(200).json(comanda);
     } catch (error) {
       next(error);
     }
