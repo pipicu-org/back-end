@@ -49,7 +49,9 @@ export class OrderMapper {
         throw new Error(`Client with name ${orderRequest.client} not found`);
       }
       order.client = client;
-      order.deliveryTime = new Date(orderRequest.deliveryTime);
+      order.deliveryTime = orderRequest.deliveryTime
+        ? new Date(orderRequest.deliveryTime)
+        : new Date(Date.now() + 30 * 60 * 1000);
       order.totalPrice = await orderRequest.lines.reduce(
         async (total, line) => {
           try {

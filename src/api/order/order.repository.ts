@@ -153,6 +153,7 @@ export class OrderRepository implements IOrderRepository {
         .leftJoinAndSelect('line.preparation', 'preparation')
         .leftJoinAndSelect('line.product', 'product')
         .where('state.name = :stateName', { stateName: 'Pendiente' })
+        .orderBy('order.createdAt', 'ASC')
         .getManyAndCount();
       return this._orderMapper.ordersToComandaResponseDTO(orders);
     } catch (error) {
