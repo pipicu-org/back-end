@@ -1,18 +1,18 @@
 export class ProductRequestDTO {
-  category: string;
+  category: number;
   name: string;
   price: number;
   ingredients: Array<{
-    name: string;
+    id: number;
     quantity: number;
     price: number;
   }>;
 
   constructor(
-    category: string,
+    category: number,
     name: string,
     price: number,
-    ingredients: Array<{ name: string; quantity: number; price: number }>,
+    ingredients: Array<{ id: number; quantity: number; price: number }>,
   ) {
     this.category = category;
     this.name = name;

@@ -31,38 +31,37 @@ export class ProductMapper {
     product.name = requestDTO.name;
     product.price = requestDTO.price;
     const category = await this.categoryRepository.findOneBy({
-      name: requestDTO.category,
+      id: requestDTO.category,
     });
     if (!category) {
-      throw new Error(`Category with name ${requestDTO.category} not found`);
+      throw new Error(`Category with id ${requestDTO.category} not found`);
     }
     if (!Array.isArray(requestDTO.ingredients)) {
       throw new Error('ingredients must be an array');
     }
     product.category = category;
-    const recipe = new Recipe();
-    const recipeIngredients = await Promise.all(
-      requestDTO.ingredients.map(async (ingredient) => {
-        const ingredientEntity = await this._ingredientRepository.findOneBy({
-          name: ingredient.name,
-        });
-        if (!ingredientEntity) {
-          throw new Error(`Ingredient with name ${ingredient.name} not found`);
-        }
-        const recipeIngredient = new RecipeIngredients();
-        recipeIngredient.quantity = ingredient.quantity;
-        recipeIngredient.ingredient = ingredientEntity;
-        recipeIngredient.recipe = recipe;
-        return recipeIngredient;
-      }),
-    );
-    recipe.totalPrice = recipeIngredients.reduce(
-      (total, ri) => total + ri.ingredient.price * ri.quantity,
-      0,
-    );
-    recipe.recipeIngredients = recipeIngredients;
-    recipe.product = product;
-    product.recipe = recipe;
+    const ingredients = await this._ingredientRepository.find();
+    const recipeEntity = new Recipe();
+    const recipeIngredients = requestDTO.ingredients.map((ingredient) => {
+      const ingredientEntity = ingredients.find((i) => i.id === ingredient.id);
+      if (!ingredientEntity) {
+        throw new Error(`Ingredient with id ${ingredient.id} not found`);
+      }
+      const recipeIngredient = new RecipeIngredients();
+      recipeIngredient.quantity = ingredient.quantity;
+      recipeIngredient.ingredient = ingredientEntity;
+      recipeIngredient.recipe = recipeEntity;
+      return recipeIngredient;
+    });
+
+    recipeEntity.totalPrice = 0;
+    for (const recipeIngredient of recipeIngredients) {
+      recipeEntity.totalPrice +=
+        recipeIngredient.ingredient.price * recipeIngredient.quantity;
+    }
+    recipeEntity.recipeIngredients = recipeIngredients;
+    recipeEntity.product = product;
+    product.recipe = recipeEntity;
     return product;
   }
 }

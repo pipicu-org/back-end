@@ -43,63 +43,55 @@ export class OrderMapper {
     try {
       const order = new Order();
       const client = await this.clientRepository.findOneBy({
-        name: orderRequest.client,
+        id: orderRequest.client,
       });
+      let products = await this.productRepository.find();
+      if (!products || products.length === 0) {
+        throw new Error('No products found');
+      }
       if (!client) {
-        throw new Error(`Client with name ${orderRequest.client} not found`);
+        throw new Error(`Client with id ${orderRequest.client} not found`);
       }
       order.client = client;
       order.deliveryTime = orderRequest.deliveryTime
         ? new Date(orderRequest.deliveryTime)
         : new Date(Date.now() + 30 * 60 * 1000);
-      order.totalPrice = await orderRequest.lines.reduce(
-        async (total, line) => {
-          try {
-            const product = await this.productRepository.findOneBy({
-              name: line.product,
-            });
-            if (!product) {
-              throw new Error(`Product with name ${line.product} not found`);
-            }
-            return (await total) + product.price * line.quantity;
-          } catch (error) {
-            console.error(`Error calculating total price for line:`, error);
-            throw new Error('Failed to calculate total price');
-          }
-        },
-        Promise.resolve(0),
-      );
+      order.totalPrice = 0;
+      for (const line of orderRequest.lines) {
+        const product = products.find((p) => p.id === line.product);
+        if (!product) {
+          throw new Error(`Product with id ${line.product} not found`);
+        }
+        if (line.quantity <= 0) {
+          throw new Error(
+            `Quantity for product ${line.product} must be greater than 0`,
+          );
+        }
+        order.totalPrice += product.price * line.quantity;
+      }
       order.totalPrice = Number(order.totalPrice);
       order.paymentMethod = orderRequest.paymentMethod;
       const state = await this.stateRepository.findOneBy({
-        name: 'Pendiente',
+        id: 1,
       });
       if (!state) {
-        throw new Error(`State with name Pendiente not found`);
+        throw new Error(`State with id 1 not found`);
       }
       order.state = state;
       order.createdAt = new Date();
       order.lines = await Promise.all(
         orderRequest.lines.map(async (line) => {
           const entityLine = new Line();
-          const product = await this.productRepository.findOneBy({
-            name: line.product,
-          });
+          const product = products.find((p) => p.id === line.product);
           if (!product) {
-            throw new Error(`Product with name ${line.product} not found`);
+            throw new Error(`Product with id ${line.product} not found`);
           }
           entityLine.product = product;
           entityLine.quantity = line.quantity;
           entityLine.totalPrice = product.price * line.quantity;
           entityLine.addedAt = new Date();
           const preparation = new Preparation();
-          const state = await this.stateRepository.findOneBy({
-            name: 'Pendiente',
-          });
-          if (!state) {
-            throw new Error('State "En preparación" not found');
-          }
-          preparation.state = state;
+          preparation.state = order.state;
           entityLine.preparation = preparation;
           entityLine.order = order;
           return entityLine;
