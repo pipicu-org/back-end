@@ -29,6 +29,7 @@ export class Recipe implements IRecipe {
     {
       cascade: ['insert', 'update', 'remove'],
       eager: true,
+      onDelete: 'CASCADE',
     },
   )
   recipeIngredients!: RecipeIngredients[];

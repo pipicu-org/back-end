@@ -6,7 +6,7 @@ export class OrderSearchResponseDTO {
   data: Array<{
     id: string;
     name: string;
-    horario: string;
+    deliveryTime: string;
     state: string;
     totalPrice: number;
   }>;
@@ -19,7 +19,7 @@ export class OrderSearchResponseDTO {
     data: Array<{
       id: string;
       name: string;
-      horario: string;
+      deliveryTime: string;
       state: string;
       totalPrice: number;
     }>,

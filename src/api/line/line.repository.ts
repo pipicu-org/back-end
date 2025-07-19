@@ -100,16 +100,16 @@ export class LineRepository implements ILineRepository {
 
   async getLinesByOrderId(orderId: number): Promise<LineResponseDTO[]> {
     try {
-      const lines = await this._dbLineRepository.find({
-        where: { order: { id: orderId } },
-        relations: [
-          'product',
-          'preparation',
-          'preparation.state',
-          'order',
-          'order.client',
-        ],
-      });
+      const lines = await this._dbLineRepository
+        .createQueryBuilder('line')
+        .leftJoinAndSelect('line.preparation', 'preparation')
+        .leftJoinAndSelect('preparation.state', 'state')
+        .leftJoinAndSelect('line.order', 'order')
+        .leftJoinAndSelect('order.client', 'client')
+        .leftJoinAndSelect('line.product', 'product')
+        .leftJoinAndSelect('line.ingredients', 'ingredient')
+        .where('order.id = :orderId', { orderId })
+        .getMany();
       return lines.map((line) => this._lineMapper.toResponseDTO(line));
     } catch (error) {
       console.error(
@@ -128,9 +128,9 @@ export class LineRepository implements ILineRepository {
     try {
       const linesAndCount = await this._dbLineRepository
         .createQueryBuilder('line')
+        .leftJoinAndSelect('line.order', 'order')
         .leftJoinAndSelect('line.preparation', 'preparation')
         .leftJoinAndSelect('preparation.state', 'state')
-        .leftJoinAndSelect('line.order', 'order')
         .leftJoinAndSelect('order.client', 'client')
         .leftJoinAndSelect('line.product', 'product')
         .where('state.id = :stateId', { stateId })
@@ -158,6 +158,7 @@ export class LineRepository implements ILineRepository {
           state: line.preparation.state.name,
         })),
       );
+
       return responseDTO;
     } catch (error) {
       console.error(`Error fetching lines by state with id ${stateId}:`, error);

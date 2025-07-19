@@ -1,4 +1,4 @@
-import { Like, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Client } from '../models/entity';
 import { ClientResponseDTO } from '../models/DTO/response/clientResponseDTO';
 import { ClientSearchResponseDTO } from '../models/DTO/response/clientSearchResponseDTO';
@@ -29,11 +29,13 @@ export class ClientRepository implements ICLientRepository {
     limit: number,
   ): Promise<ClientSearchResponseDTO | []> {
     try {
-      const clients = await this.dbClientRepository.findAndCount({
-        where: { name: Like(`%${search}%`) },
-        take: limit,
-        skip: (page - 1) * limit,
-      });
+      const clients = await this.dbClientRepository
+        .createQueryBuilder('client')
+        .leftJoinAndSelect('client.orders', 'order')
+        .where('client.name LIKE :search', { search: `%${search}%` })
+        .skip((page - 1) * limit)
+        .take(limit)
+        .getManyAndCount();
       return this._clientMapper.createSearchToClientSearchDTO(
         clients,
         search,

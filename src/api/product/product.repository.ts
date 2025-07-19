@@ -54,20 +54,14 @@ export class ProductRepository implements IProductRepository {
     id: number,
     product: Product,
   ): Promise<ProductResponseDTO | null> {
+    product.id = id;
     try {
-      const existingProduct = await this.dbProductRepository.update(
-        id,
-        product,
-      );
-      if (existingProduct.affected === 0) {
+      const existingProduct = await this.dbProductRepository.findOneBy({ id });
+      if (!existingProduct) {
         console.warn(`No product found with id ${id} to update`);
         return null;
       }
-      const updatedProduct = await this.dbProductRepository.findOneBy({ id });
-      if (!updatedProduct) {
-        console.warn(`No product found with id ${id} after update`);
-        return null;
-      }
+      const updatedProduct = await this.dbProductRepository.save(product);
       return this._productMapper.toResponseDTO(updatedProduct);
     } catch (error) {
       console.error(`Error updating product with id ${id}:`, error);
@@ -77,11 +71,20 @@ export class ProductRepository implements IProductRepository {
 
   async delete(id: number): Promise<ProductResponseDTO | null> {
     try {
-      const productToDelete = await this.dbProductRepository.findOneBy({ id });
+      const productToDelete = await this.dbProductRepository
+        .createQueryBuilder('product')
+        .leftJoinAndSelect('product.category', 'category')
+        .leftJoinAndSelect('product.recipe', 'recipe')
+        .leftJoinAndSelect('recipe.recipeIngredients', 'recipeIngredient')
+        .leftJoinAndSelect('recipeIngredient.ingredient', 'ingredient')
+        .where('product.id = :id', { id })
+        .getOne();
+      console.log(productToDelete);
       if (!productToDelete) {
         console.warn(`No product found with id ${id} to delete`);
         return null;
       }
+      await this.dbProductRepository.manager.remove(productToDelete.recipe);
       await this.dbProductRepository.delete(id);
       return this._productMapper.toResponseDTO(productToDelete);
     } catch (error) {

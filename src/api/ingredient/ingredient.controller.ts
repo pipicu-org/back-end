@@ -74,7 +74,6 @@ export class IngredientController {
       const id = Number(req.params.id);
       const deletedIngredient =
         await this.ingredientService.deleteIngredient(id);
-      console.log(deletedIngredient);
       if (deletedIngredient) {
         res.status(200).json(deletedIngredient);
       } else {

@@ -33,6 +33,9 @@ export class OrderService implements IOrderService {
 
   async create(orderRequest: OrderRequestDTO): Promise<OrderResponseDTO> {
     try {
+      if (this.hasRepeatedProducts(orderRequest)) {
+        throw new Error('Order contains repeated products');
+      }
       const order =
         await this._orderMapper.orderRequestDTOToOrder(orderRequest);
       return await this._orderRepository.create(order);
@@ -56,6 +59,9 @@ export class OrderService implements IOrderService {
     orderRequest: OrderRequestDTO,
   ): Promise<OrderResponseDTO | null> {
     try {
+      if (this.hasRepeatedProducts(orderRequest)) {
+        throw new Error('Order contains repeated products');
+      }
       const existingOrder = await this._orderRepository.getById(id);
       if (!existingOrder) {
         throw new Error(`Order with id ${id} not found`);
@@ -100,6 +106,9 @@ export class OrderService implements IOrderService {
     newState: number,
   ): Promise<boolean> {
     const lines = await this._lineService.getLinesByOrderId(Number(order.id));
+    if (!lines || lines.length === 0) {
+      throw new Error(`No lines found for order with id ${order.id}`);
+    }
     return lines.every((line) => line.state.id === newState);
   }
 
@@ -136,5 +145,11 @@ export class OrderService implements IOrderService {
       console.error('Error fetching comanda:', error);
       throw new Error('Failed to fetch comanda');
     }
+  }
+
+  hasRepeatedProducts(order: OrderRequestDTO): boolean {
+    const products = order.lines.map((line) => line.product);
+    const uniqueProducts = new Set(products);
+    return uniqueProducts.size !== products.length;
   }
 }

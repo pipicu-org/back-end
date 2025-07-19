@@ -20,14 +20,14 @@ export const orderRouter = (controller = orderController): Router => {
   router.patch(`${PATH}/reception/:id`, (req, res, next) =>
     controller.update(req, res, next),
   );
-  router.delete(`${PATH}/:id`, (req, res, next) =>
+  router.delete(`${PATH}/reception/:id`, (req, res, next) =>
     controller.delete(req, res, next),
   );
   router.get(`${PATH}/reception`, (req, res, next) =>
     controller.getOrdersByClientName(req, res, next),
   );
 
-  router.patch(`${PATH}/state/:orderId/:stateId`, (req, res, next) =>
+  router.patch(`${PATH}/state`, (req, res, next) =>
     controller.changeStateOrder(req, res, next),
   );
 

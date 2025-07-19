@@ -80,15 +80,14 @@ export class OrderRepository implements IOrderRepository {
     try {
       const order = await this._dbOrderRepository
         .createQueryBuilder('order')
-        .leftJoinAndSelect('order.client', 'client')
-        .leftJoinAndSelect('order.state', 'state')
-        .leftJoinAndSelect('order.lines', 'line')
-        .leftJoinAndSelect('line.preparation', 'preparation')
-        .leftJoinAndSelect('line.product', 'product')
-        .leftJoinAndSelect('preparation.state', 'preparationState')
+        .innerJoinAndSelect('order.client', 'client')
+        .innerJoinAndSelect('order.state', 'state')
+        .innerJoinAndSelect('order.lines', 'line')
+        .innerJoinAndSelect('line.preparation', 'preparation')
+        .innerJoinAndSelect('line.product', 'product')
+        .innerJoinAndSelect('preparation.state', 'preparationState')
         .where('order.id = :id', { id })
         .getOne();
-      console.log(id, order);
       if (!order) return null;
       return this._orderMapper.orderToOrderResponseDTO(order);
     } catch (error) {
@@ -102,16 +101,22 @@ export class OrderRepository implements IOrderRepository {
     stateId: number,
   ): Promise<OrderResponseDTO | null> {
     try {
-      const order = await this._dbOrderRepository.findOne({
-        where: { id: orderId },
-        relations: ['state'],
-      });
+      const order = await this._dbOrderRepository
+        .createQueryBuilder('order')
+        .leftJoinAndSelect('order.client', 'client')
+        .leftJoinAndSelect('order.state', 'state')
+        .leftJoinAndSelect('order.lines', 'line')
+        .leftJoinAndSelect('line.preparation', 'preparation')
+        .leftJoinAndSelect('line.product', 'product')
+        .leftJoinAndSelect('preparation.state', 'preparationState')
+        .where('order.id = :id', { id: orderId })
+        .getOne();
+
       if (!order) {
         throw new Error(`Order with id ${orderId} not found`);
       }
       const state = await this._dbStateRepository.findOne({
         where: { id: stateId },
-        relations: ['state'],
       });
       if (!state) {
         throw new Error(`State with id ${stateId} not found`);
@@ -135,7 +140,7 @@ export class OrderRepository implements IOrderRepository {
           duration: Date.now() - order.createdAt.getTime(),
         })
         .execute();
-      await this._dbOrderRepository.update(orderId, order);
+      await this._dbOrderRepository.save(order);
       return this._orderMapper.orderToOrderResponseDTO(order);
     } catch (error) {
       console.error('Error changing order state:', error);
@@ -152,7 +157,7 @@ export class OrderRepository implements IOrderRepository {
         .leftJoinAndSelect('order.lines', 'line')
         .leftJoinAndSelect('line.preparation', 'preparation')
         .leftJoinAndSelect('line.product', 'product')
-        .where('state.name = :stateName', { stateName: 'Pendiente' })
+        .where('state.id = :stateId', { stateId: 1 })
         .orderBy('order.createdAt', 'ASC')
         .getManyAndCount();
       return this._orderMapper.ordersToComandaResponseDTO(orders);
@@ -167,7 +172,13 @@ export class OrderRepository implements IOrderRepository {
     newOrder: Partial<Order>,
   ): Promise<OrderResponseDTO | null> {
     try {
-      await this._dbOrderRepository.update(id, newOrder);
+      const existingOrder = await this.getById(id);
+      if (!existingOrder) {
+        console.error(`Order with id ${id} not found`);
+        return null;
+      }
+      newOrder.id = id;
+      await this._dbOrderRepository.save(newOrder);
       return await this.getById(id);
     } catch (error) {
       console.error('Error updating order:', error);

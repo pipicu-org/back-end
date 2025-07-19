@@ -70,8 +70,8 @@ export class OrderController {
 
   async changeStateOrder(req: Request, res: Response, next: NextFunction) {
     try {
-      const orderId = Number(req.params.orderId);
-      const stateId = Number(req.params.stateId);
+      const orderId = Number(req.query.orderId);
+      const stateId = Number(req.query.stateId);
       if (isNaN(orderId) || isNaN(stateId)) {
         throw new Error('Invalid order or state ID');
       }

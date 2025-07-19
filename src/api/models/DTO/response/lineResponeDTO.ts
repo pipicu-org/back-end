@@ -20,7 +20,6 @@ export class LineResponseDTO {
   totalPrice: number;
   constructor(line: Line) {
     this.id = line.id;
-    console.log(line);
     this.order = {
       id: line.order.id,
       clientName: line.order.client.name,

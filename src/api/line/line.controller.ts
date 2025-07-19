@@ -7,9 +7,7 @@ export class LineController {
   async changeStateLine(req: Request, res: Response, next: NextFunction) {
     try {
       const lineId = Number(req.query.lineId);
-      console.log(lineId);
       const state = Number(req.query.stateId);
-      console.log(state);
       if (isNaN(lineId)) {
         throw new Error('Invalid line ID');
       }

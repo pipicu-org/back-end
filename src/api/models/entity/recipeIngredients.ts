@@ -26,6 +26,8 @@ export class RecipeIngredients implements RecipeIngredients {
   @ManyToOne(() => Recipe, (recipe) => recipe.recipeIngredients, {
     eager: false,
     nullable: true,
+    orphanedRowAction: 'delete',
+    onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'recipeId', referencedColumnName: 'id' })
   recipe!: Recipe;

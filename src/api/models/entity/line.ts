@@ -33,7 +33,9 @@ export class Line implements ILine {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   addedAt!: Date;
 
-  @ManyToOne(() => Order, (order) => order.lines, {})
+  @ManyToOne(() => Order, (order) => order.lines, {
+    orphanedRowAction: 'delete',
+  })
   @JoinColumn([{ name: 'orderId', referencedColumnName: 'id' }])
   order!: Order;
 

@@ -5,14 +5,13 @@ export class ProductRequestDTO {
   ingredients: Array<{
     id: number;
     quantity: number;
-    price: number;
   }>;
 
   constructor(
     category: number,
     name: string,
     price: number,
-    ingredients: Array<{ id: number; quantity: number; price: number }>,
+    ingredients: Array<{ id: number; quantity: number }>,
   ) {
     this.category = category;
     this.name = name;

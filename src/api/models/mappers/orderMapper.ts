@@ -26,7 +26,7 @@ export class OrderMapper {
       resultsAndCount[0].map((order) => ({
         id: order.id.toString(),
         name: order.client.name,
-        horario: order.deliveryTime.toISOString(),
+        deliveryTime: order.deliveryTime.toISOString(),
         state: order.state.name,
         totalPrice: order.totalPrice,
       })),

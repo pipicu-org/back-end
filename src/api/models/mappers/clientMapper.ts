@@ -37,9 +37,8 @@ export class ClientMapper {
         instagramUsername: client.instagramUsername ?? null,
         facebookUsername: client.facebookUsername ?? null,
         lastOrder:
-          client.orders.length > 0
-            ? client.orders[client.orders.length - 1].id.toString()
-            : null,
+          client.orders[client.orders.length - 1]?.createdAt.toISOString() ??
+          null,
       })),
     );
     return result;

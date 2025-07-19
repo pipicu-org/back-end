@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class Tracatraca1752680553046 implements MigrationInterface {
-    name = 'Tracatraca1752680553046'
+export class Tracatraca21752948453638 implements MigrationInterface {
+    name = 'Tracatraca21752948453638'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`CREATE TABLE "Ingredient" ("id" SERIAL NOT NULL, "name" character varying(255) NOT NULL, "price" numeric(10,2) NOT NULL, CONSTRAINT "UQ_ba4ca47c86130dc0f6aab876054" UNIQUE ("name"), CONSTRAINT "PK_27dd7f2af219c82bb15f2a7813e" PRIMARY KEY ("id"))`);
@@ -17,7 +17,7 @@ export class Tracatraca1752680553046 implements MigrationInterface {
         await queryRunner.query(`CREATE TABLE "Product" ("id" SERIAL NOT NULL, "name" character varying(255) NOT NULL, "price" numeric(10,2) NOT NULL, "categoryId" integer, "recipeId" integer, CONSTRAINT "REL_9b1926eb3294dd44a0b3876a70" UNIQUE ("recipeId"), CONSTRAINT "PK_9fc040db7872192bbc26c515710" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "Category" ("id" SERIAL NOT NULL, "name" character varying(255) NOT NULL, CONSTRAINT "UQ_0ac420e8701e781dbf1231dc230" UNIQUE ("name"), CONSTRAINT "PK_c2727780c5b9b0c564c29a4977c" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "Note" ("id" SERIAL NOT NULL, "description" character varying(255), "quantity" numeric(10,2) NOT NULL DEFAULT '0', CONSTRAINT "PK_a677a8365a6131301c9c01254e9" PRIMARY KEY ("id"))`);
-        await queryRunner.query(`ALTER TABLE "RecipeIngredients" ADD CONSTRAINT "FK_e7e7d82d700477638b0b80bb06c" FOREIGN KEY ("recipeId") REFERENCES "Recipe"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "RecipeIngredients" ADD CONSTRAINT "FK_e7e7d82d700477638b0b80bb06c" FOREIGN KEY ("recipeId") REFERENCES "Recipe"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "RecipeIngredients" ADD CONSTRAINT "FK_d78bb7582394a284756a0fc9e55" FOREIGN KEY ("ingredientId") REFERENCES "Ingredient"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "Preparation" ADD CONSTRAINT "FK_f020f41bf0a750d8ae1abeb1eea" FOREIGN KEY ("stateId") REFERENCES "State"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "Transition" ADD CONSTRAINT "FK_a53c88fdf092a1a9a97da6763d0" FOREIGN KEY ("fromStateId") REFERENCES "State"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
@@ -29,7 +29,7 @@ export class Tracatraca1752680553046 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE "Line" ADD CONSTRAINT "FK_7bc94a8767b78da96b406e6ed7b" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "Line" ADD CONSTRAINT "FK_7100f6e0ae4f188cae970898120" FOREIGN KEY ("preparationId") REFERENCES "Preparation"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "Product" ADD CONSTRAINT "FK_896e2e0f6dfa6f80117a79e1d7e" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-        await queryRunner.query(`ALTER TABLE "Product" ADD CONSTRAINT "FK_9b1926eb3294dd44a0b3876a70c" FOREIGN KEY ("recipeId") REFERENCES "Recipe"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "Product" ADD CONSTRAINT "FK_9b1926eb3294dd44a0b3876a70c" FOREIGN KEY ("recipeId") REFERENCES "Recipe"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {

@@ -129,10 +129,14 @@ export const lineRepository = new LineRepository(
   dbTransitionTypeRepository,
   lineMapper,
 );
+export const lineService = new LineService(lineRepository);
 
+export const orderService = new OrderService(
+  orderRepository,
+  orderMapper,
+  lineService,
+);
 // Services
-
-export const orderService = new OrderService(orderRepository, orderMapper);
 
 export const clientService = new ClientService(clientRepository, clientMapper);
 
@@ -145,8 +149,6 @@ export const ingredientService = new IngredientService(
   ingredientRepository,
   ingredientMapper,
 );
-
-export const lineService = new LineService(lineRepository);
 
 // Controllers
 export const orderController = new OrderController(orderService);
