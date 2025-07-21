@@ -68,6 +68,26 @@ export class OrderController {
     }
   }
 
+  async getOrdersByState(req: Request, res: Response, next: NextFunction) {
+    try {
+      const stateId = Number(req.query.stateId);
+      if (isNaN(stateId)) {
+        throw new Error('Invalid state ID');
+      }
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 10;
+
+      const ordersResponse = await this.orderService.getOrdersByState(
+        stateId,
+        page,
+        limit,
+      );
+      res.status(200).json(ordersResponse);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async changeStateOrder(req: Request, res: Response, next: NextFunction) {
     try {
       const orderId = Number(req.query.orderId);

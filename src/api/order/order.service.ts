@@ -17,6 +17,12 @@ export interface IOrderService {
     page?: number,
     limit?: number,
   ): Promise<OrderSearchResponseDTO>;
+
+  getOrdersByState(
+    stateId: number,
+    page?: number,
+    limit?: number,
+  ): Promise<OrderSearchResponseDTO>;
   changeStateOrder(
     orderId: number,
     stateId: number,
@@ -97,6 +103,19 @@ export class OrderService implements IOrderService {
       );
     } catch (error) {
       console.error(`Error fetching orders for client ${clientName}:`, error);
+      throw error;
+    }
+  }
+
+  async getOrdersByState(
+    stateId: number,
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<OrderSearchResponseDTO> {
+    try {
+      return await this._orderRepository.getOrdersByState(stateId, page, limit);
+    } catch (error) {
+      console.error(`Error fetching orders for state ${stateId}:`, error);
       throw error;
     }
   }

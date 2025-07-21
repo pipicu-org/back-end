@@ -107,7 +107,6 @@ export class LineRepository implements ILineRepository {
         .leftJoinAndSelect('line.order', 'order')
         .leftJoinAndSelect('order.client', 'client')
         .leftJoinAndSelect('line.product', 'product')
-        .leftJoinAndSelect('line.ingredients', 'ingredient')
         .where('order.id = :orderId', { orderId })
         .getMany();
       return lines.map((line) => this._lineMapper.toResponseDTO(line));

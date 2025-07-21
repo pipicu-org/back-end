@@ -14,6 +14,12 @@ export interface IOrderRepository {
     limit?: number,
   ): Promise<OrderSearchResponseDTO>;
 
+  getOrdersByState(
+    stateId: number,
+    page?: number,
+    limit?: number,
+  ): Promise<OrderSearchResponseDTO>;
+
   getById(id: number): Promise<OrderResponseDTO | null>;
 
   update(
@@ -73,6 +79,32 @@ export class OrderRepository implements IOrderRepository {
     } catch (error) {
       console.error('Error fetching orders by client name:', error);
       throw new Error('Failed to fetch orders by client name');
+    }
+  }
+
+  async getOrdersByState(
+    stateId: number,
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<OrderSearchResponseDTO> {
+    try {
+      const orders = await this._dbOrderRepository
+        .createQueryBuilder('order')
+        .leftJoinAndSelect('order.client', 'client')
+        .leftJoinAndSelect('order.state', 'state')
+        .where('state.id = :stateId', { stateId })
+        .skip((page - 1) * limit)
+        .take(limit)
+        .getManyAndCount();
+      return this._orderMapper.ordersToOrderSearchResponseDTO(
+        orders,
+        orders[0][0].state.name,
+        page,
+        limit,
+      );
+    } catch (error) {
+      console.error('Error fetching orders by state:', error);
+      throw new Error('Failed to fetch orders by state');
     }
   }
 

@@ -27,6 +27,10 @@ export const orderRouter = (controller = orderController): Router => {
     controller.getOrdersByClientName(req, res, next),
   );
 
+  router.get(`${PATH}/state`, (req, res, next) =>
+    controller.getOrdersByState(req, res, next),
+  );
+
   router.patch(`${PATH}/state`, (req, res, next) =>
     controller.changeStateOrder(req, res, next),
   );

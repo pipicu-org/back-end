@@ -33,6 +33,7 @@ export class Product {
     cascade: ['insert', 'update', 'remove'],
     nullable: true,
     onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'recipeId', referencedColumnName: 'id' }])
   recipe!: Recipe;

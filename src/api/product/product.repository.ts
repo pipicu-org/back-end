@@ -56,11 +56,22 @@ export class ProductRepository implements IProductRepository {
   ): Promise<ProductResponseDTO | null> {
     product.id = id;
     try {
-      const existingProduct = await this.dbProductRepository.findOneBy({ id });
+      const existingProduct = await this.dbProductRepository
+        .createQueryBuilder('product')
+        .leftJoinAndSelect('product.category', 'category')
+        .leftJoinAndSelect('product.recipe', 'recipe')
+        .leftJoinAndSelect('recipe.recipeIngredients', 'recipeIngredient')
+        .leftJoinAndSelect('recipeIngredient.ingredient', 'ingredient')
+        .where('product.id = :id', { id })
+        .getOne();
       if (!existingProduct) {
         console.warn(`No product found with id ${id} to update`);
         return null;
       }
+      product.recipe.id = existingProduct.recipe.id;
+      await this.dbProductRepository.manager.remove(
+        existingProduct.recipe.recipeIngredients,
+      );
       const updatedProduct = await this.dbProductRepository.save(product);
       return this._productMapper.toResponseDTO(updatedProduct);
     } catch (error) {
@@ -79,7 +90,6 @@ export class ProductRepository implements IProductRepository {
         .leftJoinAndSelect('recipeIngredient.ingredient', 'ingredient')
         .where('product.id = :id', { id })
         .getOne();
-      console.log(productToDelete);
       if (!productToDelete) {
         console.warn(`No product found with id ${id} to delete`);
         return null;
@@ -106,7 +116,7 @@ export class ProductRepository implements IProductRepository {
       });
       return this._productMapper.searchToResponseDTO(
         findAndCount,
-        `Category ID: ${categoryId}`,
+        findAndCount[0][0].category.name,
         page,
         limit,
       );

@@ -2,30 +2,27 @@ export class RecipeIngredientsResponseDTO {
   page: number;
   limit: number;
   total: number;
-  orderId: number;
-  product: {
-    id: number;
-    name: string;
-  };
-  ingredients: Array<{
-    id: number;
-    name: string;
-    quantity: number;
+  data: Array<{
+    product: { id: number; name: string };
+    orderId: number;
+    ingredientsIds: number[];
+    ingredientsNames: string[];
   }>;
 
   constructor(
     page: number,
     limit: number,
     total: number,
-    orderId: number,
-    product: { id: number; name: string },
-    ingredients: Array<{ id: number; name: string; quantity: number }>,
+    data: Array<{
+      product: { id: number; name: string };
+      orderId: number;
+      ingredientsIds: number[];
+      ingredientsNames: string[];
+    }>,
   ) {
     this.page = page;
     this.limit = limit;
     this.total = total;
-    this.orderId = orderId;
-    this.product = product;
-    this.ingredients = ingredients;
+    this.data = data;
   }
 }
