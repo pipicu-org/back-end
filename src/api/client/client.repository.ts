@@ -14,7 +14,6 @@ export interface ICLientRepository {
   create(client: Client): Promise<ClientResponseDTO>;
   update(id: number, client: Client): Promise<ClientResponseDTO | null>;
   delete(id: number): Promise<ClientResponseDTO | void>;
-  getClientByName(name: string): Promise<Client | null>;
 }
 
 export class ClientRepository implements ICLientRepository {
@@ -50,9 +49,14 @@ export class ClientRepository implements ICLientRepository {
 
   async getById(id: number): Promise<ClientResponseDTO | null> {
     try {
-      return await this.dbClientRepository.findOneBy({ id }).then((client) => {
-        return client ? new ClientResponseDTO(client) : null;
-      });
+      return await this.dbClientRepository
+        .createQueryBuilder('client')
+        .leftJoinAndSelect('client.orders', 'order')
+        .where('client.id = :id', { id })
+        .getOne()
+        .then((client) => {
+          return client ? new ClientResponseDTO(client) : null;
+        });
     } catch (error) {
       console.error(`Error fetching client with id ${id}:`, error);
       return null;
@@ -77,11 +81,7 @@ export class ClientRepository implements ICLientRepository {
         console.warn(`No client found with id ${id} to update`);
         return null;
       }
-      return await this.dbClientRepository
-        .findOneBy({ id })
-        .then((updatedClient) => {
-          return updatedClient ? new ClientResponseDTO(updatedClient) : null;
-        });
+      return existingClient ? new ClientResponseDTO({ ...client, id }) : null;
     } catch (error) {
       console.error(`Error updating client with id ${id}:`, error);
       return null;
@@ -100,18 +100,6 @@ export class ClientRepository implements ICLientRepository {
       }
     } catch (error) {
       console.error(`Error deleting client with id ${id}:`, error);
-    }
-  }
-
-  async getClientByName(name: string): Promise<Client | null> {
-    try {
-      const client = await this.dbClientRepository.findOne({
-        where: { name },
-      });
-      return client;
-    } catch (error) {
-      console.error(`Error fetching client by name "${name}":`, error);
-      return null;
     }
   }
 }
