@@ -6,17 +6,17 @@ import { ICLientRepository } from './client.repository';
 
 export interface IClientService {
   createClient(client: ClientRequestDTO): Promise<ClientResponseDTO>;
-  getClientById(id: number): Promise<ClientResponseDTO | null>;
+  getClientById(id: number): Promise<ClientResponseDTO | void>;
   updateClient(
     id: number,
     client: ClientRequestDTO,
-  ): Promise<ClientResponseDTO | null>;
-  deleteClient(id: number): Promise<ClientResponseDTO | null>;
+  ): Promise<ClientResponseDTO | void>;
+  deleteClient(id: number): Promise<ClientResponseDTO | void>;
   searchClients(
     search: string,
     page: number,
     limit: number,
-  ): Promise<ClientSearchResponseDTO | []>;
+  ): Promise<ClientSearchResponseDTO>;
 }
 
 export class ClientService implements IClientService {
@@ -35,19 +35,19 @@ export class ClientService implements IClientService {
     }
   }
 
-  async getClientById(id: number): Promise<ClientResponseDTO | null> {
+  async getClientById(id: number): Promise<ClientResponseDTO | void> {
     try {
       return await this._clientRepository.getById(id);
     } catch (error) {
       console.error(`Error fetching client with ID: ${id}`, error);
-      throw new Error('Failed to fetch client');
+      throw new Error('Failed to fetch client by ID ' + id);
     }
   }
 
   async updateClient(
     id: number,
     client: ClientRequestDTO,
-  ): Promise<ClientResponseDTO | null> {
+  ): Promise<ClientResponseDTO | void> {
     try {
       const newClient = this._clientMapper.createClientFromRequestDTO(client);
       return await this._clientRepository.update(id, newClient);
@@ -57,9 +57,9 @@ export class ClientService implements IClientService {
     }
   }
 
-  async deleteClient(id: number): Promise<ClientResponseDTO | null> {
+  async deleteClient(id: number): Promise<ClientResponseDTO | void> {
     try {
-      return (await this._clientRepository.delete(id)) ?? null;
+      return await this._clientRepository.delete(id);
     } catch (error) {
       console.error(`Error deleting client with ID: ${id}`, error);
       throw new Error('Failed to delete client');
@@ -70,7 +70,7 @@ export class ClientService implements IClientService {
     search: string,
     page: number,
     limit: number,
-  ): Promise<ClientSearchResponseDTO | []> {
+  ): Promise<ClientSearchResponseDTO> {
     try {
       return await this._clientRepository.searchByName(search, page, limit);
     } catch (error) {

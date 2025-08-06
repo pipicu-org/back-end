@@ -9,10 +9,10 @@ export interface ICLientRepository {
     search: string,
     page: number,
     limit: number,
-  ): Promise<ClientSearchResponseDTO | []>;
-  getById(id: number): Promise<ClientResponseDTO | null>;
+  ): Promise<ClientSearchResponseDTO>;
+  getById(id: number): Promise<ClientResponseDTO | void>;
   create(client: Client): Promise<ClientResponseDTO>;
-  update(id: number, client: Client): Promise<ClientResponseDTO | null>;
+  update(id: number, client: Client): Promise<ClientResponseDTO | void>;
   delete(id: number): Promise<ClientResponseDTO | void>;
 }
 
@@ -26,7 +26,7 @@ export class ClientRepository implements ICLientRepository {
     search: string,
     page: number,
     limit: number,
-  ): Promise<ClientSearchResponseDTO | []> {
+  ): Promise<ClientSearchResponseDTO> {
     try {
       const clients = await this.dbClientRepository
         .createQueryBuilder('client')
@@ -43,11 +43,11 @@ export class ClientRepository implements ICLientRepository {
       );
     } catch (error) {
       console.error(`Error searching clients by name "${search}":`, error);
-      return [];
+      throw new Error('Failed to search clients');
     }
   }
 
-  async getById(id: number): Promise<ClientResponseDTO | null> {
+  async getById(id: number): Promise<ClientResponseDTO | void> {
     try {
       return await this.dbClientRepository
         .createQueryBuilder('client')
@@ -55,11 +55,15 @@ export class ClientRepository implements ICLientRepository {
         .where('client.id = :id', { id })
         .getOne()
         .then((client) => {
-          return client ? new ClientResponseDTO(client) : null;
+          if (client) {
+            return new ClientResponseDTO(client);
+          } else {
+            throw new Error(`Client with id ${id} not found`);
+          }
         });
     } catch (error) {
       console.error(`Error fetching client with id ${id}:`, error);
-      return null;
+      throw new Error(`Could not fetch client with id ${id}`);
     }
   }
 
@@ -74,29 +78,27 @@ export class ClientRepository implements ICLientRepository {
     }
   }
 
-  async update(id: number, client: Client): Promise<ClientResponseDTO | null> {
+  async update(id: number, client: Client): Promise<ClientResponseDTO | void> {
     try {
       const existingClient = await this.dbClientRepository.update(id, client);
       if (existingClient.affected === 0) {
-        console.warn(`No client found with id ${id} to update`);
-        return null;
+        throw new Error(`Client with id ${id} not found`);
       }
-      return existingClient ? new ClientResponseDTO({ ...client, id }) : null;
+      return new ClientResponseDTO({ ...client, id });
     } catch (error) {
       console.error(`Error updating client with id ${id}:`, error);
-      return null;
+      throw new Error(`Could not update client with id ${id}`);
     }
   }
 
   async delete(id: number): Promise<ClientResponseDTO | void> {
     try {
-      const clientFounded = await this.dbClientRepository.findOneBy({ id });
-      if (clientFounded) {
+      const client = await this.dbClientRepository.findOneBy({ id });
+      if (client) {
         await this.dbClientRepository.delete(id);
-        return new ClientResponseDTO(clientFounded);
+        return new ClientResponseDTO(client);
       } else {
-        console.warn(`No client found with id ${id} to delete`);
-        return;
+        throw new Error(`Client with id ${id} not found`);
       }
     } catch (error) {
       console.error(`Error deleting client with id ${id}:`, error);
