@@ -143,7 +143,6 @@ export class OrderRepository implements IOrderRepository {
         .leftJoinAndSelect('preparation.state', 'preparationState')
         .where('order.id = :id', { id: orderId })
         .getOne();
-
       if (!order) {
         throw new Error(`Order with id ${orderId} not found`);
       }

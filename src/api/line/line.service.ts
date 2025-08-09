@@ -6,8 +6,8 @@ export interface ILineService {
   changeStateLine(
     lineId: number,
     stateId: number,
-  ): Promise<LineResponseDTO | null>;
-  findById(id: number): Promise<LineResponseDTO | null>;
+  ): Promise<LineResponseDTO | void>;
+  findById(id: number): Promise<LineResponseDTO | void>;
   getLinesByOrderId(orderId: number): Promise<LineResponseDTO[]>;
   getLinesByState(
     stateId: number,
@@ -22,7 +22,7 @@ export class LineService implements ILineService {
   async changeStateLine(
     lineId: number,
     stateId: number,
-  ): Promise<LineResponseDTO | null> {
+  ): Promise<LineResponseDTO | void> {
     try {
       return await this._lineRepository.changeStateLine(lineId, stateId);
     } catch (error) {
@@ -31,7 +31,7 @@ export class LineService implements ILineService {
     }
   }
 
-  async findById(id: number): Promise<LineResponseDTO | null> {
+  async findById(id: number): Promise<LineResponseDTO | void> {
     try {
       return await this._lineRepository.findById(id);
     } catch (error) {

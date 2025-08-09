@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { ILineService } from './line.service';
 
 export class LineController {
-  constructor(private readonly lineService: ILineService) {}
+  constructor(private readonly _lineService: ILineService) {}
 
   async changeStateLine(req: Request, res: Response, next: NextFunction) {
     try {
@@ -11,7 +11,10 @@ export class LineController {
       if (isNaN(lineId)) {
         throw new Error('Invalid line ID');
       }
-      const updatedLine = await this.lineService.changeStateLine(lineId, state);
+      const updatedLine = await this._lineService.changeStateLine(
+        lineId,
+        state,
+      );
       res.status(200).json(updatedLine);
     } catch (error) {
       next(error);
@@ -24,7 +27,7 @@ export class LineController {
       if (isNaN(id)) {
         throw new Error('Invalid line ID');
       }
-      const line = await this.lineService.findById(id);
+      const line = await this._lineService.findById(id);
       if (!line) {
         res.status(404).json({ message: 'Line not found' });
       } else {
@@ -41,7 +44,7 @@ export class LineController {
       if (isNaN(orderId)) {
         throw new Error('Invalid order ID');
       }
-      const lines = await this.lineService.getLinesByOrderId(orderId);
+      const lines = await this._lineService.getLinesByOrderId(orderId);
       res.status(200).json(lines);
     } catch (error) {
       next(error);
@@ -58,7 +61,7 @@ export class LineController {
         throw new Error('Invalid state ID');
       }
 
-      const linesResponse = await this.lineService.getLinesByState(
+      const linesResponse = await this._lineService.getLinesByState(
         stateId,
         page,
         limit,

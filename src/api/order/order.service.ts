@@ -166,7 +166,7 @@ export class OrderService implements IOrderService {
     }
   }
 
-  hasRepeatedProducts(order: OrderRequestDTO): boolean {
+  private hasRepeatedProducts(order: OrderRequestDTO): boolean {
     const products = order.lines.map((line) => line.product);
     const uniqueProducts = new Set(products);
     return uniqueProducts.size !== products.length;

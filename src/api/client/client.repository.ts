@@ -18,7 +18,7 @@ export interface ICLientRepository {
 
 export class ClientRepository implements ICLientRepository {
   constructor(
-    private readonly dbClientRepository: Repository<Client>,
+    private readonly _dbClientRepository: Repository<Client>,
     private readonly _clientMapper: ClientMapper,
   ) {}
 
@@ -28,7 +28,7 @@ export class ClientRepository implements ICLientRepository {
     limit: number,
   ): Promise<ClientSearchResponseDTO> {
     try {
-      const clients = await this.dbClientRepository
+      const clients = await this._dbClientRepository
         .createQueryBuilder('client')
         .leftJoinAndSelect('client.orders', 'order')
         .where('client.name LIKE :search', { search: `%${search}%` })
@@ -49,14 +49,14 @@ export class ClientRepository implements ICLientRepository {
 
   async getById(id: number): Promise<ClientResponseDTO | void> {
     try {
-      return await this.dbClientRepository
+      return await this._dbClientRepository
         .createQueryBuilder('client')
         .leftJoinAndSelect('client.orders', 'order')
         .where('client.id = :id', { id })
         .getOne()
         .then((client) => {
           if (client) {
-            return new ClientResponseDTO(client);
+            return this._clientMapper.toResponseDTO(client);
           } else {
             throw new Error(`Client with id ${id} not found`);
           }
@@ -69,8 +69,8 @@ export class ClientRepository implements ICLientRepository {
 
   async create(client: Client): Promise<ClientResponseDTO> {
     try {
-      return await this.dbClientRepository.save(client).then((savedClient) => {
-        return new ClientResponseDTO(savedClient);
+      return await this._dbClientRepository.save(client).then((savedClient) => {
+        return this._clientMapper.toResponseDTO(savedClient);
       });
     } catch (error) {
       console.error('Error creating client:', error);
@@ -80,11 +80,11 @@ export class ClientRepository implements ICLientRepository {
 
   async update(id: number, client: Client): Promise<ClientResponseDTO | void> {
     try {
-      const existingClient = await this.dbClientRepository.update(id, client);
+      const existingClient = await this._dbClientRepository.update(id, client);
       if (existingClient.affected === 0) {
         throw new Error(`Client with id ${id} not found`);
       }
-      return new ClientResponseDTO({ ...client, id });
+      return this._clientMapper.toResponseDTO({ ...client, id });
     } catch (error) {
       console.error(`Error updating client with id ${id}:`, error);
       throw new Error(`Could not update client with id ${id}`);
@@ -93,10 +93,10 @@ export class ClientRepository implements ICLientRepository {
 
   async delete(id: number): Promise<ClientResponseDTO | void> {
     try {
-      const client = await this.dbClientRepository.findOneBy({ id });
+      const client = await this._dbClientRepository.findOneBy({ id });
       if (client) {
-        await this.dbClientRepository.delete(id);
-        return new ClientResponseDTO(client);
+        await this._dbClientRepository.delete(id);
+        return this._clientMapper.toResponseDTO(client);
       } else {
         throw new Error(`Client with id ${id} not found`);
       }

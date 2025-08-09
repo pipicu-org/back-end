@@ -1,4 +1,5 @@
 import { ClientRequestDTO } from '../DTO/request/clientRequestDTO';
+import { ClientResponseDTO } from '../DTO/response/clientResponseDTO';
 import { ClientSearchResponseDTO } from '../DTO/response/clientSearchResponseDTO';
 import { Client } from '../entity';
 
@@ -42,5 +43,14 @@ export class ClientMapper {
       })),
     );
     return result;
+  }
+
+  public toResponseDTO(client: Client): ClientResponseDTO {
+    try {
+      return new ClientResponseDTO(client);
+    } catch (error) {
+      console.error('Error creating client response DTO:', error);
+      throw new Error('Failed to create client response DTO');
+    }
   }
 }

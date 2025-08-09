@@ -5,45 +5,45 @@ import { ProductSearchResponseDTO } from '../models/DTO/response/productSearchRe
 import { ProductResponseDTO } from '../models/DTO/response/productResponseDTO';
 
 export interface IProductRepository {
-  findById(id: number): Promise<ProductResponseDTO | null>;
+  findById(id: number): Promise<ProductResponseDTO | void>;
   create(product: Product): Promise<ProductResponseDTO>;
-  update(id: number, product: Product): Promise<ProductResponseDTO | null>;
-  delete(id: number): Promise<ProductResponseDTO | null>;
+  update(id: number, product: Product): Promise<ProductResponseDTO | void>;
+  delete(id: number): Promise<ProductResponseDTO | void>;
   getByCategoryId(
     categoryId: number,
     page: number,
     limit: number,
-  ): Promise<ProductSearchResponseDTO | []>;
+  ): Promise<ProductSearchResponseDTO>;
   getByName(
     name: string,
     page: number,
     limit: number,
-  ): Promise<ProductSearchResponseDTO | []>;
+  ): Promise<ProductSearchResponseDTO>;
 }
 
 export class ProductRepository implements IProductRepository {
   constructor(
-    private readonly dbProductRepository: Repository<Product>,
+    private readonly _dbProductRepository: Repository<Product>,
     private readonly _productMapper: ProductMapper,
   ) {}
 
-  async findById(id: number): Promise<ProductResponseDTO | null> {
+  async findById(id: number): Promise<ProductResponseDTO | void> {
     try {
-      const product = await this.dbProductRepository.findOneBy({ id });
+      const product = await this._dbProductRepository.findOneBy({ id });
       if (!product) {
         console.warn(`No product found with id ${id}`);
-        return null;
+        throw new Error('Product not found');
       }
       return this._productMapper.toResponseDTO(product);
     } catch (error) {
       console.error(`Error finding product with id ${id}:`, error);
-      return null;
+      throw new Error('Could not find product');
     }
   }
 
   async create(product: Product): Promise<ProductResponseDTO> {
     try {
-      const productCreated = await this.dbProductRepository.save(product);
+      const productCreated = await this._dbProductRepository.save(product);
       return this._productMapper.toResponseDTO(productCreated);
     } catch (error) {
       console.error('Error creating product:', error);
@@ -53,10 +53,10 @@ export class ProductRepository implements IProductRepository {
   async update(
     id: number,
     product: Product,
-  ): Promise<ProductResponseDTO | null> {
+  ): Promise<ProductResponseDTO | void> {
     product.id = id;
     try {
-      const existingProduct = await this.dbProductRepository
+      const existingProduct = await this._dbProductRepository
         .createQueryBuilder('product')
         .leftJoinAndSelect('product.category', 'category')
         .leftJoinAndSelect('product.recipe', 'recipe')
@@ -66,23 +66,23 @@ export class ProductRepository implements IProductRepository {
         .getOne();
       if (!existingProduct) {
         console.warn(`No product found with id ${id} to update`);
-        return null;
+        throw new Error('Product not found');
       }
       product.recipe.id = existingProduct.recipe.id;
-      await this.dbProductRepository.manager.remove(
+      await this._dbProductRepository.manager.remove(
         existingProduct.recipe.recipeIngredients,
       );
-      const updatedProduct = await this.dbProductRepository.save(product);
+      const updatedProduct = await this._dbProductRepository.save(product);
       return this._productMapper.toResponseDTO(updatedProduct);
     } catch (error) {
       console.error(`Error updating product with id ${id}:`, error);
-      return null;
+      throw new Error('Could not update product');
     }
   }
 
-  async delete(id: number): Promise<ProductResponseDTO | null> {
+  async delete(id: number): Promise<ProductResponseDTO | void> {
     try {
-      const productToDelete = await this.dbProductRepository
+      const productToDelete = await this._dbProductRepository
         .createQueryBuilder('product')
         .leftJoinAndSelect('product.category', 'category')
         .leftJoinAndSelect('product.recipe', 'recipe')
@@ -92,14 +92,14 @@ export class ProductRepository implements IProductRepository {
         .getOne();
       if (!productToDelete) {
         console.warn(`No product found with id ${id} to delete`);
-        return null;
+        throw new Error('Product not found');
       }
-      await this.dbProductRepository.manager.remove(productToDelete.recipe);
-      await this.dbProductRepository.delete(id);
+      await this._dbProductRepository.manager.remove(productToDelete.recipe);
+      await this._dbProductRepository.delete(id);
       return this._productMapper.toResponseDTO(productToDelete);
     } catch (error) {
       console.error(`Error deleting product with id ${id}:`, error);
-      return null;
+      throw new Error('Could not delete product');
     }
   }
 
@@ -107,9 +107,9 @@ export class ProductRepository implements IProductRepository {
     categoryId: number,
     page: number,
     limit: number,
-  ): Promise<ProductSearchResponseDTO | []> {
+  ): Promise<ProductSearchResponseDTO> {
     try {
-      const findAndCount = await this.dbProductRepository.findAndCount({
+      const findAndCount = await this._dbProductRepository.findAndCount({
         where: { category: { id: categoryId } },
         skip: (page - 1) * limit,
         take: limit,
@@ -125,7 +125,7 @@ export class ProductRepository implements IProductRepository {
         `Error finding products by category id ${categoryId}:`,
         error,
       );
-      return [];
+      throw new Error('Could not find products');
     }
   }
 
@@ -133,9 +133,9 @@ export class ProductRepository implements IProductRepository {
     name: string,
     page: number,
     limit: number,
-  ): Promise<ProductSearchResponseDTO | []> {
+  ): Promise<ProductSearchResponseDTO> {
     try {
-      const findAndCount = await this.dbProductRepository.findAndCount({
+      const findAndCount = await this._dbProductRepository.findAndCount({
         where: { name: Like(`%${name}%`) },
         skip: (page - 1) * limit,
         take: limit,
@@ -148,7 +148,7 @@ export class ProductRepository implements IProductRepository {
       );
     } catch (error) {
       console.error(`Error finding products by name ${name}:`, error);
-      return [];
+      throw new Error('Could not find products');
     }
   }
 }

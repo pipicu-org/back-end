@@ -16,7 +16,10 @@ export class RecipeIngredientsRepository
     private readonly _dbRecipeIngredientsRepository: Repository<RecipeIngredients>,
   ) {}
 
-  async getKitchenBoard(page: number, limit: number): Promise<any> {
+  async getKitchenBoard(
+    page: number,
+    limit: number,
+  ): Promise<RecipeIngredientsResponseDTO> {
     const countAndResults = await this._dbRecipeIngredientsRepository.manager
       .createQueryBuilder()
       .select('p.id', 'id')

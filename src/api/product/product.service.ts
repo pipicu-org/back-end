@@ -10,13 +10,13 @@ export interface IProductService {
     page: number,
     limit: number,
   ): Promise<ProductSearchResponseDTO | []>;
-  getProductById(id: number): Promise<ProductResponseDTO | null>;
+  getProductById(id: number): Promise<ProductResponseDTO | void>;
   createProduct(product: ProductRequestDTO): Promise<ProductResponseDTO>;
   updateProduct(
     id: number,
     product: ProductRequestDTO,
-  ): Promise<ProductResponseDTO | null>;
-  deleteProduct(id: number): Promise<ProductResponseDTO | null>;
+  ): Promise<ProductResponseDTO | void>;
+  deleteProduct(id: number): Promise<ProductResponseDTO | void>;
   getProductsByCategoryId(
     categoryId: number,
     page: number,
@@ -30,7 +30,7 @@ export class ProductService implements IProductService {
     private readonly _productMapper: ProductMapper,
   ) {}
 
-  async getProductById(id: number): Promise<ProductResponseDTO | null> {
+  async getProductById(id: number): Promise<ProductResponseDTO | void> {
     return this.productRepository.findById(id);
   }
 
@@ -50,12 +50,12 @@ export class ProductService implements IProductService {
   async updateProduct(
     id: number,
     product: ProductRequestDTO,
-  ): Promise<ProductResponseDTO | null> {
+  ): Promise<ProductResponseDTO | void> {
     const productEntity = await this._productMapper.requestDTOToEntity(product);
     return this.productRepository.update(id, productEntity);
   }
 
-  async deleteProduct(id: number): Promise<ProductResponseDTO | null> {
+  async deleteProduct(id: number): Promise<ProductResponseDTO | void> {
     return this.productRepository.delete(id);
   }
 

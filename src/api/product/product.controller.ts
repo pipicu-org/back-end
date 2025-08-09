@@ -3,13 +3,13 @@ import { IProductService } from './product.service';
 import { ProductRequestDTO } from '../models/DTO/request/productRequestDTO';
 
 export class ProductController {
-  constructor(private readonly productService: IProductService) {}
+  constructor(private readonly _productService: IProductService) {}
   async searchProducts(req: Request, res: Response, next: NextFunction) {
     try {
       const search = req.query.search as string;
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
-      const findAndCount = await this.productService.getByName(
+      const findAndCount = await this._productService.getByName(
         search,
         page,
         limit,
@@ -23,7 +23,7 @@ export class ProductController {
   async getProductById(req: Request, res: Response, next: NextFunction) {
     try {
       const id = Number(req.params.id);
-      const product = await this.productService.getProductById(id);
+      const product = await this._productService.getProductById(id);
       if (product) {
         res.status(200).json(product);
       } else {
@@ -38,7 +38,7 @@ export class ProductController {
     try {
       const productRequestDTO = req.body as unknown as ProductRequestDTO;
       const product =
-        await this.productService.createProduct(productRequestDTO);
+        await this._productService.createProduct(productRequestDTO);
       res.status(201).json(product);
     } catch (error) {
       next(error);
@@ -48,7 +48,7 @@ export class ProductController {
     try {
       const id = Number(req.params.id);
       const productRequestDTO = req.body;
-      const updatedProduct = await this.productService.updateProduct(
+      const updatedProduct = await this._productService.updateProduct(
         id,
         productRequestDTO,
       );
@@ -65,7 +65,7 @@ export class ProductController {
   async deleteProduct(req: Request, res: Response, next: NextFunction) {
     try {
       const id = Number(req.params.id);
-      const deletedProduct = await this.productService.deleteProduct(id);
+      const deletedProduct = await this._productService.deleteProduct(id);
       if (deletedProduct) {
         res.status(200).json(deletedProduct);
       } else {
@@ -85,7 +85,7 @@ export class ProductController {
       const categoryId = Number(req.params.categoryId);
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
-      const products = await this.productService.getProductsByCategoryId(
+      const products = await this._productService.getProductsByCategoryId(
         categoryId,
         page,
         limit,

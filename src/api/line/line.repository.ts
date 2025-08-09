@@ -8,8 +8,8 @@ export interface ILineRepository {
   changeStateLine(
     lineId: number,
     state: number,
-  ): Promise<LineResponseDTO | null>;
-  findById(id: number): Promise<LineResponseDTO | null>;
+  ): Promise<LineResponseDTO | void>;
+  findById(id: number): Promise<LineResponseDTO | void>;
   getLinesByOrderId(orderId: number): Promise<LineResponseDTO[]>;
   getLinesByState(
     stateId: number,
@@ -30,7 +30,7 @@ export class LineRepository implements ILineRepository {
   async changeStateLine(
     lineId: number,
     stateId: number,
-  ): Promise<LineResponseDTO | null> {
+  ): Promise<LineResponseDTO | void> {
     try {
       const line = await this._dbLineRepository
         .createQueryBuilder('line')
@@ -77,7 +77,7 @@ export class LineRepository implements ILineRepository {
     }
   }
 
-  async findById(id: number): Promise<LineResponseDTO | null> {
+  async findById(id: number): Promise<LineResponseDTO | void> {
     try {
       const line = await this._dbLineRepository
         .createQueryBuilder('line')
@@ -136,29 +136,7 @@ export class LineRepository implements ILineRepository {
         .skip((page - 1) * limit)
         .take(limit)
         .getManyAndCount();
-      const responseDTO = new LineSearchResponseDTO(
-        linesAndCount[1],
-        page,
-        limit,
-        linesAndCount[0].map((line) => ({
-          order: { id: line.order.id.toString() },
-          client: {
-            id: line.order.client.id.toString(),
-            name: line.order.client.name,
-          },
-          line: {
-            id: line.id.toString(),
-            quantity: line.quantity,
-            product: {
-              id: line.product.id.toString(),
-              name: line.product.name,
-            },
-          },
-          state: line.preparation.state.name,
-        })),
-      );
-
-      return responseDTO;
+      return this._lineMapper.toSearchResponseDTO(linesAndCount, page, limit);
     } catch (error) {
       console.error(`Error fetching lines by state with id ${stateId}:`, error);
       throw new Error('Failed to fetch lines by state');

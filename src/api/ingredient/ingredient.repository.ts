@@ -2,22 +2,26 @@ import { Repository } from 'typeorm';
 import { Ingredient } from '../models/entity';
 import { IngredientSearchResponseDTO } from '../models/DTO/response/ingredientSearchResponseDTO';
 import { IngredientMapper } from '../models/mappers/ingredientMapper';
+import { IngredientResponseDTO } from '../models/DTO/response/ingredientResponseDTO';
 
 export interface IIngredientRepository {
   searchIngredient(
     search: string,
     page: number,
     limit: number,
-  ): Promise<IngredientSearchResponseDTO | null>;
-  findById(id: number): Promise<Ingredient | null>;
-  create(ingredient: Ingredient): Promise<Ingredient>;
-  update(id: number, ingredient: Ingredient): Promise<Ingredient | null>;
-  delete(id: number): Promise<Ingredient | void>;
+  ): Promise<IngredientSearchResponseDTO | void>;
+  findById(id: number): Promise<IngredientResponseDTO | void>;
+  create(ingredient: Ingredient): Promise<IngredientResponseDTO | void>;
+  update(
+    id: number,
+    ingredient: Ingredient,
+  ): Promise<IngredientResponseDTO | void>;
+  delete(id: number): Promise<IngredientResponseDTO | void>;
 }
 
 export class IngredientRepository implements IIngredientRepository {
   constructor(
-    private readonly dbIngredientRepository: Repository<Ingredient>,
+    private readonly _dbIngredientRepository: Repository<Ingredient>,
     private readonly _ingredientMapper: IngredientMapper,
   ) {}
 
@@ -25,9 +29,9 @@ export class IngredientRepository implements IIngredientRepository {
     search: string,
     page: number,
     limit: number,
-  ): Promise<IngredientSearchResponseDTO | null> {
+  ): Promise<IngredientSearchResponseDTO | void> {
     try {
-      const results = await this.dbIngredientRepository
+      const results = await this._dbIngredientRepository
         .createQueryBuilder('ingredient')
         .where('ingredient.name LIKE :search', { search: `%${search}%` })
         .skip((page - 1) * limit)
@@ -41,57 +45,74 @@ export class IngredientRepository implements IIngredientRepository {
       );
     } catch (error) {
       console.error('Error fetching all ingredients:', error);
-      return null;
+      throw new Error('Could not fetch ingredients');
     }
   }
 
-  async findById(id: number): Promise<Ingredient | null> {
+  async findById(id: number): Promise<IngredientResponseDTO | void> {
     try {
-      return await this.dbIngredientRepository.findOneBy({ id });
+      const ingredient = await this._dbIngredientRepository.findOneBy({ id });
+      if (!ingredient) {
+        throw new Error(`Ingredient with id ${id} not found`);
+      }
+      return this._ingredientMapper.toResponseDTO(ingredient);
     } catch (error) {
       console.error(`Error fetching ingredient with id ${id}:`, error);
-      return null;
+      throw new Error(`Could not fetch ingredient with id ${id}`);
     }
   }
 
-  async create(ingredient: Ingredient): Promise<Ingredient> {
+  async create(ingredient: Ingredient): Promise<IngredientResponseDTO | void> {
     try {
-      return await this.dbIngredientRepository.save(ingredient);
+      const createdIngredient =
+        await this._dbIngredientRepository.save(ingredient);
+      return this._ingredientMapper.toResponseDTO(createdIngredient);
     } catch (error) {
       console.error('Error creating ingredient:', error);
       throw new Error('Could not create ingredient');
     }
   }
 
-  async update(id: number, ingredient: Ingredient): Promise<Ingredient | null> {
+  async update(
+    id: number,
+    ingredient: Ingredient,
+  ): Promise<IngredientResponseDTO | void> {
     try {
-      const existingIngredient = await this.dbIngredientRepository.update(
+      const existingIngredient = await this._dbIngredientRepository.update(
         id,
         ingredient,
       );
       if (existingIngredient.affected === 0) {
-        console.warn(`No ingredient found with id ${id} to update`);
-        return null;
+        throw new Error(`Ingredient with id ${id} not found`);
       }
-      return await this.dbIngredientRepository.findOneBy({ id });
+      const updatedIngredient = await this._dbIngredientRepository
+        .createQueryBuilder('ingredient')
+        .where('ingredient.id = :id', { id })
+        .getOne();
+      if (!updatedIngredient) {
+        throw new Error(`Ingredient with id ${id} not found after update`);
+      }
+      return this._ingredientMapper.toResponseDTO(updatedIngredient);
     } catch (error) {
       console.error(`Error updating ingredient with id ${id}:`, error);
-      return null;
+      throw new Error(`Could not update ingredient with id ${id}`);
     }
   }
 
-  async delete(id: number): Promise<Ingredient | void> {
+  async delete(id: number): Promise<IngredientResponseDTO | void> {
     try {
-      const existingIngredient = await this.dbIngredientRepository.findOneBy({
+      const existingIngredient = await this._dbIngredientRepository.findOneBy({
         id,
       });
       if (existingIngredient) {
-        await this.dbIngredientRepository.delete(id);
+        await this._dbIngredientRepository.delete(id);
+        return this._ingredientMapper.toResponseDTO(existingIngredient);
       } else {
-        console.warn(`No ingredient found with id ${id} to delete`);
+        throw new Error(`Ingredient with id ${id} not found`);
       }
     } catch (error) {
       console.error(`Error deleting ingredient with id ${id}:`, error);
+      throw new Error(`Could not delete ingredient with id ${id}`);
     }
   }
 }
