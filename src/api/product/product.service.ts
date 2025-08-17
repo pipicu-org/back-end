@@ -63,7 +63,7 @@ export class ProductService implements IProductService {
     categoryId: number,
     page: number,
     limit: number,
-  ): Promise<ProductSearchResponseDTO | []> {
+  ): Promise<ProductSearchResponseDTO> {
     return await this.productRepository.getByCategoryId(
       categoryId,
       page,
