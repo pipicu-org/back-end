@@ -1,0 +1,51 @@
+name: 'Backend Workflow'
+on:
+  push:
+    branches:
+      - '*'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: pipicucu
+        ports:
+          - 5432:5432
+        options: >-
+          --health-check-interval=5s
+          --health-check-timeout=2s
+          --health-check-retries=5
+          --health-cmd="pg_isready -U postgres"
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: ./src
+    env:
+      POSTGRES_PORT: 5432
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: checkout node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '23'
+      - name: install dependencies
+        run: rm -rf node_modules && rm -rf package-lock.json && npm install
+      - name: cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+            ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+      - name: run lint
+        run: npm run lint
+      - name: build
+        run: npm run build

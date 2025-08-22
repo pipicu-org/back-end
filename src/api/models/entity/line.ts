@@ -9,18 +9,10 @@ import {
 import { Order } from './order';
 import { Product } from './product';
 import { Preparation } from './preparation';
-
-interface ILine {
-  id: number;
-  order: Order;
-  product: Product;
-  quantity: number;
-  totalPrice: number;
-  addedAt: Date;
-}
+import { ProductPersonalization } from './productPersonalization';
 
 @Entity('Line')
-export class Line implements ILine {
+export class Line {
   @PrimaryGeneratedColumn()
   id!: number;
 
@@ -49,6 +41,15 @@ export class Line implements ILine {
     cascade: ['insert', 'update', 'remove'],
     eager: true,
   })
+  @ManyToOne(
+    () => ProductPersonalization,
+    (personalizations) => personalizations.line,
+    {
+      cascade: ['insert', 'update', 'remove'],
+    },
+  )
+  personalizations!: ProductPersonalization[];
+
   @JoinColumn([{ name: 'preparationId', referencedColumnName: 'id' }])
   preparation!: Preparation;
 }

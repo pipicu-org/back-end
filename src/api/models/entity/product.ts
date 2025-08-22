@@ -10,6 +10,7 @@ import {
 import { Category } from './category';
 import { Recipe } from './recipe';
 import { Line } from './line';
+import { ProductPersonalization } from './productPersonalization';
 
 @Entity('Product')
 export class Product {
@@ -37,6 +38,16 @@ export class Product {
   })
   @JoinColumn([{ name: 'recipeId', referencedColumnName: 'id' }])
   recipe!: Recipe;
+
+  @OneToMany(
+    () => ProductPersonalization,
+    (personalization) => personalization.product,
+    {
+      nullable: true,
+      cascade: ['insert', 'update', 'remove'],
+    },
+  )
+  personalizations!: ProductPersonalization[];
 
   @OneToMany(() => Line, (line) => line.product, {})
   lines!: Line[];

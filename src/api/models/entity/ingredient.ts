@@ -1,6 +1,13 @@
 import { IsNotEmpty } from 'class-validator';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { RecipeIngredients } from './recipeIngredients';
+import { Personalization } from './personalization';
 
 interface IIngredient {
   id: number;
@@ -34,4 +41,13 @@ export class Ingredient implements IIngredient {
     },
   )
   recipeIngredients!: RecipeIngredients[];
+
+  @OneToOne(
+    () => Personalization,
+    (personalization) => personalization.ingredient,
+    {
+      nullable: true,
+    },
+  )
+  personalization!: Personalization;
 }
