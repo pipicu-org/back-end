@@ -18,6 +18,7 @@ export class IngredientSeed implements ISeed<Ingredient> {
       name: 'Jamon',
       price: 100,
       recipeIngredients: [],
+      personalization: null,
     },
   ];
 

@@ -3,6 +3,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -41,7 +42,7 @@ export class Line {
     cascade: ['insert', 'update', 'remove'],
     eager: true,
   })
-  @ManyToOne(
+  @OneToMany(
     () => ProductPersonalization,
     (personalizations) => personalizations.line,
     {

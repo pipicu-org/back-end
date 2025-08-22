@@ -2,6 +2,7 @@ import {
   Column,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -22,7 +23,7 @@ export class Personalization {
   ])
   productPersonalization!: ProductPersonalization;
 
-  @OneToOne(() => Ingredient, (ingredient) => ingredient.personalization)
+  @ManyToOne(() => Ingredient, (ingredient) => ingredient.personalization)
   @JoinColumn([{ name: 'ingredientId', referencedColumnName: 'id' }])
   ingredient!: Ingredient;
 
