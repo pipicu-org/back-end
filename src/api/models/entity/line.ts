@@ -49,7 +49,7 @@ export class Line {
       cascade: ['insert', 'update', 'remove'],
     },
   )
-  personalizations!: ProductPersonalization[];
+  personalizations!: ProductPersonalization[] | null;
 
   @JoinColumn([{ name: 'preparationId', referencedColumnName: 'id' }])
   preparation!: Preparation;

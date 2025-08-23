@@ -47,3 +47,19 @@ jobs:
             ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
       - name: build
         run: npm run build
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./src
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build docker image
+        run: docker build -t api-pipicucu .
+      - name: Log in to dockerhub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+      - name: Push docker image
+        run:
+          docker tag api-pipicucu ${{ secrets.DOCKER_USERNAME }}/menuproject:api-pipicucu && \
+          docker push ${{ secrets.DOCKER_USERNAME }}/menuproject:api-pipicucu

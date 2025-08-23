@@ -47,7 +47,7 @@ export class Product {
       cascade: ['insert', 'update', 'remove'],
     },
   )
-  personalizations!: ProductPersonalization[];
+  personalizations!: ProductPersonalization[] | null;
 
   @OneToMany(() => Line, (line) => line.product, {})
   lines!: Line[];
