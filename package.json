@@ -32,7 +32,7 @@
     "npm": "^11.3.0",
     "prettier": "^3.5.3",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.2"
   },
   "dependencies": {
     "class-validator": "^0.14.2",
