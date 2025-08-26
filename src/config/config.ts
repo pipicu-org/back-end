@@ -16,7 +16,7 @@ interface Config {
 
 const config: Config = {
   port: Number(process.env.PORT) || 9091,
-  nodeEnv: process.env.NODE_ENV ?? 'development',
+  nodeEnv: process.env.NODE_ENV ?? 'production',
   postgres: {
     host: process.env.POSTGRES_HOST ?? 'localhost',
     port: Number(process.env.POSTGRES_PORT ?? 8080),

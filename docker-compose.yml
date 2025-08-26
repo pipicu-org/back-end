@@ -43,15 +43,18 @@ services:
       db-pipicucu:
         condition: service_healthy
       migrations:
-        condition: service_healthy
+        condition: service_completed_successfully
     environment:
       - POSTGRES_HOST=db-pipicucu
       - POSTGRES_PORT=5432
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=pipicucu
+      - NODE_ENV=development
     networks:
       - pipicucu-network
+    volumes:
+      - .:/src
     ports:
       - 9091:9091
 networks:
