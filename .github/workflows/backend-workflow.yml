@@ -55,7 +55,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-files
-          path: ./dist
+          path: ./build
   deploy:
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && contains(fromJSON('["main"]'), github.ref_name)
