@@ -1,6 +1,6 @@
 services:
   db-pipicucu:
-    image: postgres:12
+    image: postgres:15
     container_name: db-pipicucu
     environment:
       POSTGRES_USER: postgres

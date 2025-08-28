@@ -9,7 +9,7 @@ RUN id -u deploy || adduser -S deploy -u 1001
 WORKDIR /app
 COPY --from=build --chown=deploy:nodejs . .
 USER deploy
-EXPOSE 3000
+EXPOSE 3001
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-  CMD wget --spider http://localhost:3000 || exit 1
+  CMD wget --spider http://localhost:3001 || exit 1
 CMD [ "npm", "run", "start:dev" ]
