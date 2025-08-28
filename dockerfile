@@ -10,6 +10,7 @@ WORKDIR /app
 COPY --from=build --chown=deploy:nodejs . .
 USER deploy
 EXPOSE 3001
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-  CMD wget --spider http://localhost:3001 || exit 1
-CMD [ "npm", "run", "start:dev" ]
+# HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+#   CMD wget --spider http://localhost:3001 || exit 1
+# CMD [ "npm", "run", "start:dev" ]
+CMD ["node", "build/server.js"]
