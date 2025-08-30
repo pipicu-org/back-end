@@ -1,7 +1,7 @@
 import { DataSource } from 'typeorm';
-import config from './config';
 import * as models from '../api/models/entity';
 import { SeedRunner } from './seeds/seedRunner';
+import config from './config';
 
 export const AppDataSource = new DataSource({
   type: `postgres`,
@@ -11,8 +11,11 @@ export const AppDataSource = new DataSource({
   password: config.postgres.password,
   database: config.postgres.database,
   entities: models,
-  migrations: ['src/migrations/*.ts'],
-  synchronize: config.nodeEnv == 'development',
+  migrations:
+    config.nodeEnv == 'development'
+      ? ['src/migrations/*.ts']
+      : ['build/migrations/*.js'],
+  synchronize: false,
   logging: false,
 });
 
@@ -25,9 +28,10 @@ export async function initializeDataSource() {
       );
     })
     .catch((err) => {
-      console.error(
-        'Ha habido un error con la conexion a la base de datos con typeORM',
-        err,
+      throw new Error(
+        'Error al inicializar la fuente de datos con typeORM: ' +
+          err +
+          err.stack,
       );
     });
   const seedRunner = new SeedRunner(AppDataSource);

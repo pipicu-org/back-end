@@ -15,48 +15,28 @@ services:
       test: ['CMD-SHELL', 'pg_isready -U postgres']
       timeout: 30s
       retries: 5
-  migrations:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: node:23-alpine
-    container_name: migrations
-    depends_on:
-      db-pipicucu:
-        condition: service_healthy
-    environment:
-      - POSTGRES_HOST=db-pipicucu
-      - POSTGRES_PORT=5432
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=pipicucu
-    networks:
-      - pipicucu-network
-    command: ['npm', 'run', 'migration:run']
   api-pipicucu:
     build:
       context: .
-      dockerfile: Dockerfile
-    image: node:23-alpine
     container_name: api-pipicucu
+    image: node:24-alpine3.22
     depends_on:
       db-pipicucu:
         condition: service_healthy
-      migrations:
-        condition: service_completed_successfully
     environment:
       - POSTGRES_HOST=db-pipicucu
       - POSTGRES_PORT=5432
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=pipicucu
-      - NODE_ENV=development
+      - PORT=3001
+      - NODE_ENV=production
     networks:
       - pipicucu-network
     volumes:
       - .:/src
     ports:
-      - 9091:9091
+      - 3001:3001
 networks:
   pipicucu-network:
     driver: bridge
