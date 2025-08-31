@@ -13,5 +13,4 @@ USER deploy
 EXPOSE 3001
 # HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
 #   CMD wget --spider http://localhost:3001 || exit 1
-CMD [ "npm", "run", "start" ]
-
+CMD ["sh", "./entrypoint.sh"]
