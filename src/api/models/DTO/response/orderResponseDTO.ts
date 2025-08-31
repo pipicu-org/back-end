@@ -15,6 +15,12 @@ export class OrderResponseDTO {
     quantity: number;
     totalPrice: number;
     state: string;
+    personalization: Array<{
+      id: string;
+      quantity: number;
+      ingredient: string;
+      note: string;
+    }> | null;
   }>;
 
   constructor(order: Order) {
@@ -32,6 +38,14 @@ export class OrderResponseDTO {
       quantity: line.quantity,
       totalPrice: line.product.price * line.quantity,
       state: line.preparation.state.name,
+      personalization: line.personalizations
+        ? line.personalizations.map((item) => ({
+            id: item.id.toString(),
+            quantity: item.personalization.quantity,
+            ingredient: item.personalization.ingredient.name,
+            note: item.personalization.note,
+          }))
+        : null,
     }));
   }
 }

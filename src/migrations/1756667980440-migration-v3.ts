@@ -1,12 +1,12 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class MigrationV31755985248363 implements MigrationInterface {
-    name = 'MigrationV31755985248363'
+export class MigrationV31756667980440 implements MigrationInterface {
+    name = 'MigrationV31756667980440'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`CREATE TABLE "Client" ("id" SERIAL NOT NULL, "name" character varying(255) NOT NULL, "phoneNumber" character varying(255) NOT NULL, "facebookUsername" character varying(255), "instagramUsername" character varying(255), "address" character varying(255) NOT NULL, CONSTRAINT "UQ_9656099b1daf67b806ef17a48bc" UNIQUE ("phoneNumber"), CONSTRAINT "UQ_48e0e5e146128a2835c4c30f4d9" UNIQUE ("facebookUsername"), CONSTRAINT "UQ_b5a49e9278d0f650f5af9913450" UNIQUE ("instagramUsername"), CONSTRAINT "PK_b79874c8d411b839b9ccc301972" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "Preparation" ("id" SERIAL NOT NULL, "stateId" integer NOT NULL, CONSTRAINT "PK_43e8c92c2b498b82a7ec6b897df" PRIMARY KEY ("id"))`);
-        await queryRunner.query(`CREATE TABLE "TransitionType" ("id" SERIAL NOT NULL, "name" character varying(255) NOT NULL, CONSTRAINT "PK_c4fd5038b4585b76b4259381227" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "TransitionType" ("id" SERIAL NOT NULL, "name" character varying(255) NOT NULL, CONSTRAINT "UQ_c24f2ce7bc27340f87bd2ab7409" UNIQUE ("name"), CONSTRAINT "PK_c4fd5038b4585b76b4259381227" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "Transition" ("id" SERIAL NOT NULL, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "duration" bigint, "transitionatorId" bigint NOT NULL, "fromStateId" integer NOT NULL, "toStateId" integer NOT NULL, "transitionTypeId" integer NOT NULL, CONSTRAINT "PK_08a3810af5c5d8262f44e40cdae" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "State" ("id" SERIAL NOT NULL, "name" character varying(255) NOT NULL, CONSTRAINT "UQ_2f896ea8815d952f289ac9a562c" UNIQUE ("name"), CONSTRAINT "PK_ba7801fef9aabc0a35a0110c896" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "Order" ("id" SERIAL NOT NULL, "totalPrice" numeric(10,2) NOT NULL DEFAULT '0', "deliveryTime" TIMESTAMP NOT NULL, "paymentMethod" character varying(255) NOT NULL, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "stateId" integer, "clientId" integer, CONSTRAINT "PK_3d5a3861d8f9a6db372b2b317b7" PRIMARY KEY ("id"))`);

@@ -11,7 +11,7 @@ export class TransitionType implements ITransitionType {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 255, unique: true })
   name!: string;
 
   @OneToMany(() => Transition, (transition) => transition.transitionType, {
