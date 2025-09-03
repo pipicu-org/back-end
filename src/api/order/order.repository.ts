@@ -4,6 +4,7 @@ import { OrderMapper } from '../models/mappers/orderMapper';
 import { OrderSearchResponseDTO } from '../models/DTO/response/orderSearchResponseDTO';
 import { OrderResponseDTO } from '../models/DTO/response/orderResponseDTO';
 import { ComandaResponseDTO } from '../models/DTO/response/comandaResponseDTO';
+import { PreparationResponseDTO } from '../models/DTO/response/preparationResponseDTO';
 
 export interface IOrderRepository {
   create(order: Partial<Order>): Promise<OrderResponseDTO>;
@@ -35,6 +36,11 @@ export interface IOrderRepository {
   ): Promise<OrderResponseDTO | null>;
 
   getComanda(page?: number, limit?: number): Promise<ComandaResponseDTO | null>;
+
+  getKitchenOrders(
+    page?: number,
+    limit?: number,
+  ): Promise<PreparationResponseDTO>;
 }
 
 export class OrderRepository implements IOrderRepository {
@@ -195,6 +201,31 @@ export class OrderRepository implements IOrderRepository {
     } catch (error) {
       console.error('Error fetching comanda:', error);
       return null;
+    }
+  }
+
+  async getKitchenOrders(
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<PreparationResponseDTO> {
+    try {
+      const orders = await this._dbOrderRepository
+        .createQueryBuilder('order')
+        .leftJoinAndSelect('order.client', 'client')
+        .leftJoinAndSelect('order.state', 'state')
+        .leftJoinAndSelect('order.lines', 'line')
+        .leftJoinAndSelect('line.preparation', 'preparation')
+        .leftJoinAndSelect('line.product', 'product')
+        .where('state.id = :stateId', { stateId: 1 })
+        .orderBy('order.createdAt', 'ASC')
+        .getManyAndCount();
+      if (orders[0].length === 0) {
+        return this._orderMapper.toPreparationResponseDTO([], 0);
+      }
+      return this._orderMapper.toPreparationResponseDTO(orders[0], orders[1]);
+    } catch (error) {
+      console.error('Error fetching kitchen orders:', error);
+      throw new Error('Failed to fetch kitchen orders');
     }
   }
 

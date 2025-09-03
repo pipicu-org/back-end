@@ -35,5 +35,9 @@ export const orderRouter = (controller = orderController): Router => {
     controller.changeStateOrder(req, res, next),
   );
 
+  router.get(`${PATH}/kitchen`, (req, res, next) =>
+    controller.getKitchenOrders(req, res, next),
+  );
+
   return router;
 };

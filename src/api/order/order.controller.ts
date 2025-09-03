@@ -115,4 +115,18 @@ export class OrderController {
       next(error);
     }
   }
+
+  async getKitchenOrders(req: Request, res: Response, next: NextFunction) {
+    try {
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 10;
+      const kitchenOrders = await this.orderService.getKitchenOrders(
+        page,
+        limit,
+      );
+      res.status(200).json(kitchenOrders);
+    } catch (error) {
+      next(error);
+    }
+  }
 }

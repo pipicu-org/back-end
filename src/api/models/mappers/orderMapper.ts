@@ -4,6 +4,7 @@ import { OrderSearchResponseDTO } from '../DTO/response/orderSearchResponseDTO';
 import { OrderResponseDTO } from '../DTO/response/orderResponseDTO';
 import { OrderRequestDTO } from '../DTO/request/orderRequestDTO';
 import { ComandaResponseDTO } from '../DTO/response/comandaResponseDTO';
+import { PreparationResponseDTO } from '../DTO/response/preparationResponseDTO';
 
 export class OrderMapper {
   constructor(
@@ -101,6 +102,20 @@ export class OrderMapper {
     } catch (error) {
       console.error('Error mapping OrderRequestDTO to Order:', error);
       throw new Error('Failed to map OrderRequestDTO to Order');
+    }
+  }
+
+  public toPreparationResponseDTO(
+    orders: Order[],
+    total: number,
+    page: number = 1,
+    limit: number = 10,
+  ): PreparationResponseDTO {
+    try {
+      return new PreparationResponseDTO(orders, total, page, limit);
+    } catch (error) {
+      console.error('Error creating preparation response DTO:', error);
+      throw new Error('Failed to create preparation response DTO');
     }
   }
 

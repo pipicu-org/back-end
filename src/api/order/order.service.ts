@@ -4,6 +4,7 @@ import { OrderRequestDTO } from '../models/DTO/request/orderRequestDTO';
 import { ComandaResponseDTO } from '../models/DTO/response/comandaResponseDTO';
 import { OrderResponseDTO } from '../models/DTO/response/orderResponseDTO';
 import { OrderSearchResponseDTO } from '../models/DTO/response/orderSearchResponseDTO';
+import { PreparationResponseDTO } from '../models/DTO/response/preparationResponseDTO';
 import { OrderMapper } from '../models/mappers/orderMapper';
 import { IOrderRepository } from './order.repository';
 
@@ -28,6 +29,11 @@ export interface IOrderService {
     stateId: number,
   ): Promise<OrderResponseDTO | null>;
   getComanda(page: number, limit: number): Promise<ComandaResponseDTO | null>;
+
+  getKitchenOrders(
+    page: number,
+    limit: number,
+  ): Promise<PreparationResponseDTO>;
 }
 
 export class OrderService implements IOrderService {
@@ -163,6 +169,19 @@ export class OrderService implements IOrderService {
     } catch (error) {
       console.error('Error fetching comanda:', error);
       throw new Error('Failed to fetch comanda');
+    }
+  }
+
+  async getKitchenOrders(
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<PreparationResponseDTO> {
+    try {
+      const orders = await this._orderRepository.getKitchenOrders(page, limit);
+      return orders;
+    } catch (error) {
+      console.error('Error fetching kitchen orders:', error);
+      throw new Error('Failed to fetch kitchen orders');
     }
   }
 
