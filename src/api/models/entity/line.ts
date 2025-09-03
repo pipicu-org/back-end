@@ -28,6 +28,7 @@ export class Line {
 
   @ManyToOne(() => Order, (order) => order.lines, {
     orphanedRowAction: 'delete',
+    onDelete: 'CASCADE',
   })
   @JoinColumn([{ name: 'orderId', referencedColumnName: 'id' }])
   order!: Order;
@@ -39,18 +40,20 @@ export class Line {
   product!: Product;
 
   @OneToOne(() => Preparation, (preparation) => preparation.Line, {
+    onDelete: 'CASCADE',
     cascade: ['insert', 'update', 'remove'],
     eager: true,
   })
+  @JoinColumn([{ name: 'preparationId', referencedColumnName: 'id' }])
+  preparation!: Preparation;
+
   @OneToMany(
     () => ProductPersonalization,
     (personalizations) => personalizations.line,
     {
+      onDelete: 'CASCADE',
       cascade: ['insert', 'update', 'remove'],
     },
   )
   personalizations!: ProductPersonalization[] | null;
-
-  @JoinColumn([{ name: 'preparationId', referencedColumnName: 'id' }])
-  preparation!: Preparation;
 }

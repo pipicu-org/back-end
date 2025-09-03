@@ -51,7 +51,7 @@ export class OrderService implements IOrderService {
     }
   }
 
-  async getById(id: number): Promise<OrderResponseDTO | null> {
+  async getById(id: number): Promise<OrderResponseDTO> {
     try {
       return await this._orderRepository.getById(id);
     } catch (error) {

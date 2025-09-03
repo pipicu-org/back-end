@@ -34,12 +34,12 @@ export class LineRepository implements ILineRepository {
     try {
       const line = await this._dbLineRepository
         .createQueryBuilder('line')
+        .where('line.id = :lineId', { lineId })
         .leftJoinAndSelect('line.preparation', 'preparation')
         .leftJoinAndSelect('preparation.state', 'state')
         .leftJoinAndSelect('line.order', 'order')
         .leftJoinAndSelect('order.client', 'client')
         .leftJoinAndSelect('line.product', 'product')
-        .where('line.id = :lineId', { lineId })
         .getOne();
       if (!line) {
         throw new Error(`Line with id ${lineId} not found`);

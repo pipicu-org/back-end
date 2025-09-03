@@ -20,7 +20,7 @@ export interface IOrderRepository {
     limit?: number,
   ): Promise<OrderSearchResponseDTO>;
 
-  getById(id: number): Promise<OrderResponseDTO | null>;
+  getById(id: number): Promise<OrderResponseDTO>;
 
   update(
     id: number,
@@ -108,7 +108,7 @@ export class OrderRepository implements IOrderRepository {
     }
   }
 
-  async getById(id: number): Promise<OrderResponseDTO | null> {
+  async getById(id: number): Promise<OrderResponseDTO> {
     try {
       const order = await this._dbOrderRepository
         .createQueryBuilder('order')
@@ -120,11 +120,11 @@ export class OrderRepository implements IOrderRepository {
         .innerJoinAndSelect('preparation.state', 'preparationState')
         .where('order.id = :id', { id })
         .getOne();
-      if (!order) return null;
+      if (!order) throw new Error(`Order with id ${id} not found`);
       return this._orderMapper.orderToOrderResponseDTO(order);
     } catch (error) {
       console.error('Error fetching order by ID:', error);
-      return null;
+      throw new Error('Failed to fetch order' + error);
     }
   }
 

@@ -43,7 +43,7 @@ export class OrderController {
 
   async delete(req: Request, res: Response, next: NextFunction) {
     try {
-      const order = await this.orderService.delete(1);
+      const order = await this.orderService.delete(Number(req.params.id));
       res.status(200).json(order);
     } catch (error) {
       next(error);

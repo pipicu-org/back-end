@@ -57,6 +57,7 @@ export class Order implements IOrder {
   createdAt!: Date;
 
   @OneToMany(() => Line, (line) => line.order, {
+    onDelete: 'CASCADE',
     cascade: ['insert', 'update', 'remove'],
     eager: true,
   })
