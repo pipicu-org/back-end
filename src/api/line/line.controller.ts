@@ -53,7 +53,7 @@ export class LineController {
 
   async getLinesByState(req: Request, res: Response, next: NextFunction) {
     try {
-      const stateId = Number(req.params.stateId);
+      const stateId = Number(req.query.stateId);
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
 
