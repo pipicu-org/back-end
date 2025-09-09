@@ -19,7 +19,8 @@ export class OrderController {
     try {
       const id = Number(req.params.id);
       if (isNaN(id)) {
-        throw new Error('Invalid order ID');
+        res.status(400).send('Invalid order ID');
+        return;
       }
       const orders = await this.orderService.getById(id);
       res.status(200).json(orders);
@@ -37,6 +38,7 @@ export class OrderController {
       );
       res.status(200).json(updatedOrder);
     } catch (error) {
+      console.log(error);
       next(error);
     }
   }

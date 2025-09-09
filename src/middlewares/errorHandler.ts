@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { ErrorResponseDTO } from '../api/models/DTO/response/errorResponeDTO';
 
 export interface AppError extends Error {
   status?: number;
@@ -10,46 +11,48 @@ export const errorHandler = (
   res: Response,
   next: NextFunction,
 ) => {
-  console.error(err);
   switch (err.status) {
     case 400:
       res.status(err.status ?? 400).json({
-        message: err.message || 'Bad Request',
+        error: new ErrorResponseDTO(err.message || 'Bad Request', 400),
       });
       break;
     case 401:
       res.status(err.status ?? 401).json({
-        message: err.message || 'Unauthorized',
+        error: new ErrorResponseDTO(err.message || 'Unauthorized', 401),
       });
       break;
     case 403:
       res.status(err.status ?? 403).json({
-        message: err.message || 'Forbidden',
+        error: new ErrorResponseDTO(err.message || 'Forbidden', 403),
       });
       break;
     case 404:
       res.status(err.status ?? 404).json({
-        message: err.message || 'Not Found',
+        error: new ErrorResponseDTO(err.message || 'Not Found', 404),
       });
       break;
     case 500:
       res.status(err.status ?? 500).json({
-        message: err.message || 'Internal Server Error',
+        error: new ErrorResponseDTO(
+          err.message || 'Internal Server Error',
+          500,
+        ),
       });
       break;
     case 503:
       res.status(err.status ?? 503).json({
-        message: err.message || 'Service Unavailable',
+        error: new ErrorResponseDTO(err.message || 'Service Unavailable', 503),
       });
       break;
     case 504:
       res.status(err.status ?? 504).json({
-        message: err.message || 'Gateway Timeout',
+        error: new ErrorResponseDTO(err.message || 'Gateway Timeout', 504),
       });
       break;
     default:
       res.status(err.status ?? 400).json({
-        message: err.message || 'Unhandled Error',
+        error: new ErrorResponseDTO(err.message || 'Unhandled Error', 400),
       });
       break;
   }

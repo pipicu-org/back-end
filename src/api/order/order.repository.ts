@@ -5,6 +5,7 @@ import { OrderSearchResponseDTO } from '../models/DTO/response/orderSearchRespon
 import { OrderResponseDTO } from '../models/DTO/response/orderResponseDTO';
 import { ComandaResponseDTO } from '../models/DTO/response/comandaResponseDTO';
 import { PreparationResponseDTO } from '../models/DTO/response/preparationResponseDTO';
+import { HttpError } from '../../errors/httpError';
 
 export interface IOrderRepository {
   create(order: Partial<Order>): Promise<OrderResponseDTO>;
@@ -23,19 +24,13 @@ export interface IOrderRepository {
 
   getById(id: number): Promise<OrderResponseDTO>;
 
-  update(
-    id: number,
-    newOrder: Partial<Order>,
-  ): Promise<OrderResponseDTO | null>;
+  update(id: number, newOrder: Partial<Order>): Promise<OrderResponseDTO>;
 
-  delete(id: number): Promise<OrderResponseDTO | null>;
+  delete(id: number): Promise<OrderResponseDTO>;
 
-  changeStateOrder(
-    orderId: number,
-    stateId: number,
-  ): Promise<OrderResponseDTO | null>;
+  changeStateOrder(orderId: number, stateId: number): Promise<OrderResponseDTO>;
 
-  getComanda(page?: number, limit?: number): Promise<ComandaResponseDTO | null>;
+  getComanda(page?: number, limit?: number): Promise<ComandaResponseDTO>;
 
   getKitchenOrders(
     page?: number,
@@ -56,9 +51,9 @@ export class OrderRepository implements IOrderRepository {
     try {
       const createdOrder = await this._dbOrderRepository.save(order);
       return this._orderMapper.orderToOrderResponseDTO(createdOrder);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating order:', error);
-      throw new Error('Failed to create order');
+      throw new HttpError(error.status, error.message);
     }
   }
 
@@ -82,9 +77,9 @@ export class OrderRepository implements IOrderRepository {
         page,
         limit,
       );
-    } catch (error) {
-      console.error('Error fetching orders by client name:', error);
-      throw new Error('Failed to fetch orders by client name');
+    } catch (error: any) {
+      console.error('Error fetching orders by client name: ', error.message);
+      throw new HttpError(error.status, error.message);
     }
   }
 
@@ -94,6 +89,13 @@ export class OrderRepository implements IOrderRepository {
     limit: number = 10,
   ): Promise<OrderSearchResponseDTO> {
     try {
+      const state = await this._dbStateRepository
+        .createQueryBuilder('state')
+        .where('state.id = :id', { id: stateId })
+        .getOne();
+      if (!state) {
+        throw new HttpError(404, `State with id ${stateId} not found`);
+      }
       const orders = await this._dbOrderRepository
         .createQueryBuilder('order')
         .leftJoinAndSelect('order.client', 'client')
@@ -104,13 +106,13 @@ export class OrderRepository implements IOrderRepository {
         .getManyAndCount();
       return this._orderMapper.ordersToOrderSearchResponseDTO(
         orders,
-        orders[0][0].state.name,
+        state.name,
         page,
         limit,
       );
-    } catch (error) {
-      console.error('Error fetching orders by state:', error);
-      throw new Error('Failed to fetch orders by state');
+    } catch (error: any) {
+      console.error('Error fetching orders by state: ', error);
+      throw new HttpError(error.status, error.message);
     }
   }
 
@@ -126,18 +128,18 @@ export class OrderRepository implements IOrderRepository {
         .innerJoinAndSelect('preparation.state', 'preparationState')
         .where('order.id = :id', { id })
         .getOne();
-      if (!order) throw new Error(`Order with id ${id} not found`);
+      if (!order) throw new HttpError(404, `Order id ${id} not found`);
       return this._orderMapper.orderToOrderResponseDTO(order);
-    } catch (error) {
-      console.error('Error fetching order by ID:', error);
-      throw new Error('Failed to fetch order' + error);
+    } catch (error: any) {
+      console.error('Error fetching order by ID: ', error);
+      throw new HttpError(error.status, error.message);
     }
   }
 
   async changeStateOrder(
     orderId: number,
     stateId: number,
-  ): Promise<OrderResponseDTO | null> {
+  ): Promise<OrderResponseDTO> {
     try {
       const order = await this._dbOrderRepository
         .createQueryBuilder('order')
@@ -150,20 +152,23 @@ export class OrderRepository implements IOrderRepository {
         .where('order.id = :id', { id: orderId })
         .getOne();
       if (!order) {
-        throw new Error(`Order with id ${orderId} not found`);
+        throw new HttpError(404, `Order with id ${orderId} not found`);
       }
       const state = await this._dbStateRepository.findOne({
         where: { id: stateId },
       });
       if (!state) {
-        throw new Error(`State with id ${stateId} not found`);
+        throw new HttpError(404, `State with id ${stateId} not found`);
       }
       order.state = state;
       const transitionType = await this._dbTransitionTypeRepository.findOne({
-        where: { name: 'Order State Transition' },
+        where: { id: 1 },
       });
       if (!transitionType) {
-        throw new Error('Transition type "Order State Transition" not found');
+        throw new HttpError(
+          404,
+          'Transition type "Order State Transition" not found',
+        );
       }
       await this._dbTransitionRepository
         .createQueryBuilder('transition')
@@ -179,13 +184,13 @@ export class OrderRepository implements IOrderRepository {
         .execute();
       await this._dbOrderRepository.save(order);
       return this._orderMapper.orderToOrderResponseDTO(order);
-    } catch (error) {
-      console.error('Error changing order state:', error);
-      return null;
+    } catch (error: any) {
+      console.error('Error changing order state: ', error);
+      throw new HttpError(error.status, error.message);
     }
   }
 
-  async getComanda(): Promise<ComandaResponseDTO | null> {
+  async getComanda(): Promise<ComandaResponseDTO> {
     try {
       const orders = await this._dbOrderRepository
         .createQueryBuilder('order')
@@ -198,9 +203,9 @@ export class OrderRepository implements IOrderRepository {
         .orderBy('order.createdAt', 'ASC')
         .getManyAndCount();
       return this._orderMapper.ordersToComandaResponseDTO(orders);
-    } catch (error) {
-      console.error('Error fetching comanda:', error);
-      return null;
+    } catch (error: any) {
+      console.error('Error fetching comanda: ', error);
+      throw new HttpError(error.status, error.message);
     }
   }
 
@@ -219,44 +224,36 @@ export class OrderRepository implements IOrderRepository {
         .where('state.id = :stateId', { stateId: 1 })
         .orderBy('order.createdAt', 'ASC')
         .getManyAndCount();
-      if (orders[0].length === 0) {
-        return this._orderMapper.toPreparationResponseDTO([], 0);
-      }
       return this._orderMapper.toPreparationResponseDTO(orders[0], orders[1]);
-    } catch (error) {
-      console.error('Error fetching kitchen orders:', error);
-      throw new Error('Failed to fetch kitchen orders');
+    } catch (error: any) {
+      console.error('Error fetching kitchen orders: ', error.message);
+      throw new HttpError(error.status, error.message);
     }
   }
 
   async update(
     id: number,
     newOrder: Partial<Order>,
-  ): Promise<OrderResponseDTO | null> {
+  ): Promise<OrderResponseDTO> {
     try {
-      const existingOrder = await this.getById(id);
-      if (!existingOrder) {
-        console.error(`Order with id ${id} not found`);
-        return null;
-      }
       newOrder.id = id;
       await this._dbOrderRepository.save(newOrder);
       return await this.getById(id);
-    } catch (error) {
-      console.error('Error updating order:', error);
-      return null;
+    } catch (error: any) {
+      console.error('Error updating order: ', error);
+      throw new HttpError(error.status, error.message);
     }
   }
 
-  async delete(id: number): Promise<OrderResponseDTO | null> {
+  async delete(id: number): Promise<OrderResponseDTO> {
     try {
       const order = await this.getById(id);
-      if (!order) return null;
+      if (!order) throw new Error(`Order with id ${id} not found`);
       await this._dbOrderRepository.delete(id);
       return order;
-    } catch (error) {
-      console.error('Error deleting order:', error);
-      return null;
+    } catch (error: any) {
+      console.error('Error deleting order: ', error);
+      throw new HttpError(error.status, error.message);
     }
   }
 }

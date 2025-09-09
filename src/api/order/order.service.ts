@@ -1,4 +1,5 @@
 import { lineService } from '../../config';
+import { HttpError } from '../../errors/httpError';
 import { ILineService } from '../line/line.service';
 import { OrderRequestDTO } from '../models/DTO/request/orderRequestDTO';
 import { ComandaResponseDTO } from '../models/DTO/response/comandaResponseDTO';
@@ -10,9 +11,9 @@ import { IOrderRepository } from './order.repository';
 
 export interface IOrderService {
   create(order: OrderRequestDTO): Promise<OrderResponseDTO>;
-  getById(id: number): Promise<OrderResponseDTO | null>;
-  update(id: number, order: OrderRequestDTO): Promise<OrderResponseDTO | null>;
-  delete(id: number): Promise<OrderResponseDTO | null>;
+  getById(id: number): Promise<OrderResponseDTO>;
+  update(id: number, order: OrderRequestDTO): Promise<OrderResponseDTO>;
+  delete(id: number): Promise<OrderResponseDTO>;
   getOrdersByClientName(
     clientName: string,
     page?: number,
@@ -24,11 +25,8 @@ export interface IOrderService {
     page?: number,
     limit?: number,
   ): Promise<OrderSearchResponseDTO>;
-  changeStateOrder(
-    orderId: number,
-    stateId: number,
-  ): Promise<OrderResponseDTO | null>;
-  getComanda(page: number, limit: number): Promise<ComandaResponseDTO | null>;
+  changeStateOrder(orderId: number, stateId: number): Promise<OrderResponseDTO>;
+  getComanda(page: number, limit: number): Promise<ComandaResponseDTO>;
 
   getKitchenOrders(
     page: number,
@@ -45,54 +43,55 @@ export class OrderService implements IOrderService {
 
   async create(orderRequest: OrderRequestDTO): Promise<OrderResponseDTO> {
     try {
-      if (this.hasRepeatedProducts(orderRequest)) {
-        throw new Error('Order contains repeated products');
+      if (this._hasRepeatedProducts(orderRequest)) {
+        throw new HttpError(400, 'Order contains repeated products');
       }
       const order =
         await this._orderMapper.orderRequestDTOToOrder(orderRequest);
       return await this._orderRepository.create(order);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating order:', error);
-      throw new Error('Failed to create order');
+      throw new HttpError(error.status, error.message);
     }
   }
 
   async getById(id: number): Promise<OrderResponseDTO> {
     try {
       return await this._orderRepository.getById(id);
-    } catch (error) {
+    } catch (error: any) {
+      console.log('Error from service' + error.status);
       console.error(`Error fetching order with id ${id}:`, error);
-      throw new Error('Failed to fetch order');
+      throw new HttpError(error.status, error.message);
     }
   }
 
   async update(
     id: number,
     orderRequest: OrderRequestDTO,
-  ): Promise<OrderResponseDTO | null> {
+  ): Promise<OrderResponseDTO> {
     try {
-      if (this.hasRepeatedProducts(orderRequest)) {
-        throw new Error('Order contains repeated products');
+      if (this._hasRepeatedProducts(orderRequest)) {
+        throw new HttpError(400, 'Order contains repeated products');
       }
       const existingOrder = await this._orderRepository.getById(id);
       if (!existingOrder) {
-        throw new Error(`Order with id ${id} not found`);
+        throw new HttpError(404, `Order with id ${id} not found`);
       }
       const order =
         await this._orderMapper.orderRequestDTOToOrder(orderRequest);
       return await this._orderRepository.update(id, order);
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error updating order with id ${id}:`, error);
-      throw new Error('Failed to update order');
+      throw new HttpError(error.status, error.message);
     }
   }
 
-  async delete(id: number): Promise<OrderResponseDTO | null> {
+  async delete(id: number): Promise<OrderResponseDTO> {
     try {
       return await this._orderRepository.delete(id);
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error deleting order with id ${id}:`, error);
-      throw new Error('Failed to delete order');
+      throw new HttpError(error.status, error.message);
     }
   }
 
@@ -107,9 +106,9 @@ export class OrderService implements IOrderService {
         page,
         limit,
       );
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error fetching orders for client ${clientName}:`, error);
-      throw error;
+      throw new HttpError(error.status, error.message);
     }
   }
 
@@ -120,9 +119,9 @@ export class OrderService implements IOrderService {
   ): Promise<OrderSearchResponseDTO> {
     try {
       return await this._orderRepository.getOrdersByState(stateId, page, limit);
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error fetching orders for state ${stateId}:`, error);
-      throw error;
+      throw new HttpError(error.status, error.message);
     }
   }
 
@@ -132,7 +131,7 @@ export class OrderService implements IOrderService {
   ): Promise<boolean> {
     const lines = await this._lineService.getLinesByOrderId(Number(order.id));
     if (!lines || lines.length === 0) {
-      throw new Error(`No lines found for order with id ${order.id}`);
+      throw new HttpError(404, `No lines found for order with id ${order.id}`);
     }
     return lines.every((line) => line.state.id === newState);
   }
@@ -140,35 +139,38 @@ export class OrderService implements IOrderService {
   async changeStateOrder(
     orderId: number,
     stateId: number,
-  ): Promise<OrderResponseDTO | null> {
+  ): Promise<OrderResponseDTO> {
     try {
       let order = await this._orderRepository.getById(orderId);
       if (!order) {
-        throw new Error(`Order with id ${orderId} not found`);
+        throw new HttpError(404, `Order with id ${orderId} not found`);
       }
       if (!(await this._isOrderAbleToChangeState(order, stateId))) {
-        throw new Error('Order cannot change state due to line states');
+        throw new HttpError(
+          400,
+          'Order cannot change state due to line states mismatch',
+        );
       }
       return await this._orderRepository.changeStateOrder(orderId, stateId);
-    } catch (error) {
+    } catch (error: any) {
       console.error(
-        `Error changing state for order with id ${orderId}:`,
+        `Error changing state for order with id ${orderId}: `,
         error,
       );
-      throw new Error('Failed to change order state');
+      throw new HttpError(error.status, error.message);
     }
   }
 
   async getComanda(
     page: number = 1,
     limit: number = 10,
-  ): Promise<ComandaResponseDTO | null> {
+  ): Promise<ComandaResponseDTO> {
     try {
       const orders = await this._orderRepository.getComanda(page, limit);
       return orders;
-    } catch (error) {
-      console.error('Error fetching comanda:', error);
-      throw new Error('Failed to fetch comanda');
+    } catch (error: any) {
+      console.error('Error fetching comanda: ', error);
+      throw new HttpError(error.status, error.message);
     }
   }
 
@@ -179,13 +181,13 @@ export class OrderService implements IOrderService {
     try {
       const orders = await this._orderRepository.getKitchenOrders(page, limit);
       return orders;
-    } catch (error) {
-      console.error('Error fetching kitchen orders:', error);
-      throw new Error('Failed to fetch kitchen orders');
+    } catch (error: any) {
+      console.error('Error fetching kitchen orders: ', error);
+      throw new HttpError(error.status, error.message);
     }
   }
 
-  private hasRepeatedProducts(order: OrderRequestDTO): boolean {
+  private _hasRepeatedProducts(order: OrderRequestDTO): boolean {
     const products = order.lines.map((line) => line.product);
     const uniqueProducts = new Set(products);
     return uniqueProducts.size !== products.length;
