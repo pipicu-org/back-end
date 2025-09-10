@@ -5,6 +5,7 @@ import { OrderResponseDTO } from '../DTO/response/orderResponseDTO';
 import { OrderRequestDTO } from '../DTO/request/orderRequestDTO';
 import { ComandaResponseDTO } from '../DTO/response/comandaResponseDTO';
 import { PreparationResponseDTO } from '../DTO/response/preparationResponseDTO';
+import { HttpError } from '../../../errors/httpError';
 
 export class OrderMapper {
   constructor(
@@ -48,10 +49,13 @@ export class OrderMapper {
       });
       let products = await this.productRepository.find();
       if (!products || products.length === 0) {
-        throw new Error('No products found');
+        throw new HttpError(404, 'No products found');
       }
       if (!client) {
-        throw new Error(`Client with id ${orderRequest.client} not found`);
+        throw new HttpError(
+          404,
+          `Client with id ${orderRequest.client} not found`,
+        );
       }
       order.client = client;
       order.deliveryTime = orderRequest.deliveryTime
@@ -61,11 +65,12 @@ export class OrderMapper {
       for (const line of orderRequest.lines) {
         const product = products.find((p) => p.id === line.product);
         if (!product) {
-          throw new Error(`Product with id ${line.product} not found`);
+          throw new HttpError(404, `Product with id ${line.product} not found`);
         }
         if (line.quantity <= 0) {
-          throw new Error(
-            `Quantity for product ${line.product} must be greater than 0`,
+          throw new HttpError(
+            400,
+            `Quantity for product id ${line.product} must be greater than 0`,
           );
         }
         order.totalPrice += product.price * line.quantity;
@@ -76,7 +81,7 @@ export class OrderMapper {
         id: 1,
       });
       if (!state) {
-        throw new Error(`State with id 1 not found`);
+        throw new HttpError(404, `State with id 1 not found`);
       }
       order.state = state;
       order.createdAt = new Date();
@@ -85,7 +90,10 @@ export class OrderMapper {
           const entityLine = new Line();
           const product = products.find((p) => p.id === line.product);
           if (!product) {
-            throw new Error(`Product with id ${line.product} not found`);
+            throw new HttpError(
+              404,
+              `Product with id ${line.product} not found`,
+            );
           }
           entityLine.product = product;
           entityLine.quantity = line.quantity;
@@ -99,9 +107,9 @@ export class OrderMapper {
         }),
       );
       return order;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error mapping OrderRequestDTO to Order:', error);
-      throw new Error('Failed to map OrderRequestDTO to Order');
+      throw new HttpError(error.state, error.message);
     }
   }
 
@@ -115,7 +123,7 @@ export class OrderMapper {
       return new PreparationResponseDTO(orders, total, page, limit);
     } catch (error) {
       console.error('Error creating preparation response DTO:', error);
-      throw new Error('Failed to create preparation response DTO');
+      throw new HttpError(500, 'Failed to create preparation response DTO');
     }
   }
 
