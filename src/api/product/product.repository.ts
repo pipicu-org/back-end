@@ -3,6 +3,7 @@ import { Product } from '../models/entity';
 import { ProductMapper } from '../models/mappers/productMapper';
 import { ProductSearchResponseDTO } from '../models/DTO/response/productSearchResponseDTO';
 import { ProductResponseDTO } from '../models/DTO/response/productResponseDTO';
+import { HttpError } from '../../errors/httpError';
 
 export interface IProductRepository {
   findById(id: number): Promise<ProductResponseDTO | void>;
@@ -32,12 +33,12 @@ export class ProductRepository implements IProductRepository {
       const product = await this._dbProductRepository.findOneBy({ id });
       if (!product) {
         console.warn(`No product found with id ${id}`);
-        throw new Error('Product not found');
+        throw new HttpError(404, `Product id ${id} not found`);
       }
       return this._productMapper.toResponseDTO(product);
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error finding product with id ${id}:`, error);
-      throw new Error('Could not find product');
+      throw new HttpError(error.status, error.message);
     }
   }
 
@@ -45,9 +46,9 @@ export class ProductRepository implements IProductRepository {
     try {
       const productCreated = await this._dbProductRepository.save(product);
       return this._productMapper.toResponseDTO(productCreated);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating product:', error);
-      throw new Error('Could not create product');
+      throw new HttpError(error.status, error.message);
     }
   }
   async update(
@@ -66,7 +67,7 @@ export class ProductRepository implements IProductRepository {
         .getOne();
       if (!existingProduct) {
         console.warn(`No product found with id ${id} to update`);
-        throw new Error('Product not found');
+        throw new HttpError(404, `Product id ${id} not found`);
       }
       product.recipe.id = existingProduct.recipe.id;
       await this._dbProductRepository.manager.remove(
@@ -74,9 +75,9 @@ export class ProductRepository implements IProductRepository {
       );
       const updatedProduct = await this._dbProductRepository.save(product);
       return this._productMapper.toResponseDTO(updatedProduct);
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error updating product with id ${id}:`, error);
-      throw new Error('Could not update product');
+      throw new HttpError(error.status, error.message);
     }
   }
 
@@ -92,14 +93,14 @@ export class ProductRepository implements IProductRepository {
         .getOne();
       if (!productToDelete) {
         console.warn(`No product found with id ${id} to delete`);
-        throw new Error('Product not found');
+        throw new HttpError(404, `Product id ${id} not found`);
       }
       await this._dbProductRepository.manager.remove(productToDelete.recipe);
       await this._dbProductRepository.delete(id);
       return this._productMapper.toResponseDTO(productToDelete);
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error deleting product with id ${id}:`, error);
-      throw new Error('Could not delete product');
+      throw new HttpError(error.status, error.message);
     }
   }
 
@@ -120,12 +121,12 @@ export class ProductRepository implements IProductRepository {
         page,
         limit,
       );
-    } catch (error) {
+    } catch (error: any) {
       console.error(
         `Error finding products by category id ${categoryId}:`,
         error,
       );
-      throw new Error('Could not find products');
+      throw new HttpError(error.status, error.message);
     }
   }
 
@@ -146,9 +147,9 @@ export class ProductRepository implements IProductRepository {
         page,
         limit,
       );
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error finding products by name ${name}:`, error);
-      throw new Error('Could not find products');
+      throw new HttpError(error.status, error.message);
     }
   }
 }

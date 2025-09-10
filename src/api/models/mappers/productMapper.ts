@@ -4,6 +4,7 @@ import { ProductResponseDTO } from '../DTO/response/productResponseDTO';
 import { ProductSearchResponseDTO } from '../DTO/response/productSearchResponseDTO';
 import { Category, Ingredient, Product, Recipe } from '../entity';
 import { RecipeIngredients } from '../entity/recipeIngredients';
+import { HttpError } from '../../../errors/httpError';
 
 export class ProductMapper {
   constructor(
@@ -34,10 +35,13 @@ export class ProductMapper {
       id: requestDTO.category,
     });
     if (!category) {
-      throw new Error(`Category with id ${requestDTO.category} not found`);
+      throw new HttpError(
+        404,
+        `Category with id ${requestDTO.category} not found`,
+      );
     }
     if (!Array.isArray(requestDTO.ingredients)) {
-      throw new Error('ingredients must be an array');
+      throw new HttpError(400, 'ingredients must be an array');
     }
     product.category = category;
     const ingredients = await this._ingredientRepository.find();
@@ -45,7 +49,10 @@ export class ProductMapper {
     const recipeIngredients = requestDTO.ingredients.map((ingredient) => {
       const ingredientEntity = ingredients.find((i) => i.id === ingredient.id);
       if (!ingredientEntity) {
-        throw new Error(`Ingredient with id ${ingredient.id} not found`);
+        throw new HttpError(
+          404,
+          `Ingredient with id ${ingredient.id} not found`,
+        );
       }
       const recipeIngredient = new RecipeIngredients();
       recipeIngredient.quantity = ingredient.quantity;
