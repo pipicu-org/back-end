@@ -6,10 +6,10 @@ import { ProductResponseDTO } from '../models/DTO/response/productResponseDTO';
 import { HttpError } from '../../errors/httpError';
 
 export interface IProductRepository {
-  findById(id: number): Promise<ProductResponseDTO | void>;
+  findById(id: number): Promise<ProductResponseDTO>;
   create(product: Product): Promise<ProductResponseDTO>;
-  update(id: number, product: Product): Promise<ProductResponseDTO | void>;
-  delete(id: number): Promise<ProductResponseDTO | void>;
+  update(id: number, product: Product): Promise<ProductResponseDTO>;
+  delete(id: number): Promise<ProductResponseDTO>;
   getByCategoryId(
     categoryId: number,
     page: number,
@@ -28,7 +28,7 @@ export class ProductRepository implements IProductRepository {
     private readonly _productMapper: ProductMapper,
   ) {}
 
-  async findById(id: number): Promise<ProductResponseDTO | void> {
+  async findById(id: number): Promise<ProductResponseDTO> {
     try {
       const product = await this._dbProductRepository.findOneBy({ id });
       if (!product) {
@@ -51,10 +51,7 @@ export class ProductRepository implements IProductRepository {
       throw new HttpError(error.status, error.message);
     }
   }
-  async update(
-    id: number,
-    product: Product,
-  ): Promise<ProductResponseDTO | void> {
+  async update(id: number, product: Product): Promise<ProductResponseDTO> {
     product.id = id;
     try {
       const existingProduct = await this._dbProductRepository
@@ -81,7 +78,7 @@ export class ProductRepository implements IProductRepository {
     }
   }
 
-  async delete(id: number): Promise<ProductResponseDTO | void> {
+  async delete(id: number): Promise<ProductResponseDTO> {
     try {
       const productToDelete = await this._dbProductRepository
         .createQueryBuilder('product')

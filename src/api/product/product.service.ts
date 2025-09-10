@@ -9,54 +9,54 @@ export interface IProductService {
     name: string,
     page: number,
     limit: number,
-  ): Promise<ProductSearchResponseDTO | []>;
-  getProductById(id: number): Promise<ProductResponseDTO | void>;
+  ): Promise<ProductSearchResponseDTO>;
+  getProductById(id: number): Promise<ProductResponseDTO>;
   createProduct(product: ProductRequestDTO): Promise<ProductResponseDTO>;
   updateProduct(
     id: number,
     product: ProductRequestDTO,
-  ): Promise<ProductResponseDTO | void>;
-  deleteProduct(id: number): Promise<ProductResponseDTO | void>;
+  ): Promise<ProductResponseDTO>;
+  deleteProduct(id: number): Promise<ProductResponseDTO>;
   getProductsByCategoryId(
     categoryId: number,
     page: number,
     limit: number,
-  ): Promise<ProductSearchResponseDTO | []>;
+  ): Promise<ProductSearchResponseDTO>;
 }
 
 export class ProductService implements IProductService {
   constructor(
-    private readonly productRepository: IProductRepository,
+    private readonly _productRepository: IProductRepository,
     private readonly _productMapper: ProductMapper,
   ) {}
 
-  async getProductById(id: number): Promise<ProductResponseDTO | void> {
-    return this.productRepository.findById(id);
+  async getProductById(id: number): Promise<ProductResponseDTO> {
+    return this._productRepository.findById(id);
   }
 
   async getByName(
     name: string,
     page: number,
     limit: number,
-  ): Promise<ProductSearchResponseDTO | []> {
-    return this.productRepository.getByName(name, page, limit);
+  ): Promise<ProductSearchResponseDTO> {
+    return this._productRepository.getByName(name, page, limit);
   }
 
   async createProduct(product: ProductRequestDTO): Promise<ProductResponseDTO> {
     const productEntity = await this._productMapper.requestDTOToEntity(product);
-    return await this.productRepository.create(productEntity);
+    return await this._productRepository.create(productEntity);
   }
 
   async updateProduct(
     id: number,
     product: ProductRequestDTO,
-  ): Promise<ProductResponseDTO | void> {
+  ): Promise<ProductResponseDTO> {
     const productEntity = await this._productMapper.requestDTOToEntity(product);
-    return this.productRepository.update(id, productEntity);
+    return this._productRepository.update(id, productEntity);
   }
 
-  async deleteProduct(id: number): Promise<ProductResponseDTO | void> {
-    return this.productRepository.delete(id);
+  async deleteProduct(id: number): Promise<ProductResponseDTO> {
+    return this._productRepository.delete(id);
   }
 
   async getProductsByCategoryId(
@@ -64,7 +64,7 @@ export class ProductService implements IProductService {
     page: number,
     limit: number,
   ): Promise<ProductSearchResponseDTO> {
-    return await this.productRepository.getByCategoryId(
+    return await this._productRepository.getByCategoryId(
       categoryId,
       page,
       limit,
