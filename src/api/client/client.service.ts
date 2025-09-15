@@ -29,18 +29,18 @@ export class ClientService implements IClientService {
     try {
       const newClient = this._clientMapper.createClientFromRequestDTO(client);
       return await this._clientRepository.create(newClient);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating client:', error);
-      throw new Error('Failed to create client');
+      throw error;
     }
   }
 
   async getClientById(id: number): Promise<ClientResponseDTO | void> {
     try {
       return await this._clientRepository.getById(id);
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error fetching client with ID: ${id}`, error);
-      throw new Error('Failed to fetch client by ID ' + id);
+      throw error;
     }
   }
 
@@ -51,18 +51,18 @@ export class ClientService implements IClientService {
     try {
       const newClient = this._clientMapper.createClientFromRequestDTO(client);
       return await this._clientRepository.update(id, newClient);
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error updating client with ID: ${id}`, error);
-      throw new Error('Failed to update client');
+      throw error;
     }
   }
 
   async deleteClient(id: number): Promise<ClientResponseDTO | void> {
     try {
       return await this._clientRepository.delete(id);
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error deleting client with ID: ${id}`, error);
-      throw new Error('Failed to delete client');
+      throw error;
     }
   }
 
@@ -74,8 +74,8 @@ export class ClientService implements IClientService {
     try {
       return await this._clientRepository.searchByName(search, page, limit);
     } catch (error) {
-      console.error(`Error searching clients with query "${search}":`, error);
-      throw new Error('Failed to search clients');
+      console.error('Error searching clients:', error);
+      throw error;
     }
   }
 }

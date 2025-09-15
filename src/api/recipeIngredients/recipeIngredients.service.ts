@@ -17,6 +17,14 @@ export class RecipeIngredientsService implements IRecipeIngredientService {
     page: number,
     limit: number,
   ): Promise<RecipeIngredientsResponseDTO> {
-    return this._recipeIngredientsRepository.getKitchenBoard(page, limit);
+    try {
+      return await this._recipeIngredientsRepository.getKitchenBoard(
+        page,
+        limit,
+      );
+    } catch (error) {
+      console.error('Error fetching kitchen board:', error);
+      throw error;
+    }
   }
 }

@@ -3,6 +3,7 @@ import { Ingredient } from '../models/entity';
 import { IngredientSearchResponseDTO } from '../models/DTO/response/ingredientSearchResponseDTO';
 import { IngredientMapper } from '../models/mappers/ingredientMapper';
 import { IngredientResponseDTO } from '../models/DTO/response/ingredientResponseDTO';
+import { HttpError } from '../../errors/httpError';
 
 export interface IIngredientRepository {
   searchIngredient(
@@ -43,9 +44,12 @@ export class IngredientRepository implements IIngredientRepository {
         page,
         limit,
       );
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching all ingredients:', error);
-      throw new Error('Could not fetch ingredients');
+      throw new HttpError(
+        error.status || 500,
+        error.message || 'Internal Server Error',
+      );
     }
   }
 
@@ -53,12 +57,15 @@ export class IngredientRepository implements IIngredientRepository {
     try {
       const ingredient = await this._dbIngredientRepository.findOneBy({ id });
       if (!ingredient) {
-        throw new Error(`Ingredient with id ${id} not found`);
+        throw new HttpError(404, `Ingredient with id ${id} not found`);
       }
       return this._ingredientMapper.toResponseDTO(ingredient);
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error fetching ingredient with id ${id}:`, error);
-      throw new Error(`Could not fetch ingredient with id ${id}`);
+      throw new HttpError(
+        error.status || 500,
+        error.message || `Could not fetch ingredient with id ${id}`,
+      );
     }
   }
 
@@ -67,9 +74,12 @@ export class IngredientRepository implements IIngredientRepository {
       const createdIngredient =
         await this._dbIngredientRepository.save(ingredient);
       return this._ingredientMapper.toResponseDTO(createdIngredient);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating ingredient:', error);
-      throw new Error('Could not create ingredient');
+      throw new HttpError(
+        error.status || 500,
+        error.message || 'Could not create ingredient',
+      );
     }
   }
 
@@ -90,12 +100,15 @@ export class IngredientRepository implements IIngredientRepository {
         .where('ingredient.id = :id', { id })
         .getOne();
       if (!updatedIngredient) {
-        throw new Error(`Ingredient with id ${id} not found after update`);
+        throw new HttpError(404, `Ingredient with id ${id} not found`);
       }
       return this._ingredientMapper.toResponseDTO(updatedIngredient);
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error updating ingredient with id ${id}:`, error);
-      throw new Error(`Could not update ingredient with id ${id}`);
+      throw new HttpError(
+        error.status || 500,
+        error.message || `Could not update ingredient with id ${id}`,
+      );
     }
   }
 
@@ -108,11 +121,14 @@ export class IngredientRepository implements IIngredientRepository {
         await this._dbIngredientRepository.delete(id);
         return this._ingredientMapper.toResponseDTO(existingIngredient);
       } else {
-        throw new Error(`Ingredient with id ${id} not found`);
+        throw new HttpError(404, `Ingredient with id ${id} not found`);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error deleting ingredient with id ${id}:`, error);
-      throw new Error(`Could not delete ingredient with id ${id}`);
+      throw new HttpError(
+        error.status || 500,
+        error.message || `Could not delete ingredient with id ${id}`,
+      );
     }
   }
 }

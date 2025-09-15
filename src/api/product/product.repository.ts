@@ -38,7 +38,10 @@ export class ProductRepository implements IProductRepository {
       return this._productMapper.toResponseDTO(product);
     } catch (error: any) {
       console.error(`Error finding product with id ${id}:`, error);
-      throw new HttpError(error.status, error.message);
+      throw new HttpError(
+        error.status || 500,
+        error.message || 'Failed to find product by ID',
+      );
     }
   }
 
@@ -48,7 +51,10 @@ export class ProductRepository implements IProductRepository {
       return this._productMapper.toResponseDTO(productCreated);
     } catch (error: any) {
       console.error('Error creating product:', error);
-      throw new HttpError(error.status, error.message);
+      throw new HttpError(
+        error.status || 500,
+        error.message || 'Failed to create product',
+      );
     }
   }
   async update(id: number, product: Product): Promise<ProductResponseDTO> {
@@ -74,7 +80,10 @@ export class ProductRepository implements IProductRepository {
       return this._productMapper.toResponseDTO(updatedProduct);
     } catch (error: any) {
       console.error(`Error updating product with id ${id}:`, error);
-      throw new HttpError(error.status, error.message);
+      throw new HttpError(
+        error.status || 500,
+        error.message || 'Failed to update product',
+      );
     }
   }
 
@@ -97,7 +106,10 @@ export class ProductRepository implements IProductRepository {
       return this._productMapper.toResponseDTO(productToDelete);
     } catch (error: any) {
       console.error(`Error deleting product with id ${id}:`, error);
-      throw new HttpError(error.status, error.message);
+      throw new HttpError(
+        error.status || 500,
+        error.message || 'Failed to delete product',
+      );
     }
   }
 
@@ -123,7 +135,10 @@ export class ProductRepository implements IProductRepository {
         `Error finding products by category id ${categoryId}:`,
         error,
       );
-      throw new HttpError(error.status, error.message);
+      throw new HttpError(
+        error.status || 500,
+        error.message || 'Failed to find products by category id',
+      );
     }
   }
 
@@ -146,7 +161,10 @@ export class ProductRepository implements IProductRepository {
       );
     } catch (error: any) {
       console.error(`Error finding products by name ${name}:`, error);
-      throw new HttpError(error.status, error.message);
+      throw new HttpError(
+        error.status || 500,
+        error.message || 'Failed to find products by name',
+      );
     }
   }
 }

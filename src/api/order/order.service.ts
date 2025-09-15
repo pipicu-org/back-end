@@ -58,10 +58,9 @@ export class OrderService implements IOrderService {
   async getById(id: number): Promise<OrderResponseDTO> {
     try {
       return await this._orderRepository.getById(id);
-    } catch (error: any) {
-      console.log('Error from service' + error.status);
+    } catch (error) {
       console.error(`Error fetching order with id ${id}:`, error);
-      throw new HttpError(error.status, error.message);
+      throw error;
     }
   }
 
@@ -80,18 +79,18 @@ export class OrderService implements IOrderService {
       const order =
         await this._orderMapper.orderRequestDTOToOrder(orderRequest);
       return await this._orderRepository.update(id, order);
-    } catch (error: any) {
+    } catch (error) {
       console.error(`Error updating order with id ${id}:`, error);
-      throw new HttpError(error.status, error.message);
+      throw error;
     }
   }
 
   async delete(id: number): Promise<OrderResponseDTO> {
     try {
       return await this._orderRepository.delete(id);
-    } catch (error: any) {
+    } catch (error) {
       console.error(`Error deleting order with id ${id}:`, error);
-      throw new HttpError(error.status, error.message);
+      throw error;
     }
   }
 
@@ -106,9 +105,9 @@ export class OrderService implements IOrderService {
         page,
         limit,
       );
-    } catch (error: any) {
+    } catch (error) {
       console.error(`Error fetching orders for client ${clientName}:`, error);
-      throw new HttpError(error.status, error.message);
+      throw error;
     }
   }
 
@@ -119,9 +118,9 @@ export class OrderService implements IOrderService {
   ): Promise<OrderSearchResponseDTO> {
     try {
       return await this._orderRepository.getOrdersByState(stateId, page, limit);
-    } catch (error: any) {
+    } catch (error) {
       console.error(`Error fetching orders for state ${stateId}:`, error);
-      throw new HttpError(error.status, error.message);
+      throw error;
     }
   }
 
@@ -152,12 +151,12 @@ export class OrderService implements IOrderService {
         );
       }
       return await this._orderRepository.changeStateOrder(orderId, stateId);
-    } catch (error: any) {
+    } catch (error) {
       console.error(
         `Error changing state for order with id ${orderId}: `,
         error,
       );
-      throw new HttpError(error.status, error.message);
+      throw error;
     }
   }
 
@@ -168,9 +167,9 @@ export class OrderService implements IOrderService {
     try {
       const orders = await this._orderRepository.getComanda(page, limit);
       return orders;
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error fetching comanda: ', error);
-      throw new HttpError(error.status, error.message);
+      throw error;
     }
   }
 
@@ -181,9 +180,9 @@ export class OrderService implements IOrderService {
     try {
       const orders = await this._orderRepository.getKitchenOrders(page, limit);
       return orders;
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error fetching kitchen orders: ', error);
-      throw new HttpError(error.status, error.message);
+      throw error;
     }
   }
 

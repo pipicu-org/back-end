@@ -44,7 +44,12 @@ export class ProductService implements IProductService {
 
   async createProduct(product: ProductRequestDTO): Promise<ProductResponseDTO> {
     const productEntity = await this._productMapper.requestDTOToEntity(product);
-    return await this._productRepository.create(productEntity);
+    try {
+      return await this._productRepository.create(productEntity);
+    } catch (error) {
+      console.error('Error creating product:', error);
+      throw error;
+    }
   }
 
   async updateProduct(
@@ -52,11 +57,21 @@ export class ProductService implements IProductService {
     product: ProductRequestDTO,
   ): Promise<ProductResponseDTO> {
     const productEntity = await this._productMapper.requestDTOToEntity(product);
-    return this._productRepository.update(id, productEntity);
+    try {
+      return await this._productRepository.update(id, productEntity);
+    } catch (error) {
+      console.error(`Error updating product with id ${id}:`, error);
+      throw error;
+    }
   }
 
   async deleteProduct(id: number): Promise<ProductResponseDTO> {
-    return this._productRepository.delete(id);
+    try {
+      return await this._productRepository.delete(id);
+    } catch (error) {
+      console.error(`Error deleting product with id ${id}:`, error);
+      throw error;
+    }
   }
 
   async getProductsByCategoryId(
@@ -64,10 +79,18 @@ export class ProductService implements IProductService {
     page: number,
     limit: number,
   ): Promise<ProductSearchResponseDTO> {
-    return await this._productRepository.getByCategoryId(
-      categoryId,
-      page,
-      limit,
-    );
+    try {
+      return await this._productRepository.getByCategoryId(
+        categoryId,
+        page,
+        limit,
+      );
+    } catch (error) {
+      console.error(
+        `Error fetching products by category id ${categoryId}:`,
+        error,
+      );
+      throw error;
+    }
   }
 }

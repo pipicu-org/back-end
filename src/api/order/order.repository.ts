@@ -53,7 +53,10 @@ export class OrderRepository implements IOrderRepository {
       return this._orderMapper.orderToOrderResponseDTO(createdOrder);
     } catch (error: any) {
       console.error('Error creating order:', error);
-      throw new HttpError(error.status, error.message);
+      throw new HttpError(
+        error.status || 500,
+        error.message || 'could not create order',
+      );
     }
   }
 
@@ -79,7 +82,10 @@ export class OrderRepository implements IOrderRepository {
       );
     } catch (error: any) {
       console.error('Error fetching orders by client name: ', error.message);
-      throw new HttpError(error.status, error.message);
+      throw new HttpError(
+        error.status || 500,
+        error.message || 'could not fetch orders by client name',
+      );
     }
   }
 
@@ -112,7 +118,10 @@ export class OrderRepository implements IOrderRepository {
       );
     } catch (error: any) {
       console.error('Error fetching orders by state: ', error);
-      throw new HttpError(error.status, error.message);
+      throw new HttpError(
+        error.status || 500,
+        error.message || 'could not fetch orders by state',
+      );
     }
   }
 
@@ -132,7 +141,10 @@ export class OrderRepository implements IOrderRepository {
       return this._orderMapper.orderToOrderResponseDTO(order);
     } catch (error: any) {
       console.error('Error fetching order by ID: ', error);
-      throw new HttpError(error.status, error.message);
+      throw new HttpError(
+        error.status || 500,
+        error.message || 'could not fetch order by ID',
+      );
     }
   }
 
@@ -186,7 +198,10 @@ export class OrderRepository implements IOrderRepository {
       return this._orderMapper.orderToOrderResponseDTO(order);
     } catch (error: any) {
       console.error('Error changing order state: ', error);
-      throw new HttpError(error.status, error.message);
+      throw new HttpError(
+        error.status || 500,
+        error.message || 'could not change order state',
+      );
     }
   }
 
@@ -205,7 +220,10 @@ export class OrderRepository implements IOrderRepository {
       return this._orderMapper.ordersToComandaResponseDTO(orders);
     } catch (error: any) {
       console.error('Error fetching comanda: ', error);
-      throw new HttpError(error.status, error.message);
+      throw new HttpError(
+        error.status || 500,
+        error.message || 'could not fetch comanda',
+      );
     }
   }
 
@@ -227,7 +245,10 @@ export class OrderRepository implements IOrderRepository {
       return this._orderMapper.toPreparationResponseDTO(orders[0], orders[1]);
     } catch (error: any) {
       console.error('Error fetching kitchen orders: ', error.message);
-      throw new HttpError(error.status, error.message);
+      throw new HttpError(
+        error.status || 500,
+        error.message || 'could not fetch kitchen orders',
+      );
     }
   }
 
@@ -253,7 +274,10 @@ export class OrderRepository implements IOrderRepository {
       return order;
     } catch (error: any) {
       console.error('Error deleting order: ', error);
-      throw new HttpError(error.status, error.message);
+      throw new HttpError(
+        error.status || 500,
+        error.message || 'could not delete order',
+      );
     }
   }
 }

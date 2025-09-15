@@ -3,6 +3,7 @@ import { Client } from '../models/entity';
 import { ClientResponseDTO } from '../models/DTO/response/clientResponseDTO';
 import { ClientSearchResponseDTO } from '../models/DTO/response/clientSearchResponseDTO';
 import { ClientMapper } from '../models/mappers/clientMapper';
+import { HttpError } from '../../errors/httpError';
 
 export interface ICLientRepository {
   searchByName(
@@ -43,7 +44,7 @@ export class ClientRepository implements ICLientRepository {
       );
     } catch (error) {
       console.error(`Error searching clients by name "${search}":`, error);
-      throw new Error('Failed to search clients');
+      throw new HttpError(500, 'Failed to search clients by name');
     }
   }
 
@@ -58,12 +59,15 @@ export class ClientRepository implements ICLientRepository {
           if (client) {
             return this._clientMapper.toResponseDTO(client);
           } else {
-            throw new Error(`Client with id ${id} not found`);
+            throw new HttpError(404, `Client with id ${id} not found`);
           }
         });
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error fetching client with id ${id}:`, error);
-      throw new Error(`Could not fetch client with id ${id}`);
+      throw new HttpError(
+        error.status || 500,
+        error.message || 'Failed to fetch client',
+      );
     }
   }
 
@@ -72,9 +76,12 @@ export class ClientRepository implements ICLientRepository {
       return await this._dbClientRepository.save(client).then((savedClient) => {
         return this._clientMapper.toResponseDTO(savedClient);
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating client:', error);
-      throw new Error('Could not create client');
+      throw new HttpError(
+        error.status || 500,
+        error.message || 'Failed to create client',
+      );
     }
   }
 
@@ -82,12 +89,15 @@ export class ClientRepository implements ICLientRepository {
     try {
       const existingClient = await this._dbClientRepository.update(id, client);
       if (existingClient.affected === 0) {
-        throw new Error(`Client with id ${id} not found`);
+        throw new HttpError(404, `Client with id ${id} not found`);
       }
       return this._clientMapper.toResponseDTO({ ...client, id });
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error updating client with id ${id}:`, error);
-      throw new Error(`Could not update client with id ${id}`);
+      throw new HttpError(
+        error.status || 500,
+        error.message || `Failed to update client with id ${id}`,
+      );
     }
   }
 
@@ -98,10 +108,14 @@ export class ClientRepository implements ICLientRepository {
         await this._dbClientRepository.delete(id);
         return this._clientMapper.toResponseDTO(client);
       } else {
-        throw new Error(`Client with id ${id} not found`);
+        throw new HttpError(404, `Client with id ${id} not found`);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error deleting client with id ${id}:`, error);
+      throw new HttpError(
+        error.status || 500,
+        error.message || `Failed to delete client with id ${id}`,
+      );
     }
   }
 }

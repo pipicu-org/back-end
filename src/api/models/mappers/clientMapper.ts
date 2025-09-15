@@ -1,3 +1,4 @@
+import { HttpError } from '../../../errors/httpError';
 import { ClientRequestDTO } from '../DTO/request/clientRequestDTO';
 import { ClientResponseDTO } from '../DTO/response/clientResponseDTO';
 import { ClientSearchResponseDTO } from '../DTO/response/clientSearchResponseDTO';
@@ -15,7 +16,7 @@ export class ClientMapper {
       return client;
     } catch (error) {
       console.error('Error creating client from request DTO:', error);
-      throw new Error('Failed to create client');
+      throw new HttpError(500, 'Failed to create client from request DTO');
     }
   }
 
@@ -50,7 +51,7 @@ export class ClientMapper {
       return new ClientResponseDTO(client);
     } catch (error) {
       console.error('Error creating client response DTO:', error);
-      throw new Error('Failed to create client response DTO');
+      throw new HttpError(500, 'Failed to create client response DTO');
     }
   }
 }

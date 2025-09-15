@@ -8,7 +8,7 @@ import { IIngredientRepository } from './ingredient.repository';
 export interface IIngredientService {
   createIngredient(
     requestDTO: IngredientRequestDTO,
-  ): Promise<IngredientResponseDTO>;
+  ): Promise<IngredientResponseDTO | void>;
   getIngredientById(id: number): Promise<IngredientResponseDTO | void>;
   searchIngredients(
     search: string,
@@ -30,28 +30,24 @@ export class IngredientService implements IIngredientService {
 
   async createIngredient(
     requestDTO: IngredientRequestDTO,
-  ): Promise<IngredientResponseDTO> {
+  ): Promise<IngredientResponseDTO | void> {
     try {
       const ingredient = this._ingredientMapper.requestDTOToEntity(requestDTO);
       const createdIngredient = await this._repository.create(ingredient);
-      if (!createdIngredient) {
-        throw new Error('Ingredient creation failed');
-      }
       return createdIngredient;
     } catch (error) {
-      throw new Error(`Error creating ingredient: ${error}`);
+      console.error('Error creating ingredient:', error);
+      throw error;
     }
   }
 
   async getIngredientById(id: number): Promise<IngredientResponseDTO | void> {
     try {
       const ingredient = await this._repository.findById(id);
-      if (!ingredient) {
-        throw new Error(`Ingredient with id ${id} not found`);
-      }
       return ingredient;
     } catch (error) {
-      throw new Error(`Error fetching ingredient by ID: ${error}`);
+      console.log(`Error fetching ingredient with id ${id}:`, error);
+      throw error;
     }
   }
 
@@ -63,7 +59,8 @@ export class IngredientService implements IIngredientService {
     try {
       return await this._repository.searchIngredient(search, page, limit);
     } catch (error) {
-      throw new Error(`Error fetching all ingredients: ${error}`);
+      console.error('Error searching ingredients:', error);
+      throw error;
     }
   }
 
@@ -75,30 +72,21 @@ export class IngredientService implements IIngredientService {
       const updatedIngredient =
         this._ingredientMapper.requestDTOToEntity(requestDTO);
       const ingredient = await this._repository.update(id, updatedIngredient);
-      if (!ingredient) {
-        throw new Error(`Ingredient with id ${id} not found`);
-      }
       return ingredient;
     } catch (error) {
-      throw new Error(`Error updating ingredient: ${error}`);
+      console.error(`Error updating ingredient with id ${id}:`, error);
+      throw error;
     }
   }
 
   async deleteIngredient(id: number): Promise<IngredientResponseDTO | void> {
     try {
       const ingredient = await this._repository.findById(id);
-      if (!ingredient) {
-        throw new Error(`Ingredient with id ${id} not found`);
-      }
       await this._repository.delete(id);
-      const responseDTO = ingredient;
-      return responseDTO;
+      return ingredient;
     } catch (error) {
-      if (error instanceof Error) {
-        throw new Error(`Error deleting ingredient: ${error.message}`);
-      } else {
-        throw new Error(`Error deleting ingredient: ${String(error)}`);
-      }
+      console.error(`Error deleting ingredient with id ${id}:`, error);
+      throw error;
     }
   }
 }
