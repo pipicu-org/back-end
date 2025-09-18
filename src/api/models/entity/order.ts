@@ -1,5 +1,4 @@
 import {
-  BeforeInsert,
   Column,
   Entity,
   JoinColumn,
@@ -12,19 +11,8 @@ import { State } from './state';
 import { Line } from './line';
 import { IsArray, IsEmpty } from 'class-validator';
 
-interface IOrder {
-  id: number;
-  state: State;
-  client: Client;
-  createdAt: Date;
-  lines: Line[];
-  deliveryTime: Date;
-  paymentMethod: string;
-  totalPrice: number;
-}
-
 @Entity('Order')
-export class Order implements IOrder {
+export class Order {
   @PrimaryGeneratedColumn()
   id!: number;
 
@@ -65,11 +53,4 @@ export class Order implements IOrder {
     message: 'Lines must be an array of Line objects',
   })
   lines!: Line[];
-
-  @BeforeInsert()
-  setHorarioEntrega() {
-    if (!this.deliveryTime) {
-      this.deliveryTime = new Date(Date.now() + 30 * 60 * 1000);
-    }
-  }
 }

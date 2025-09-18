@@ -51,7 +51,7 @@ export class OrderService implements IOrderService {
       return await this._orderRepository.create(order);
     } catch (error: any) {
       console.error('Error creating order:', error);
-      throw new HttpError(error.status, error.message);
+      throw error;
     }
   }
 
@@ -70,11 +70,7 @@ export class OrderService implements IOrderService {
   ): Promise<OrderResponseDTO> {
     try {
       if (this._hasRepeatedProducts(orderRequest)) {
-        throw new HttpError(400, 'Order contains repeated products');
-      }
-      const existingOrder = await this._orderRepository.getById(id);
-      if (!existingOrder) {
-        throw new HttpError(404, `Order with id ${id} not found`);
+        throw new HttpError(500, 'Order contains repeated products');
       }
       const order =
         await this._orderMapper.orderRequestDTOToOrder(orderRequest);

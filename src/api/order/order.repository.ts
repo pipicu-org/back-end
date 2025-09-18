@@ -134,6 +134,15 @@ export class OrderRepository implements IOrderRepository {
         .innerJoinAndSelect('order.lines', 'line')
         .innerJoinAndSelect('line.preparation', 'preparation')
         .innerJoinAndSelect('line.product', 'product')
+        .leftJoinAndSelect('line.personalizations', 'productPersonalization')
+        .leftJoinAndSelect(
+          'productPersonalization.personalization',
+          'personalization',
+        )
+        .leftJoinAndSelect(
+          'personalization.ingredient',
+          'personalizationIngredient',
+        )
         .innerJoinAndSelect('preparation.state', 'preparationState')
         .where('order.id = :id', { id })
         .getOne();

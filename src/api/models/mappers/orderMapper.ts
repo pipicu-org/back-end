@@ -1,5 +1,15 @@
 import { Repository } from 'typeorm';
-import { Client, Line, Order, Preparation, Product, State } from '../entity';
+import {
+  Client,
+  Ingredient,
+  Line,
+  Order,
+  Personalization,
+  Preparation,
+  Product,
+  ProductPersonalization,
+  State,
+} from '../entity';
 import { OrderSearchResponseDTO } from '../DTO/response/orderSearchResponseDTO';
 import { OrderResponseDTO } from '../DTO/response/orderResponseDTO';
 import { OrderRequestDTO } from '../DTO/request/orderRequestDTO';
@@ -12,6 +22,7 @@ export class OrderMapper {
     private readonly clientRepository: Repository<Client>,
     private readonly productRepository: Repository<Product>,
     private readonly stateRepository: Repository<State>,
+    private readonly ingredientRepository: Repository<Ingredient>,
   ) {}
 
   public ordersToOrderSearchResponseDTO(
@@ -95,6 +106,32 @@ export class OrderMapper {
               `Product with id ${line.product} not found`,
             );
           }
+          entityLine.personalizations = line.personalizations
+            ? await Promise.all(
+                line.personalizations.map(async (productPersonalization) => {
+                  const ingredient = await this.ingredientRepository.findOneBy({
+                    id: productPersonalization.ingredient,
+                  });
+                  if (!ingredient) {
+                    throw new HttpError(
+                      404,
+                      `Ingredient with id ${productPersonalization.ingredient} not found`,
+                    );
+                  }
+                  const productPersonalizationEntity =
+                    new ProductPersonalization();
+                  productPersonalizationEntity.product = product;
+                  productPersonalizationEntity.line = entityLine;
+                  const personalization = new Personalization();
+                  personalization.ingredient = ingredient;
+                  personalization.quantity = productPersonalization.quantity;
+                  personalization.note = productPersonalization.note;
+                  productPersonalizationEntity.personalization =
+                    personalization;
+                  return productPersonalizationEntity;
+                }),
+              )
+            : [];
           entityLine.product = product;
           entityLine.quantity = line.quantity;
           entityLine.totalPrice = product.price * line.quantity;
@@ -106,10 +143,11 @@ export class OrderMapper {
           return entityLine;
         }),
       );
+      console.log(order);
       return order;
     } catch (error: any) {
       console.error('Error mapping OrderRequestDTO to Order:', error);
-      throw new HttpError(error.state, error.message);
+      throw error;
     }
   }
 

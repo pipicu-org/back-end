@@ -93,6 +93,7 @@ export const orderMapper = new OrderMapper(
   dbClientRepository,
   dbProductRepository,
   dbStateRepository,
+  dbIngredientRepository,
 );
 
 export const productMapper = new ProductMapper(

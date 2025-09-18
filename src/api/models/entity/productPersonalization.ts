@@ -21,6 +21,7 @@ export class ProductPersonalization {
   product!: Product;
 
   @ManyToOne(() => Line, (line) => line.personalizations, {
+    onDelete: 'CASCADE',
     nullable: false,
   })
   @JoinColumn([{ name: 'lineId', referencedColumnName: 'id' }])

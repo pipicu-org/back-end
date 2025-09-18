@@ -17,6 +17,9 @@ export class Personalization {
   @OneToOne(
     () => ProductPersonalization,
     (productPersonalization) => productPersonalization.personalization,
+    {
+      onDelete: 'CASCADE',
+    },
   )
   @JoinColumn([
     { name: 'productPersonalizationId', referencedColumnName: 'id' },

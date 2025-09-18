@@ -51,7 +51,9 @@ export class Line {
     () => ProductPersonalization,
     (personalizations) => personalizations.line,
     {
+      orphanedRowAction: 'delete',
       onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
       cascade: ['insert', 'update', 'remove'],
     },
   )
