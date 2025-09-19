@@ -19,6 +19,7 @@ export class Personalization {
     (productPersonalization) => productPersonalization.personalization,
     {
       onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
   )
   @JoinColumn([

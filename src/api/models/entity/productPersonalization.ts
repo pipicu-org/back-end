@@ -33,6 +33,8 @@ export class ProductPersonalization {
     {
       nullable: false,
       onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
+      cascade: ['insert', 'update'],
     },
   )
   personalization!: Personalization;
