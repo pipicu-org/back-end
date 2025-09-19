@@ -143,7 +143,6 @@ export class OrderMapper {
           return entityLine;
         }),
       );
-      console.log(order);
       return order;
     } catch (error: any) {
       console.error('Error mapping OrderRequestDTO to Order:', error);
