@@ -1,5 +1,4 @@
-import { ProductService } from '../../src/api/product/product.service';
-import { ProductMapper } from '../../src/api/models/mappers/productMapper';
+import { ProductService } from '../../src/api/product/product.service.impl';
 import { mockProductRequestDTO, mockProductResponseDTO } from '../fixtures/product.fixture';
 
 const mockProductRepository = {
