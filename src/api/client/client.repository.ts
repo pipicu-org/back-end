@@ -4,6 +4,7 @@ import { ClientResponseDTO } from '../models/DTO/response/clientResponseDTO';
 import { ClientSearchResponseDTO } from '../models/DTO/response/clientSearchResponseDTO';
 import { ClientMapper } from '../models/mappers/clientMapper';
 import { HttpError } from '../../errors/httpError';
+import logger from '../../config/logger';
 
 export interface ICLientRepository {
   searchByName(
@@ -42,8 +43,8 @@ export class ClientRepository implements ICLientRepository {
         page,
         limit,
       );
-    } catch (error) {
-      console.error(`Error searching clients by name "${search}":`, error);
+    } catch (error: any) {
+      logger.error('Error searching clients by name', { search, error: error.message, stack: error.stack });
       throw new HttpError(500, 'Failed to search clients by name');
     }
   }
@@ -63,7 +64,7 @@ export class ClientRepository implements ICLientRepository {
           }
         });
     } catch (error: any) {
-      console.error(`Error fetching client with id ${id}:`, error);
+      logger.error('Error fetching client by ID', { id, error: error.message, stack: error.stack });
       throw new HttpError(
         error.status || 500,
         error.message || 'Failed to fetch client',
@@ -77,7 +78,7 @@ export class ClientRepository implements ICLientRepository {
         return this._clientMapper.toResponseDTO(savedClient);
       });
     } catch (error: any) {
-      console.error('Error creating client:', error);
+      logger.error('Error creating client', { error: error.message, stack: error.stack });
       throw new HttpError(
         error.status || 500,
         error.message || 'Failed to create client',
@@ -93,7 +94,7 @@ export class ClientRepository implements ICLientRepository {
       }
       return this._clientMapper.toResponseDTO({ ...client, id });
     } catch (error: any) {
-      console.error(`Error updating client with id ${id}:`, error);
+      logger.error('Error updating client', { id, error: error.message, stack: error.stack });
       throw new HttpError(
         error.status || 500,
         error.message || `Failed to update client with id ${id}`,
@@ -111,7 +112,7 @@ export class ClientRepository implements ICLientRepository {
         throw new HttpError(404, `Client with id ${id} not found`);
       }
     } catch (error: any) {
-      console.error(`Error deleting client with id ${id}:`, error);
+      logger.error('Error deleting client', { id, error: error.message, stack: error.stack });
       throw new HttpError(
         error.status || 500,
         error.message || `Failed to delete client with id ${id}`,

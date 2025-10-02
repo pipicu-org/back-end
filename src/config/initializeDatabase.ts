@@ -34,6 +34,11 @@ export async function initializeDataSource() {
           err.stack,
       );
     });
+
+  console.info('Ejecutando migraciones...');
+  await AppDataSource.runMigrations();
+  console.info('Migraciones ejecutadas exitosamente.');
+
   const seedRunner = new SeedRunner(AppDataSource);
-  seedRunner.run();
+  await seedRunner.run();
 }

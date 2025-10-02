@@ -2,7 +2,19 @@ import { LineResponseDTO } from '../DTO/response/lineResponeDTO';
 import { LineSearchResponseDTO } from '../DTO/response/lineSearchResponseDTO';
 import { Line } from '../entity';
 
-export class LineMapper {
+export interface ILineResponseMapper {
+  toResponseDTO(line: Line): LineResponseDTO;
+}
+
+export interface ILineSearchMapper {
+  toSearchResponseDTO(
+    resultsAndCount: [Line[], number],
+    page: number,
+    limit: number,
+  ): LineSearchResponseDTO;
+}
+
+export class LineMapper implements ILineResponseMapper, ILineSearchMapper {
   public toResponseDTO(line: Line): LineResponseDTO {
     return new LineResponseDTO(line);
   }

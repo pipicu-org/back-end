@@ -25,7 +25,7 @@ export class SeedRunner {
           .insert()
           .into(seed.getEntity())
           .values(seed.getData())
-          .orIgnore('asdasdas')
+          .orIgnore()
           .execute();
       }
       console.log('Seed scripts executed successfully.');

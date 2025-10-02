@@ -13,17 +13,17 @@ import {
 } from '../api/models/entity';
 import { OrderController } from '../api/order/order.controller';
 import { OrderRepository } from '../api/order/order.repository';
-import { OrderService } from '../api/order/order.service';
+import { OrderService } from '../api/order/order.service.impl';
 import { AppDataSource, initializeDataSource } from './initializeDatabase';
 import { ProductRepository } from '../api/product/product.repository';
 import { ClientRepository } from '../api/client/client.repository';
-import { ClientService } from '../api/client/client.service';
+import { ClientService } from '../api/client/client.service.impl';
 import { ClientController } from '../api/client/client.controller';
 import { CategoryRepository } from '../api/category/category.repository';
 import { IngredientRepository } from '../api/ingredient/ingredient.repository';
-import { ProductService } from '../api/product/product.service';
+import { ProductService } from '../api/product/product.service.impl';
 import { ProductController } from '../api/product/product.controller';
-import { IngredientService } from '../api/ingredient/ingredient.service';
+import { IngredientService } from '../api/ingredient/ingredient.service.impl';
 import { IngredientController } from '../api/ingredient/ingredient.controller';
 import { ClientMapper } from '../api/models/mappers/clientMapper';
 import { OrderMapper } from '../api/models/mappers/orderMapper';
@@ -31,10 +31,10 @@ import { ProductMapper } from '../api/models/mappers/productMapper';
 import { IngredientMapper } from '../api/models/mappers/ingredientMapper';
 import { LineMapper } from '../api/models/mappers/lineMapper';
 import { LineController } from '../api/line/line.controller';
-import { LineService } from '../api/line/line.service';
+import { LineService } from '../api/line/line.service.impl';
 import { LineRepository } from '../api/line/line.repository';
 import { RecipeIngredientsRepository } from '../api/recipeIngredients/recipeIngredients.repository';
-import { RecipeIngredientsService } from '../api/recipeIngredients/recipeIngredients.service';
+import { RecipeIngredientsService } from '../api/recipeIngredients/recipeIngredients.service.impl';
 import { RecipeIngredientsController } from '../api/recipeIngredients/recipeIngredients.controller';
 
 initializeDataSource().catch((err) =>

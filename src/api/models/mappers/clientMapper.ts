@@ -4,7 +4,24 @@ import { ClientResponseDTO } from '../DTO/response/clientResponseDTO';
 import { ClientSearchResponseDTO } from '../DTO/response/clientSearchResponseDTO';
 import { Client } from '../entity';
 
-export class ClientMapper {
+export interface IClientEntityMapper {
+  createClientFromRequestDTO(requestDTO: ClientRequestDTO): Client;
+}
+
+export interface IClientResponseMapper {
+  toResponseDTO(client: Client): ClientResponseDTO;
+}
+
+export interface IClientSearchMapper {
+  createSearchToClientSearchDTO(
+    resultsAndCount: [Client[], number],
+    search: string,
+    page: number,
+    limit: number,
+  ): ClientSearchResponseDTO;
+}
+
+export class ClientMapper implements IClientEntityMapper, IClientResponseMapper, IClientSearchMapper {
   public createClientFromRequestDTO(requestDTO: ClientRequestDTO): Client {
     try {
       const client = new Client();

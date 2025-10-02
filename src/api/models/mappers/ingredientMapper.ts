@@ -3,7 +3,25 @@ import { IngredientResponseDTO } from '../DTO/response/ingredientResponseDTO';
 import { IngredientSearchResponseDTO } from '../DTO/response/ingredientSearchResponseDTO';
 import { Ingredient } from '../entity';
 
-export class IngredientMapper {
+export interface IIngredientEntityMapper {
+  requestDTOToEntity(requestDTO: IngredientRequestDTO): Ingredient;
+  toEntity(ingredient: IngredientResponseDTO): Ingredient;
+}
+
+export interface IIngredientResponseMapper {
+  toResponseDTO(ingredient: Ingredient): IngredientResponseDTO;
+}
+
+export interface IIngredientSearchMapper {
+  createSearchToIngredientSearchDTO(
+    resultsAndCount: [Ingredient[], number],
+    search: string,
+    page: number,
+    limit: number,
+  ): IngredientSearchResponseDTO;
+}
+
+export class IngredientMapper implements IIngredientEntityMapper, IIngredientResponseMapper, IIngredientSearchMapper {
   public toResponseDTO(ingredient: Ingredient): IngredientResponseDTO {
     return new IngredientResponseDTO(ingredient);
   }
