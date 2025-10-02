@@ -1,4 +1,4 @@
-import { ClientService } from '../../src/api/client/client.service';
+import { ClientService } from '../../src/api/client/client.service.impl';
 import { ClientMapper } from '../../src/api/models/mappers/clientMapper';
 import { mockClientRequestDTO, mockClientEntity, mockClientResponseDTO } from '../fixtures/client.fixture';
 

@@ -63,8 +63,9 @@ export class ClientController {
       const { search, page = 1, limit = 10 } = req.query;
       const parsedPage = parseInt(page as string, 10);
       const parsedLimit = parseInt(limit as string, 10);
+      const parsedSaearch = !search ? '' : search as string;
       const clients = await this._clientService.searchClients(
-        search as string,
+        parsedSaearch,
         parsedPage,
         parsedLimit,
       );

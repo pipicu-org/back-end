@@ -6,7 +6,24 @@ import { Category, Ingredient, Product, Recipe } from '../entity';
 import { RecipeIngredients } from '../entity/recipeIngredients';
 import { HttpError } from '../../../errors/httpError';
 
-export class ProductMapper {
+export interface IProductEntityMapper {
+  requestDTOToEntity(requestDTO: ProductRequestDTO): Promise<Product>;
+}
+
+export interface IProductResponseMapper {
+  toResponseDTO(product: Product): ProductResponseDTO;
+}
+
+export interface IProductSearchMapper {
+  searchToResponseDTO(
+    findAndCount: [Product[], number],
+    search: string,
+    page: number,
+    limit: number,
+  ): ProductSearchResponseDTO;
+}
+
+export class ProductMapper implements IProductEntityMapper, IProductResponseMapper, IProductSearchMapper {
   constructor(
     private readonly categoryRepository: Repository<Category>,
     private readonly _ingredientRepository: Repository<Ingredient>,
