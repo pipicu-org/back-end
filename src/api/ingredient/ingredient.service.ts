@@ -4,6 +4,7 @@ import { IngredientResponseDTO } from '../models/DTO/response/ingredientResponse
 import { IngredientSearchResponseDTO } from '../models/DTO/response/ingredientSearchResponseDTO';
 import { IngredientMapper } from '../models/mappers/ingredientMapper';
 import { IIngredientRepository } from './ingredient.repository';
+import logger from '../../config/logger';
 
 export interface IIngredientService {
   createIngredient(
@@ -35,8 +36,8 @@ export class IngredientService implements IIngredientService {
       const ingredient = this._ingredientMapper.requestDTOToEntity(requestDTO);
       const createdIngredient = await this._repository.create(ingredient);
       return createdIngredient;
-    } catch (error) {
-      console.error('Error creating ingredient:', error);
+    } catch (error: any) {
+      logger.error('Error creating ingredient', { error: error.message, stack: error.stack });
       throw error;
     }
   }
@@ -45,8 +46,8 @@ export class IngredientService implements IIngredientService {
     try {
       const ingredient = await this._repository.findById(id);
       return ingredient;
-    } catch (error) {
-      console.log(`Error fetching ingredient with id ${id}:`, error);
+    } catch (error: any) {
+      logger.error('Error fetching ingredient by ID', { id, error: error.message, stack: error.stack });
       throw error;
     }
   }
@@ -58,8 +59,8 @@ export class IngredientService implements IIngredientService {
   ): Promise<IngredientSearchResponseDTO | void> {
     try {
       return await this._repository.searchIngredient(search, page, limit);
-    } catch (error) {
-      console.error('Error searching ingredients:', error);
+    } catch (error: any) {
+      logger.error('Error searching ingredients', { search, page, limit, error: error.message, stack: error.stack });
       throw error;
     }
   }
@@ -73,8 +74,8 @@ export class IngredientService implements IIngredientService {
         this._ingredientMapper.requestDTOToEntity(requestDTO);
       const ingredient = await this._repository.update(id, updatedIngredient);
       return ingredient;
-    } catch (error) {
-      console.error(`Error updating ingredient with id ${id}:`, error);
+    } catch (error: any) {
+      logger.error('Error updating ingredient', { id, error: error.message, stack: error.stack });
       throw error;
     }
   }
@@ -84,8 +85,8 @@ export class IngredientService implements IIngredientService {
       const ingredient = await this._repository.findById(id);
       await this._repository.delete(id);
       return ingredient;
-    } catch (error) {
-      console.error(`Error deleting ingredient with id ${id}:`, error);
+    } catch (error: any) {
+      logger.error('Error deleting ingredient', { id, error: error.message, stack: error.stack });
       throw error;
     }
   }
