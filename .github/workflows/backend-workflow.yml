@@ -57,15 +57,3 @@ jobs:
         with:
           name: build-files
           path: ./build
-  deploy:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && contains(fromJSON('["main"]'), github.ref_name)
-    concurrency:
-      group: 'deploy-${{ github.ref }}'
-      cancel-in-progress: true
-    defaults:
-      run:
-        working-directory: ./src
-    needs: build
-    steps:
-      - run: echo "Deploying to production server..."
