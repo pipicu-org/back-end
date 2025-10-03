@@ -31,7 +31,7 @@ export class ClientMapper implements IClientEntityMapper, IClientResponseMapper,
       client.facebookUsername = requestDTO.facebookUsername ?? null;
       client.instagramUsername = requestDTO.instagramUsername ?? null;
       return client;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating client from request DTO:', error);
       throw new HttpError(500, 'Failed to create client from request DTO');
     }
@@ -66,7 +66,7 @@ export class ClientMapper implements IClientEntityMapper, IClientResponseMapper,
   public toResponseDTO(client: Client): ClientResponseDTO {
     try {
       return new ClientResponseDTO(client);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating client response DTO:', error);
       throw new HttpError(500, 'Failed to create client response DTO');
     }

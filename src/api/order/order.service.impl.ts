@@ -8,7 +8,6 @@ import { PreparationResponseDTO } from '../models/DTO/response/preparationRespon
 import { OrderMapper } from '../models/mappers/orderMapper';
 import { IOrderRepository } from './order.repository';
 import { IOrderService } from './order.service';
-import logger from '../../config/logger';
 
 export class OrderService implements IOrderService {
   constructor(
@@ -81,7 +80,7 @@ export class OrderService implements IOrderService {
     orderId: number,
     stateId: number,
   ): Promise<OrderResponseDTO> {
-    let order = await this._orderRepository.getById(orderId);
+    const order = await this._orderRepository.getById(orderId);
     if (!order) {
       throw new HttpError(404, `Order with id ${orderId} not found`);
     }

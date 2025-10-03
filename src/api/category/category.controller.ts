@@ -10,7 +10,7 @@ export class CategoryController {
       const categoryRequestDTO = req.body as CategoryRequestDTO;
       const category = await this.categoryService.create(categoryRequestDTO);
       res.status(201).json(category);
-    } catch (error) {
+    } catch (error: any) {
       next(error);
     }
   }
@@ -19,7 +19,7 @@ export class CategoryController {
     try {
       const categories = await this.categoryService.findAll();
       res.status(200).json(categories);
-    } catch (error) {
+    } catch (error: any) {
       next(error);
     }
   }
@@ -33,7 +33,7 @@ export class CategoryController {
       }
       const category = await this.categoryService.findById(id);
       res.status(200).json(category);
-    } catch (error) {
+    } catch (error: any) {
       next(error);
     }
   }
@@ -46,7 +46,7 @@ export class CategoryController {
         categoryRequestDTO,
       );
       res.status(200).json(updatedCategory);
-    } catch (error) {
+    } catch (error: any) {
       next(error);
     }
   }
@@ -55,7 +55,7 @@ export class CategoryController {
     try {
       await this.categoryService.delete(Number(req.params.id));
       res.status(204).send();
-    } catch (error) {
+    } catch (error: any) {
       next(error);
     }
   }

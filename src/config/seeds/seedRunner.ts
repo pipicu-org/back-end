@@ -12,7 +12,7 @@ export class SeedRunner {
   async run() {
     console.log('Running seed scripts...');
     try {
-      const seeds: ISeed<any>[] = [
+      const seeds: ISeed<unknown>[] = [
         CategorySeed.getInstance(),
         ClientSeed.getInstance(),
         IngredientSeed.getInstance(),
@@ -29,7 +29,7 @@ export class SeedRunner {
           .execute();
       }
       console.log('Seed scripts executed successfully.');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error running seed scripts:', error);
     }
   }

@@ -16,7 +16,7 @@ export class RecipeIngredientsService implements IRecipeIngredientService {
         page,
         limit,
       );
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching kitchen board:', error);
       throw error;
     }

@@ -10,7 +10,7 @@ export class ClientController {
       const clientRequestDTO = req.body as ClientRequestDTO;
       const client = await this._clientService.createClient(clientRequestDTO);
       res.status(201).json(client);
-    } catch (error) {
+    } catch (error: any) {
       next(error);
     }
   }
@@ -23,7 +23,7 @@ export class ClientController {
         return res.status(404).json({ message: 'Client not found' });
       }
       res.status(200).json(client);
-    } catch (error) {
+    } catch (error: any) {
       next(error);
     }
   }
@@ -40,7 +40,7 @@ export class ClientController {
         return res.status(404).json({ message: 'Client not found' });
       }
       res.status(200).json(updatedClient);
-    } catch (error) {
+    } catch (error: any) {
       next(error);
     }
   }
@@ -53,7 +53,7 @@ export class ClientController {
         return res.status(404).json({ message: 'Client not found' });
       }
       res.status(200).json(deletedClient);
-    } catch (error) {
+    } catch (error: any) {
       next(error);
     }
   }
@@ -70,7 +70,7 @@ export class ClientController {
         parsedLimit,
       );
       res.status(200).json(clients);
-    } catch (error) {
+    } catch (error: any) {
       next(error);
     }
   }
