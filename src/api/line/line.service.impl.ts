@@ -12,7 +12,7 @@ export class LineService implements ILineService {
   ): Promise<LineResponseDTO | void> {
     try {
       return await this._lineRepository.changeStateLine(lineId, stateId);
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error changing state of line with id ${lineId}:`, error);
       throw new Error('Failed to change line state');
     }
@@ -21,7 +21,7 @@ export class LineService implements ILineService {
   async findById(id: number): Promise<LineResponseDTO | void> {
     try {
       return await this._lineRepository.findById(id);
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error fetching line with id ${id}:`, error);
       throw new Error('Failed to fetch line');
     }
@@ -30,7 +30,7 @@ export class LineService implements ILineService {
   async getLinesByOrderId(orderId: number): Promise<LineResponseDTO[]> {
     try {
       return await this._lineRepository.getLinesByOrderId(orderId);
-    } catch (error) {
+    } catch (error: any) {
       console.error(
         `Error fetching lines for order with id ${orderId}:`,
         error,
@@ -46,7 +46,7 @@ export class LineService implements ILineService {
   ): Promise<LineSearchResponseDTO> {
     try {
       return await this._lineRepository.getLinesByState(stateId, page, limit);
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error fetching lines with state ${stateId}:`, error);
       throw new Error('Failed to fetch lines by state');
     }

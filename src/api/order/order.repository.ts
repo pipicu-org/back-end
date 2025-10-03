@@ -250,6 +250,8 @@ export class OrderRepository implements IOrderRepository {
         .leftJoinAndSelect('line.product', 'product')
         .where('state.id = :stateId', { stateId: 1 })
         .orderBy('order.createdAt', 'ASC')
+        .skip((page - 1) * limit)
+        .take(limit)
         .getManyAndCount();
       return this._orderMapper.toPreparationResponseDTO(orders[0], orders[1]);
     } catch (error: any) {

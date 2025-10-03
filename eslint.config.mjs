@@ -29,4 +29,8 @@ export default defineConfig([{
 
         parser: tsParser,
     },
+
+    rules: {
+        "@typescript-eslint/no-explicit-any": "off",
+    },
 }]);

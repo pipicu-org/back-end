@@ -58,7 +58,7 @@ export class OrderMapper {
       const client = await this.clientRepository.findOneBy({
         id: orderRequest.client,
       });
-      let products = await this.productRepository.find();
+      const products = await this.productRepository.find();
       if (!products || products.length === 0) {
         throw new HttpError(404, 'No products found');
       }
@@ -158,7 +158,7 @@ export class OrderMapper {
   ): PreparationResponseDTO {
     try {
       return new PreparationResponseDTO(orders, total, page, limit);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating preparation response DTO:', error);
       throw new HttpError(500, 'Failed to create preparation response DTO');
     }
