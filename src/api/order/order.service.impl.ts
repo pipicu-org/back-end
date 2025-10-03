@@ -85,12 +85,12 @@ export class OrderService implements IOrderService {
     if (!order) {
       throw new HttpError(404, `Order with id ${orderId} not found`);
     }
-    if (!(await this._isOrderAbleToChangeState(order, stateId))) {
-      throw new HttpError(
-        400,
-        'Order cannot change state due to line states mismatch',
-      );
-    }
+    // if (!(await this._isOrderAbleToChangeState(order, stateId))) {
+    //   throw new HttpError(
+    //     400,
+    //     'Order cannot change state due to line states mismatch',
+    //   );
+    // }
     return await this._orderRepository.changeStateOrder(orderId, stateId);
   }
 

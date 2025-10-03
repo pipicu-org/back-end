@@ -20,6 +20,8 @@ import { ClientRepository } from '../api/client/client.repository';
 import { ClientService } from '../api/client/client.service.impl';
 import { ClientController } from '../api/client/client.controller';
 import { CategoryRepository } from '../api/category/category.repository';
+import { CategoryService } from '../api/category/category.service.impl';
+import { CategoryController } from '../api/category/category.controller';
 import { IngredientRepository } from '../api/ingredient/ingredient.repository';
 import { ProductService } from '../api/product/product.service.impl';
 import { ProductController } from '../api/product/product.controller';
@@ -126,6 +128,10 @@ export const clientRepository = new ClientRepository(
 );
 
 export const categoryRepository = new CategoryRepository(dbCategoryRepository);
+
+export const categoryService = new CategoryService(categoryRepository);
+
+export const categoryController = new CategoryController(categoryService);
 
 export const ingredientRepository = new IngredientRepository(
   dbIngredientRepository,

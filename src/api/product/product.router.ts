@@ -137,6 +137,13 @@ export const productRouter = (controller = productController): Router => {
    *         application/json:
    *           schema:
    *             $ref: '#/components/schemas/ProductRequest'
+   *           example:
+   *             name: "Pizza Margherita"
+   *             price: 12.99
+   *             category: 1
+   *             ingredients:
+   *               - id: 1
+   *                 quantity: 2
    *     responses:
    *       200:
    *         description: Product updated successfully

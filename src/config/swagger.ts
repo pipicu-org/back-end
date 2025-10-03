@@ -58,6 +58,20 @@ const options = {
             },
           },
         },
+        CategoryRequest: {
+          type: 'object',
+          required: ['name'],
+          properties: {
+            name: { type: 'string', example: 'Pizzas' },
+          },
+        },
+        CategoryResponse: {
+          type: 'object',
+          properties: {
+            id: { type: 'number', example: 1 },
+            name: { type: 'string', example: 'Pizzas' },
+          },
+        },
         ErrorResponse: {
           type: 'object',
           properties: {
