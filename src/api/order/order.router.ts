@@ -26,11 +26,11 @@ export const orderRouter = (controller = orderController): Router => {
    *           schema:
    *             $ref: '#/components/schemas/OrderRequest'
    *           example:
-   *             clientId: 1
+   *             client: 1
    *             deliveryTime: "2024-01-01T12:00:00Z"
    *             paymentMethod: "cash"
-   *             products:
-   *               - productId: 1
+   *             lines:
+   *               - product: 1
    *                 quantity: 2
    *                 personalizations: []
    *     responses:
@@ -117,6 +117,14 @@ export const orderRouter = (controller = orderController): Router => {
    *         application/json:
    *           schema:
    *             $ref: '#/components/schemas/OrderRequest'
+   *           example:
+   *             client: 1
+   *             deliveryTime: "2024-01-01T12:00:00Z"
+   *             paymentMethod: "cash"
+   *             lines:
+   *               - product: 1
+   *                 quantity: 2
+   *                 personalizations: []
    *     responses:
    *       200:
    *         description: Order updated successfully

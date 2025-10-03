@@ -98,8 +98,10 @@ export const productRouter = (controller = productController): Router => {
    *           example:
    *             name: "Pizza Margherita"
    *             price: 12.99
-   *             categoryId: 1
-   *             recipeId: 1
+   *             category: 1
+   *             ingredients:
+   *               - id: 1
+   *                 quantity: 2
    *     responses:
    *       201:
    *         description: Product created successfully
@@ -317,8 +319,10 @@ export const productRouter = (controller = productController): Router => {
    *           example:
    *             name: "Pizza Margherita"
    *             price: 12.99
-   *             categoryId: 1
-   *             recipeId: 1
+   *             category: 1
+   *             ingredients:
+   *               - id: 1
+   *                 quantity: 2
    *     responses:
    *       201:
    *         description: Product created successfully

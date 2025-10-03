@@ -1,5 +1,6 @@
 import express from 'express';
 import morgan from 'morgan';
+import cors from 'cors';
 
 import { errorHandler } from './middlewares/errorHandler';
 import { clientRouter } from './api/client/client.router';
@@ -16,6 +17,8 @@ const app = express();
 app.use(morgan('combined'));
 
 app.use(express.json());
+
+app.use(cors());
 
 // Swagger documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
