@@ -33,7 +33,7 @@ export class ClientRepository implements ICLientRepository {
       const clients = await this._dbClientRepository
         .createQueryBuilder('client')
         .leftJoinAndSelect('client.orders', 'order')
-        .where('client.name LIKE :search', { search: `%${search}%` })
+        .where('client.name ILIKE :search', { search: `%${search}%` })
         .skip((page - 1) * limit)
         .take(limit)
         .getManyAndCount();

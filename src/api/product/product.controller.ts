@@ -6,11 +6,12 @@ export class ProductController {
   constructor(private readonly _productService: IProductService) {}
   async searchProducts(req: Request, res: Response, next: NextFunction) {
     try {
-      const search = req.query.search as string;
+      const search = req.query.search;
+      const parsedSearch = !search ? '' : search as string;
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
       const findAndCount = await this._productService.getByName(
-        search,
+        parsedSearch,
         page,
         limit,
       );

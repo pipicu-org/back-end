@@ -274,7 +274,7 @@ export const orderRouter = (controller = orderController): Router => {
    *             type: object
    *             required:
    *               - orderId
-   *               - newStateId
+   *               - stateId
    *             properties:
    *               orderId:
    *                 type: integer
@@ -284,7 +284,7 @@ export const orderRouter = (controller = orderController): Router => {
    *                 description: New state ID
    *             example:
    *               orderId: 1
-   *               newStateId: 2
+   *               stateId: 2
    *     responses:
    *       200:
    *         description: Order state changed successfully
