@@ -8,7 +8,7 @@ import {
 import { Ingredient } from './ingredient';
 import { Recipe } from './recipe';
 
-export interface RecipeIngredients {
+export interface IRecipeIngredients {
   id: number;
   recipe: Recipe;
   ingredient: Ingredient;
@@ -16,7 +16,7 @@ export interface RecipeIngredients {
 }
 
 @Entity('RecipeIngredients')
-export class RecipeIngredients implements RecipeIngredients {
+export class RecipeIngredients implements IRecipeIngredients {
   @PrimaryGeneratedColumn()
   id!: number;
 

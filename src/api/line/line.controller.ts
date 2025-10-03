@@ -16,7 +16,7 @@ export class LineController {
         state,
       );
       res.status(200).json(updatedLine);
-    } catch (error) {
+    } catch (error: any) {
       next(error);
     }
   }
@@ -33,7 +33,7 @@ export class LineController {
       } else {
         res.status(200).json(line);
       }
-    } catch (error) {
+    } catch (error: any) {
       next(error);
     }
   }
@@ -46,7 +46,7 @@ export class LineController {
       }
       const lines = await this._lineService.getLinesByOrderId(orderId);
       res.status(200).json(lines);
-    } catch (error) {
+    } catch (error: any) {
       next(error);
     }
   }
@@ -67,7 +67,7 @@ export class LineController {
         limit,
       );
       res.status(200).json(linesResponse);
-    } catch (error) {
+    } catch (error: any) {
       next(error);
     }
   }

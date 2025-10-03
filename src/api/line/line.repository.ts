@@ -71,7 +71,7 @@ export class LineRepository implements ILineRepository {
         .execute();
       await this._dbLineRepository.save(line);
       return this._lineMapper.toResponseDTO(line);
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error changing state of line with id ${lineId}:`, error);
       throw new Error('Failed to change line state');
     }
@@ -92,7 +92,7 @@ export class LineRepository implements ILineRepository {
         throw new Error(`Line with id ${id} not found`);
       }
       return this._lineMapper.toResponseDTO(line);
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error fetching line with id ${id}:`, error);
       throw new Error('Failed to fetch line');
     }
@@ -110,7 +110,7 @@ export class LineRepository implements ILineRepository {
         .where('order.id = :orderId', { orderId })
         .getMany();
       return lines.map((line) => this._lineMapper.toResponseDTO(line));
-    } catch (error) {
+    } catch (error: any) {
       console.error(
         `Error fetching lines for order with id ${orderId}:`,
         error,
@@ -137,7 +137,7 @@ export class LineRepository implements ILineRepository {
         .take(limit)
         .getManyAndCount();
       return this._lineMapper.toSearchResponseDTO(linesAndCount, page, limit);
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error fetching lines by state with id ${stateId}:`, error);
       throw new Error('Failed to fetch lines by state');
     }

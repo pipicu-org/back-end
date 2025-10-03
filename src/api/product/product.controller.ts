@@ -16,7 +16,7 @@ export class ProductController {
         limit,
       );
       res.status(200).json(findAndCount);
-    } catch (error) {
+    } catch (error: any) {
       next(error);
     }
   }
@@ -30,7 +30,7 @@ export class ProductController {
       } else {
         res.status(404).json({ message: 'Product not found' });
       }
-    } catch (error) {
+    } catch (error: any) {
       next(error);
     }
   }
@@ -41,7 +41,7 @@ export class ProductController {
       const product =
         await this._productService.createProduct(productRequestDTO);
       res.status(201).json(product);
-    } catch (error) {
+    } catch (error: any) {
       next(error);
     }
   }
@@ -58,7 +58,7 @@ export class ProductController {
       } else {
         res.status(404).json({ message: 'Product not found' });
       }
-    } catch (error) {
+    } catch (error: any) {
       next(error);
     }
   }
@@ -72,7 +72,7 @@ export class ProductController {
       } else {
         res.status(404).json({ message: 'Product not found' });
       }
-    } catch (error) {
+    } catch (error: any) {
       next(error);
     }
   }
@@ -92,7 +92,7 @@ export class ProductController {
         limit,
       );
       res.status(200).json(products);
-    } catch (error) {
+    } catch (error: any) {
       next(error);
     }
   }

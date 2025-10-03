@@ -18,7 +18,7 @@ export class RecipeIngredientsController {
         Number(limit) || 10,
       );
       res.status(200).json(result);
-    } catch (error) {
+    } catch (error: any) {
       next(error);
     }
   }

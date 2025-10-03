@@ -10,7 +10,7 @@ export class OrderController {
       const orderRequestDTO = req.body as OrderRequestDTO;
       const order = await this.orderService.create(orderRequestDTO);
       res.status(201).json(order);
-    } catch (error) {
+    } catch (error: any) {
       next(error);
     }
   }
@@ -24,7 +24,7 @@ export class OrderController {
       }
       const orders = await this.orderService.getById(id);
       res.status(200).json(orders);
-    } catch (error) {
+    } catch (error: any) {
       next(error);
     }
   }
@@ -37,7 +37,7 @@ export class OrderController {
         orderRequestDTO,
       );
       res.status(200).json(updatedOrder);
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
       next(error);
     }
@@ -47,7 +47,7 @@ export class OrderController {
     try {
       const order = await this.orderService.delete(Number(req.params.id));
       res.status(200).json(order);
-    } catch (error) {
+    } catch (error: any) {
       next(error);
     }
   }
@@ -65,7 +65,7 @@ export class OrderController {
         limit,
       );
       res.status(200).json(ordersResponse);
-    } catch (error) {
+    } catch (error: any) {
       next(error);
     }
   }
@@ -85,7 +85,7 @@ export class OrderController {
         limit,
       );
       res.status(200).json(ordersResponse);
-    } catch (error) {
+    } catch (error: any) {
       next(error);
     }
   }
@@ -102,7 +102,7 @@ export class OrderController {
         stateId,
       );
       res.status(200).json(updatedOrder);
-    } catch (error) {
+    } catch (error: any) {
       next(error);
     }
   }
@@ -113,7 +113,7 @@ export class OrderController {
       const limit = Number(req.query.limit) || 10;
       const comanda = await this.orderService.getComanda(page, limit);
       res.status(200).json(comanda);
-    } catch (error) {
+    } catch (error: any) {
       next(error);
     }
   }
@@ -127,7 +127,7 @@ export class OrderController {
         limit,
       );
       res.status(200).json(kitchenOrders);
-    } catch (error) {
+    } catch (error: any) {
       next(error);
     }
   }

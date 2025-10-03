@@ -8,7 +8,7 @@ import { initializeDataSource } from './config/initializeDatabase';
   app.listen(config.port, () => {
     console.log(`
 ╔════════════════════════════════════════════════════════╗
-║              🍔​ PIPI CUCU 🍔​                           ║
+║              🍔 PIPI CUCU 🍔                           ║
 ║         RESTAURANT API SERVER                          ║
 ║                                                        ║
 ║  🚀 Server running on port ${config.port}                        ║

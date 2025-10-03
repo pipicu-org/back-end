@@ -12,7 +12,7 @@ export class IngredientController {
       const ingredient =
         await this.ingredientService.createIngredient(ingredientRequestDTO);
       res.status(201).json(ingredient);
-    } catch (error) {
+    } catch (error: any) {
       next(error);
     }
   }
@@ -29,7 +29,7 @@ export class IngredientController {
       } else {
         res.status(404).json({ message: 'Ingredient not found' });
       }
-    } catch (error) {
+    } catch (error: any) {
       next(error);
     }
   }
@@ -43,7 +43,7 @@ export class IngredientController {
         Number(limit),
       );
       res.status(200).json(ingredients);
-    } catch (error) {
+    } catch (error: any) {
       next(error);
     }
   }
@@ -64,7 +64,7 @@ export class IngredientController {
       } else {
         res.status(404).json({ message: 'Ingredient not found' });
       }
-    } catch (error) {
+    } catch (error: any) {
       next(error);
     }
   }
@@ -79,7 +79,7 @@ export class IngredientController {
       } else {
         res.status(404).json({ message: 'Ingredient not found' });
       }
-    } catch (error) {
+    } catch (error: any) {
       next(error);
     }
   }
