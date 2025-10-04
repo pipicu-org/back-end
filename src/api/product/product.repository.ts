@@ -1,4 +1,4 @@
-import { Like, Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { Product } from '../models/entity';
 import { ProductMapper } from '../models/mappers/productMapper';
 import { ProductSearchResponseDTO } from '../models/DTO/response/productSearchResponseDTO';
@@ -149,7 +149,7 @@ export class ProductRepository implements IProductRepository {
   ): Promise<ProductSearchResponseDTO> {
     try {
       const findAndCount = await this._dbProductRepository.findAndCount({
-        where: { name: Like(`%${name}%`) },
+        where: { name: ILike(`%${name}%`) },
         skip: (page - 1) * limit,
         take: limit,
       });

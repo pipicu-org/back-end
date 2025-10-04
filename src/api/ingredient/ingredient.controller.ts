@@ -37,8 +37,9 @@ export class IngredientController {
   async searchIngredients(req: Request, res: Response, next: NextFunction) {
     try {
       const { search, page = 1, limit = 10 } = req.query;
+      const parsedSearch = !search ? '' : String(search);
       const ingredients = await this.ingredientService.searchIngredients(
-        search as string,
+        parsedSearch,
         Number(page),
         Number(limit),
       );
