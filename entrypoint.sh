@@ -1,4 +1,6 @@
+#!/bin/sh
 mkdir -p logs
-chmod 777 logsset -e
+echo "Ejecutando migraciones..."
 npm run migration:run
+echo "Iniciando aplicacion..."
 npm run start
