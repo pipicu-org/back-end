@@ -70,7 +70,7 @@ export class OrderRepository implements IOrderRepository {
         .createQueryBuilder('order')
         .leftJoinAndSelect('order.client', 'client')
         .leftJoinAndSelect('order.state', 'state')
-        .where('client.name LIKE :name', { name: `%${clientName}%` })
+        .where('client.name ILIKE :name', { name: `%${clientName}%` })
         .skip((page - 1) * limit)
         .take(limit)
         .getManyAndCount();
