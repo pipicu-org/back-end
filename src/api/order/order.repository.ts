@@ -129,11 +129,11 @@ export class OrderRepository implements IOrderRepository {
     try {
       const order = await this._dbOrderRepository
         .createQueryBuilder('order')
-        .innerJoinAndSelect('order.client', 'client')
-        .innerJoinAndSelect('order.state', 'state')
-        .innerJoinAndSelect('order.lines', 'line')
-        .innerJoinAndSelect('line.preparation', 'preparation')
-        .innerJoinAndSelect('line.product', 'product')
+        .leftJoinAndSelect('order.client', 'client')
+        .leftJoinAndSelect('order.state', 'state')
+        .leftJoinAndSelect('order.lines', 'line')
+        .leftJoinAndSelect('line.preparation', 'preparation')
+        .leftJoinAndSelect('line.product', 'product')
         .leftJoinAndSelect('line.personalizations', 'productPersonalization')
         .leftJoinAndSelect(
           'productPersonalization.personalization',
@@ -143,9 +143,10 @@ export class OrderRepository implements IOrderRepository {
           'personalization.ingredient',
           'personalizationIngredient',
         )
-        .innerJoinAndSelect('preparation.state', 'preparationState')
+        .leftJoinAndSelect('preparation.state', 'preparationState')
         .where('order.id = :id', { id })
         .getOne();
+      
       if (!order) throw new HttpError(404, `Order id ${id} not found`);
       return this._orderMapper.orderToOrderResponseDTO(order);
     } catch (error: any) {

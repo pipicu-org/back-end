@@ -37,7 +37,7 @@ export class OrderResponseDTO {
       product: line.product.name,
       quantity: line.quantity,
       totalPrice: line.product.price * line.quantity,
-      state: line.preparation.state.name,
+      state: line.preparation?.state?.name || 'Sin estado',
       personalization: line.personalizations
         ? line.personalizations.map((item) => ({
             id: item.id.toString(),
