@@ -34,7 +34,7 @@ export class IngredientRepository implements IIngredientRepository {
     try {
       const results = await this._dbIngredientRepository
         .createQueryBuilder('ingredient')
-        .where('ingredient.name LIKE :search', { search: `%${search}%` })
+        .where('ingredient.name ILIKE :search', { search: `%${search}%` })
         .skip((page - 1) * limit)
         .take(limit)
         .getManyAndCount();
