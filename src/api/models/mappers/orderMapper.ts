@@ -1,4 +1,4 @@
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import {
   Client,
   Ingredient,
@@ -58,7 +58,10 @@ export class OrderMapper {
       const client = await this.clientRepository.findOneBy({
         id: orderRequest.client,
       });
-      const products = await this.productRepository.find();
+      const productIds = orderRequest.lines.map((line) => line.product);
+      const products = await this.productRepository.findBy({
+        id: In(productIds),
+      });
       if (!products || products.length === 0) {
         throw new HttpError(404, 'No products found');
       }
@@ -74,7 +77,7 @@ export class OrderMapper {
         : new Date(Date.now() + 30 * 60 * 1000);
       order.totalPrice = 0;
       for (const line of orderRequest.lines) {
-        const product = products.find((p) => p.id === line.product);
+        const product = products.find((p) => String(p.id) === String(line.product));
         if (!product) {
           throw new HttpError(404, `Product with id ${line.product} not found`);
         }
@@ -99,7 +102,7 @@ export class OrderMapper {
       order.lines = await Promise.all(
         orderRequest.lines.map(async (line) => {
           const entityLine = new Line();
-          const product = products.find((p) => p.id === line.product);
+          const product = products.find((p) => String(p.id) === String(line.product));
           if (!product) {
             throw new HttpError(
               404,
