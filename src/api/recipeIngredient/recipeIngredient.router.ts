@@ -1,26 +1,26 @@
 import { Router } from 'express';
-import { recipeIngredientsController } from '../../config';
+import { recipeIngredientController } from '../../config';
 
-const PATH = '/recipeIngredients';
+const PATH = '/recipeIngredient';
 
-export const recipeIngredientsRouter = (
-  controller = recipeIngredientsController,
+export const recipeIngredientRouter = (
+  controller = recipeIngredientController,
 ): Router => {
   const router: Router = Router();
 
   /**
    * @swagger
    * tags:
-   *   name: RecipeIngredients
+   *   name: RecipeIngredient
    *   description: Recipe ingredients management endpoints
    */
 
   /**
    * @swagger
-   * /api/recipeIngredients:
+   * /api/recipeIngredient:
    *   get:
    *     summary: Get kitchen board with recipe ingredients
-   *     tags: [RecipeIngredients]
+   *     tags: [RecipeIngredient]
    *     responses:
    *       200:
    *         description: Kitchen board retrieved successfully
@@ -29,7 +29,7 @@ export const recipeIngredientsRouter = (
    *             schema:
    *               type: array
    *               items:
-   *                 $ref: '#/components/schemas/RecipeIngredientsResponse'
+   *                 $ref: '#/components/schemas/RecipeIngredientResponse'
    *       500:
    *         $ref: '#/components/responses/ErrorResponse'
    */

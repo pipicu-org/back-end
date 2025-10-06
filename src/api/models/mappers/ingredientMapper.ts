@@ -29,7 +29,7 @@ export class IngredientMapper implements IIngredientEntityMapper, IIngredientRes
   public requestDTOToEntity(requestDTO: IngredientRequestDTO): Ingredient {
     const ingredient = new Ingredient();
     ingredient.name = requestDTO.name;
-    ingredient.price = requestDTO.price;
+    // ingredient.price = requestDTO.price;
     return ingredient;
   }
 
@@ -37,7 +37,7 @@ export class IngredientMapper implements IIngredientEntityMapper, IIngredientRes
     const entity = new Ingredient();
     entity.id = ingredient.id;
     entity.name = ingredient.name;
-    entity.price = ingredient.price;
+    // entity.price = ingredient.price;
     return entity;
   }
 
@@ -55,7 +55,7 @@ export class IngredientMapper implements IIngredientEntityMapper, IIngredientRes
       resultsAndCount[0].map((ingredient) => ({
         id: ingredient.id.toString(),
         name: ingredient.name,
-        price: ingredient.price,
+        // price: ingredient.price,
       })),
     );
   }

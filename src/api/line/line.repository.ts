@@ -50,7 +50,7 @@ export class LineRepository implements ILineRepository {
       if (!newstate) {
         throw new Error(`State with id ${newstate} not found`);
       }
-      line.preparation.state = newstate;
+      // line.preparation.state = newstate;
       const transitionType = await this._dbTransitionTypeRepository.findOne({
         where: { name: 'Line State Transition' },
       });
@@ -63,10 +63,10 @@ export class LineRepository implements ILineRepository {
         .values({
           transitionType: transitionType,
           createdAt: new Date(),
-          fromState: line.preparation.state,
+          // fromState: line.preparation.state,
           toState: newstate,
           transitionatorId: line.id,
-          duration: Date.now() - line.addedAt.getTime(),
+          duration: Date.now() - line.createdAt.getTime(),
         })
         .execute();
       await this._dbLineRepository.save(line);

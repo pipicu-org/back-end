@@ -29,7 +29,7 @@ describe('ProductMapper', () => {
         name: 'Product',
         price: 10,
         category: { id: 1, name: 'Cat' } as any,
-        recipe: { recipeIngredients: [] } as any,
+        recipe: { recipeIngredient: [] } as any,
       } as Product;
 
       const result = productMapper.toResponseDTO(product);

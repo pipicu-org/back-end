@@ -8,7 +8,7 @@ import { productRouter } from './api/product/product.router';
 import { ingredientRouter } from './api/ingredient/ingredient.router';
 import { lineRouter } from './api/line/line.router';
 import { orderRouter } from './api/order/order.router';
-import { recipeIngredientsRouter } from './api/recipeIngredients/recipeIngredients.router';
+import { recipeIngredientRouter } from './api/recipeIngredient/recipeIngredient.router';
 import { categoryRouter } from './api/category/category.router';
 import { swaggerUi, specs } from './config/swagger';
 
@@ -25,7 +25,7 @@ app.use(cors());
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
 // Routes
-app.use('/api', recipeIngredientsRouter());
+app.use('/api', recipeIngredientRouter());
 app.use('/api', orderRouter());
 app.use('/api', clientRouter());
 app.use('/api', productRouter());

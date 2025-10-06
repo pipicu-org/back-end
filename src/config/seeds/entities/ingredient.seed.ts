@@ -16,9 +16,24 @@ export class IngredientSeed implements ISeed<Ingredient> {
     {
       id: 1,
       name: 'Jamon',
-      price: 100,
-      recipeIngredients: [],
-      personalization: null,
+      unitId: 1,
+      recipeIngredient: [],
+      purchaseItems: [],
+      stockMovements: [],
+      unit: {
+        id: 1,
+        name: 'unit',
+        factor: 1,
+        ingredients: [],
+        purchaseItems: [],
+        stockMovements: [],
+        recipeIngredient: [],
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      lossFactor: 0,
+      createdAt: new Date(),
+      updatedAt: new Date()
     },
   ];
 

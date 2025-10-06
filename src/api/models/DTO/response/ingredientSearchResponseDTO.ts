@@ -6,7 +6,7 @@ export class IngredientSearchResponseDTO {
   data: Array<{
     id: string;
     name: string;
-    price: number;
+    // price: number;
   }>;
   constructor(
     search: string,
@@ -16,7 +16,7 @@ export class IngredientSearchResponseDTO {
     data: Array<{
       id: string;
       name: string;
-      price: number;
+      // price: number;
     }>,
   ) {
     this.search = search;

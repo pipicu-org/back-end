@@ -20,6 +20,8 @@ export class StateSeed implements ISeed<State> {
       toTransitions: [],
       orders: [],
       preparations: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
     },
     {
       id: 2,
@@ -28,6 +30,8 @@ export class StateSeed implements ISeed<State> {
       toTransitions: [],
       orders: [],
       preparations: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
     },
     {
       id: 3,
@@ -36,6 +40,8 @@ export class StateSeed implements ISeed<State> {
       toTransitions: [],
       orders: [],
       preparations: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
     },
     {
       id: 4,
@@ -44,6 +50,8 @@ export class StateSeed implements ISeed<State> {
       toTransitions: [],
       orders: [],
       preparations: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
     },
     {
       id: 5,
@@ -52,6 +60,8 @@ export class StateSeed implements ISeed<State> {
       toTransitions: [],
       orders: [],
       preparations: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
     },
     {
       id: 6,
@@ -60,6 +70,8 @@ export class StateSeed implements ISeed<State> {
       toTransitions: [],
       orders: [],
       preparations: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
     },
   ];
 

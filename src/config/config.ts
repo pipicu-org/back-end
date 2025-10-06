@@ -12,6 +12,7 @@ interface Config {
     password: string;
     database: string;
   };
+  dbSynchronization: boolean
 }
 
 const config: Config = {
@@ -24,6 +25,7 @@ const config: Config = {
     password: process.env.POSTGRES_PASSWORD ?? 'postgres',
     database: process.env.POSTGRES_DB ?? 'pipicucu',
   },
+  dbSynchronization: !!process.env.DB_SYNCHRONIZATION
 };
 
 export default config;

@@ -42,7 +42,7 @@ export class LineMapper implements ILineResponseMapper, ILineSearchMapper {
             name: line.product.name,
           },
         },
-        state: line.preparation.state.name,
+        // state: line.preparation.state.name,
       })),
     );
   }

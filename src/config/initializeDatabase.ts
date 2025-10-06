@@ -15,7 +15,7 @@ export const AppDataSource = new DataSource({
     config.nodeEnv == 'development'
       ? ['src/migrations/*.ts']
       : ['build/migrations/*.js'],
-  synchronize: false,
+  synchronize: config.dbSynchronization,
   logging: false,
 });
 

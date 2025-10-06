@@ -3,7 +3,7 @@ import { ProductRequestDTO } from '../DTO/request/productRequestDTO';
 import { ProductResponseDTO } from '../DTO/response/productResponseDTO';
 import { ProductSearchResponseDTO } from '../DTO/response/productSearchResponseDTO';
 import { Category, Ingredient, Product, Recipe } from '../entity';
-import { RecipeIngredients } from '../entity/recipeIngredients';
+import { RecipeIngredient } from '../entity/recipeIngredient';
 import { HttpError } from '../../../errors/httpError';
 
 export interface IProductEntityMapper {
@@ -63,7 +63,7 @@ export class ProductMapper implements IProductEntityMapper, IProductResponseMapp
     product.category = category;
     const ingredients = await this._ingredientRepository.find();
     const recipeEntity = new Recipe();
-    const recipeIngredients = requestDTO.ingredients.map((ingredient) => {
+    const recipeIngredient = requestDTO.ingredients.map((ingredient) => {
       const ingredientEntity = ingredients.find((i) => i.id === ingredient.id);
       if (!ingredientEntity) {
         throw new HttpError(
@@ -71,19 +71,20 @@ export class ProductMapper implements IProductEntityMapper, IProductResponseMapp
           `Ingredient with id ${ingredient.id} not found`,
         );
       }
-      const recipeIngredient = new RecipeIngredients();
+      const recipeIngredient = new RecipeIngredient();
       recipeIngredient.quantity = ingredient.quantity;
       recipeIngredient.ingredient = ingredientEntity;
       recipeIngredient.recipe = recipeEntity;
       return recipeIngredient;
     });
 
-    recipeEntity.totalPrice = 0;
-    for (const recipeIngredient of recipeIngredients) {
-      recipeEntity.totalPrice +=
-        recipeIngredient.ingredient.price * recipeIngredient.quantity;
-    }
-    recipeEntity.recipeIngredients = recipeIngredients;
+    // TODO: La receta no tiene totalPrice
+    // recipeEntity.totalPrice = 0;
+    // for (const recipeIngredient of recipeIngredient) {
+    //   recipeEntity.totalPrice +=
+    //     recipeIngredient.ingredient.price * recipeIngredient.quantity;
+    // }
+    recipeEntity.recipeIngredient = recipeIngredient;
     recipeEntity.product = product;
     product.recipe = recipeEntity;
     return product;

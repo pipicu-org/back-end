@@ -6,7 +6,7 @@ import {
   Order,
   Product,
   Recipe,
-  RecipeIngredients,
+  RecipeIngredient,
   State,
   Transition,
   TransitionType,
@@ -35,9 +35,9 @@ import { LineMapper } from '../api/models/mappers/lineMapper';
 import { LineController } from '../api/line/line.controller';
 import { LineService } from '../api/line/line.service.impl';
 import { LineRepository } from '../api/line/line.repository';
-import { RecipeIngredientsRepository } from '../api/recipeIngredients/recipeIngredients.repository';
-import { RecipeIngredientsService } from '../api/recipeIngredients/recipeIngredients.service.impl';
-import { RecipeIngredientsController } from '../api/recipeIngredients/recipeIngredients.controller';
+import { RecipeIngredientRepository } from '../api/recipeIngredient/recipeIngredient.repository';
+import { RecipeIngredientService } from '../api/recipeIngredient/recipeIngredient.service.impl';
+import { RecipeIngredientController } from '../api/recipeIngredient/recipeIngredient.controller';
 
 initializeDataSource().catch((err) =>
   console.error('Error inicializando la fuente de datos', err),
@@ -83,8 +83,8 @@ export const dbTransitionRepository = AppDataSource.getRepository<Transition>(
   'Transition',
 ).extend({});
 
-export const dbRecipeIngredientsRepository =
-  AppDataSource.getRepository<RecipeIngredients>('RecipeIngredients').extend(
+export const dbRecipeIngredientRepository =
+  AppDataSource.getRepository<RecipeIngredient>('RecipeIngredient').extend(
     {},
   );
 // Mappers
@@ -138,8 +138,8 @@ export const ingredientRepository = new IngredientRepository(
   ingredientMapper,
 );
 
-export const recipeIngredientsRepository = new RecipeIngredientsRepository(
-  dbRecipeIngredientsRepository,
+export const recipeIngredientRepository = new RecipeIngredientRepository(
+  dbRecipeIngredientRepository,
 );
 
 export const lineRepository = new LineRepository(
@@ -159,8 +159,8 @@ export const orderService = new OrderService(
 
 // Services
 
-export const recipeIngredientsService = new RecipeIngredientsService(
-  recipeIngredientsRepository,
+export const recipeIngredientService = new RecipeIngredientService(
+  recipeIngredientRepository,
 );
 
 export const clientService = new ClientService(clientRepository, clientMapper);
@@ -186,6 +186,6 @@ export const ingredientController = new IngredientController(ingredientService);
 
 export const lineController = new LineController(lineService);
 
-export const recipeIngredientsController = new RecipeIngredientsController(
-  recipeIngredientsService,
+export const recipeIngredientController = new RecipeIngredientController(
+  recipeIngredientService,
 );

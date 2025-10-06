@@ -20,7 +20,9 @@ export class ClientSeed implements ISeed<Client> {
             facebookUsername: null,
             instagramUsername: null,
             address: 'New street 123',
-            orders: []
+            orders: [],
+            createdAt: new Date(),
+            updatedAt: new Date(),
         },
         {
             id: 2,
@@ -29,7 +31,9 @@ export class ClientSeed implements ISeed<Client> {
             facebookUsername: null,
             instagramUsername: null,
             address: 'Old street 123',
-            orders: []
+            orders: [],
+            createdAt: new Date(),
+            updatedAt: new Date(),
         }
     ];
 

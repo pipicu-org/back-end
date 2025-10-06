@@ -1,28 +1,28 @@
 import { Repository } from 'typeorm';
-import { RecipeIngredientsResponseDTO } from '../models/DTO/response/recipeIngredientsResponseDTO';
-import { RecipeIngredients } from '../models/entity';
+import { RecipeIngredientResponseDTO } from '../models/DTO/response/recipeIngredientResponseDTO';
+import { RecipeIngredient } from '../models/entity';
 import { HttpError } from '../../errors/httpError';
 
-export interface IRecipeIngredientsRepository {
+export interface IRecipeIngredientRepository {
   getKitchenBoard(
     page: number,
     limit: number,
-  ): Promise<RecipeIngredientsResponseDTO>;
+  ): Promise<RecipeIngredientResponseDTO>;
 }
 
-export class RecipeIngredientsRepository
-  implements IRecipeIngredientsRepository
+export class RecipeIngredientRepository
+  implements IRecipeIngredientRepository
 {
   constructor(
-    private readonly _dbRecipeIngredientsRepository: Repository<RecipeIngredients>,
+    private readonly _dbRecipeIngredientRepository: Repository<RecipeIngredient>,
   ) {}
 
   async getKitchenBoard(
     page: number,
     limit: number,
-  ): Promise<RecipeIngredientsResponseDTO> {
+  ): Promise<RecipeIngredientResponseDTO> {
     try {
-      const countAndResults = await this._dbRecipeIngredientsRepository.manager
+      const countAndResults = await this._dbRecipeIngredientRepository.manager
         .createQueryBuilder()
         .select('p.id', 'id')
         .addSelect('p.name', 'name')
@@ -42,7 +42,7 @@ export class RecipeIngredientsRepository
               .innerJoin('Order', 'o', 'o.id = l."orderId"')
               .innerJoin('Product', 'p', 'p.id = l."productId"')
               .innerJoin('Recipe', 'r', 'r.id = p."recipeId"')
-              .innerJoin('RecipeIngredients', 'ri', 'ri."recipeId" = r.id')
+              .innerJoin('RecipeIngredient', 'ri', 'ri."recipeId" = r.id')
               .innerJoin('Ingredient', 'i', 'i.id = ri."ingredientId"')
               .innerJoin('State', 's', 's.id = o."stateId"')
               .where('s.id = 1')
@@ -55,7 +55,7 @@ export class RecipeIngredientsRepository
         .take(limit)
         .getRawMany();
 
-      return new RecipeIngredientsResponseDTO(
+      return new RecipeIngredientResponseDTO(
         page,
         limit,
         countAndResults.length,
