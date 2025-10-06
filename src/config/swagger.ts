@@ -84,6 +84,98 @@ const options = {
             },
           },
         },
+        CreatePurchaseItemDto: {
+          type: 'object',
+          required: ['ingredientId', 'cost', 'quantity', 'unitId', 'unitQuantity'],
+          properties: {
+            ingredientId: { type: 'number', example: 1 },
+            cost: { type: 'number', example: 10.50 },
+            quantity: { type: 'number', example: 100.00 },
+            unitId: { type: 'number', example: 1 },
+            unitQuantity: { type: 'number', example: 1.00 },
+          },
+        },
+        CreatePurchaseDto: {
+          type: 'object',
+          required: ['providerId', 'purchaseItems'],
+          properties: {
+            providerId: { type: 'number', example: 1 },
+            purchaseItems: {
+              type: 'array',
+              items: {
+                $ref: '#/components/schemas/CreatePurchaseItemDto',
+              },
+            },
+          },
+        },
+        UpdatePurchaseDto: {
+          type: 'object',
+          properties: {
+            providerId: { type: 'number', example: 1 },
+            purchaseItems: {
+              type: 'array',
+              items: {
+                $ref: '#/components/schemas/CreatePurchaseItemDto',
+              },
+            },
+          },
+        },
+        PurchaseItemResponseDTO: {
+          type: 'object',
+          properties: {
+            id: { type: 'number', example: 1 },
+            purchaseId: { type: 'number', example: 1 },
+            ingredientId: { type: 'number', example: 1 },
+            cost: { type: 'number', example: 10.50 },
+            quantity: { type: 'number', example: 100.00 },
+            unitId: { type: 'number', example: 1 },
+            unitQuantity: { type: 'number', example: 1.00 },
+            createdAt: { type: 'string', format: 'date-time', example: '2023-01-01T00:00:00Z' },
+            updatedAt: { type: 'string', format: 'date-time', example: '2023-01-01T00:00:00Z' },
+          },
+        },
+        PurchaseResponseDTO: {
+          type: 'object',
+          properties: {
+            id: { type: 'number', example: 1 },
+            providerId: { type: 'number', example: 1 },
+            createdAt: { type: 'string', format: 'date-time', example: '2023-01-01T00:00:00Z' },
+            updatedAt: { type: 'string', format: 'date-time', example: '2023-01-01T00:00:00Z' },
+            purchaseItems: {
+              type: 'array',
+              items: {
+                $ref: '#/components/schemas/PurchaseItemResponseDTO',
+              },
+            },
+          },
+        },
+        ProviderRequest: {
+          type: 'object',
+          required: ['name'],
+          properties: {
+            name: { type: 'string', example: 'ABC Supplies' },
+            description: { type: 'string', example: 'Provider of office supplies' },
+          },
+        },
+        ProviderResponse: {
+          type: 'object',
+          properties: {
+            id: { type: 'number', example: 1 },
+            name: { type: 'string', example: 'ABC Supplies' },
+            description: { type: 'string', example: 'Provider of office supplies' },
+            createdAt: { type: 'string', format: 'date-time', example: '2023-01-01T00:00:00Z' },
+            updatedAt: { type: 'string', format: 'date-time', example: '2023-01-01T00:00:00Z' },
+          },
+        },
+        Pagination: {
+          type: 'object',
+          properties: {
+            total: { type: 'number', example: 100 },
+            page: { type: 'number', example: 1 },
+            limit: { type: 'number', example: 10 },
+            totalPages: { type: 'number', example: 10 },
+          },
+        },
       },
     },
   },

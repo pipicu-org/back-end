@@ -5,6 +5,9 @@ import {
   Line,
   Order,
   Product,
+  Provider,
+  Purchase,
+  PurchaseItem,
   Recipe,
   RecipeIngredient,
   State,
@@ -38,6 +41,14 @@ import { LineRepository } from '../api/line/line.repository';
 import { RecipeIngredientRepository } from '../api/recipeIngredient/recipeIngredient.repository';
 import { RecipeIngredientService } from '../api/recipeIngredient/recipeIngredient.service.impl';
 import { RecipeIngredientController } from '../api/recipeIngredient/recipeIngredient.controller';
+import { PurchaseRepository } from '../api/purchase/purchase.repository';
+import { PurchaseService } from '../api/purchase/purchase.service.impl';
+import { PurchaseController } from '../api/purchase/purchase.controller';
+import { PurchaseMapper } from '../api/models/mappers/purchaseMapper';
+import { ProviderRepository } from '../api/provider/provider.repository';
+import { ProviderService } from '../api/provider/provider.service.impl';
+import { ProviderController } from '../api/provider/provider.controller';
+import { ProviderMapper } from '../api/models/mappers/providerMapper';
 
 initializeDataSource().catch((err) =>
   console.error('Error inicializando la fuente de datos', err),
@@ -87,6 +98,18 @@ export const dbRecipeIngredientRepository =
   AppDataSource.getRepository<RecipeIngredient>('RecipeIngredient').extend(
     {},
   );
+
+export const dbPurchaseRepository = AppDataSource.getRepository<Purchase>(
+  'Purchase',
+).extend({});
+
+export const dbPurchaseItemRepository = AppDataSource.getRepository<PurchaseItem>(
+  'PurchaseItem',
+).extend({});
+
+export const dbProviderRepository = AppDataSource.getRepository<Provider>(
+  'Provider',
+).extend({});
 // Mappers
 
 export const clientMapper = new ClientMapper();
@@ -106,6 +129,10 @@ export const productMapper = new ProductMapper(
 export const ingredientMapper = new IngredientMapper();
 
 export const lineMapper = new LineMapper();
+
+export const purchaseMapper = new PurchaseMapper();
+
+export const providerMapper = new ProviderMapper();
 
 // Repositories
 
@@ -189,3 +216,28 @@ export const lineController = new LineController(lineService);
 export const recipeIngredientController = new RecipeIngredientController(
   recipeIngredientService,
 );
+
+export const purchaseRepository = new PurchaseRepository(
+  dbPurchaseRepository,
+  purchaseMapper,
+);
+
+export const purchaseService = new PurchaseService(
+  purchaseRepository,
+  purchaseMapper,
+  AppDataSource,
+);
+
+export const purchaseController = new PurchaseController(purchaseService);
+
+export const providerRepository = new ProviderRepository(
+  dbProviderRepository,
+  providerMapper,
+);
+
+export const providerService = new ProviderService(
+  providerRepository,
+  providerMapper,
+);
+
+export const providerController = new ProviderController(providerService);

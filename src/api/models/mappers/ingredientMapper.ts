@@ -29,6 +29,8 @@ export class IngredientMapper implements IIngredientEntityMapper, IIngredientRes
   public requestDTOToEntity(requestDTO: IngredientRequestDTO): Ingredient {
     const ingredient = new Ingredient();
     ingredient.name = requestDTO.name;
+    ingredient.unitId = requestDTO.unitId;
+    ingredient.lossFactor = requestDTO.lossFactor;
     // ingredient.price = requestDTO.price;
     return ingredient;
   }
