@@ -18,7 +18,7 @@ export class LineSearchResponseDTO {
         name: string;
       };
     };
-    state: string;
+    // state: string;
   }>;
 
   constructor(
@@ -33,7 +33,7 @@ export class LineSearchResponseDTO {
         quantity: number;
         product: { id: string; name: string };
       };
-      state: string;
+      // state: string;
     }>,
   ) {
     this.total = total;

@@ -8,7 +8,7 @@ export class OrderSearchResponseDTO {
     name: string;
     deliveryTime: string;
     state: string;
-    totalPrice: number;
+    total: number;
   }>;
 
   constructor(
@@ -21,7 +21,7 @@ export class OrderSearchResponseDTO {
       name: string;
       deliveryTime: string;
       state: string;
-      totalPrice: number;
+      total: number;
     }>,
   ) {
     this.search = search;

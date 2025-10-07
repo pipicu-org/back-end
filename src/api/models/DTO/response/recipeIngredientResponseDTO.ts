@@ -1,4 +1,4 @@
-export class RecipeIngredientsResponseDTO {
+export class RecipeIngredientResponseDTO {
   page: number;
   limit: number;
   total: number;

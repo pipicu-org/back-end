@@ -64,7 +64,7 @@ export class ProductRepository implements IProductRepository {
         .createQueryBuilder('product')
         .leftJoinAndSelect('product.category', 'category')
         .leftJoinAndSelect('product.recipe', 'recipe')
-        .leftJoinAndSelect('recipe.recipeIngredients', 'recipeIngredient')
+        .leftJoinAndSelect('recipe.recipeIngredient', 'recipeIngredient')
         .leftJoinAndSelect('recipeIngredient.ingredient', 'ingredient')
         .where('product.id = :id', { id })
         .getOne();
@@ -74,7 +74,7 @@ export class ProductRepository implements IProductRepository {
       }
       product.recipe.id = existingProduct.recipe.id;
       await this._dbProductRepository.manager.remove(
-        existingProduct.recipe.recipeIngredients,
+        existingProduct.recipe.recipeIngredient,
       );
       const updatedProduct = await this._dbProductRepository.save(product);
       return this._productMapper.toResponseDTO(updatedProduct);
@@ -93,7 +93,7 @@ export class ProductRepository implements IProductRepository {
         .createQueryBuilder('product')
         .leftJoinAndSelect('product.category', 'category')
         .leftJoinAndSelect('product.recipe', 'recipe')
-        .leftJoinAndSelect('recipe.recipeIngredients', 'recipeIngredient')
+        .leftJoinAndSelect('recipe.recipeIngredient', 'recipeIngredient')
         .leftJoinAndSelect('recipeIngredient.ingredient', 'ingredient')
         .where('product.id = :id', { id })
         .getOne();

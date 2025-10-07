@@ -17,11 +17,15 @@ export class CategorySeed implements ISeed<Category> {
             id: 1,
             name: 'Hamburguesas',
             products: [],
+            createdAt: new Date(),
+            updatedAt: new Date(),
         },
         {
             id: 2,
             name: 'Comandas',
             products: [],
+            createdAt: new Date(),
+            updatedAt: new Date(),
         },
     ];
 

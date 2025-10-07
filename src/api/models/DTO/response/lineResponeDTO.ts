@@ -6,11 +6,11 @@ export class LineResponseDTO {
     id: number;
     clientName: string;
   };
-  state: {
-    id: number;
-    name: string;
-  };
-  addedAt: string;
+  // state: {
+  //   id: number;
+  //   name: string;
+  // };
+  // addedAt: string;
   product: {
     id: number;
     name: string;
@@ -24,11 +24,11 @@ export class LineResponseDTO {
       id: line.order.id,
       clientName: line.order.client.name,
     };
-    this.state = {
-      id: line.preparation.state.id,
-      name: line.preparation.state.name,
-    };
-    this.addedAt = line.addedAt.toISOString();
+    // this.state = {
+    //   id: line.preparation.state.id,
+    //   name: line.preparation.state.name,
+    // };
+    // this.addedAt = line.addedAt.toISOString();
     this.product = {
       id: line.product.id,
       name: line.product.name,
