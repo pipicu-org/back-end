@@ -36,12 +36,17 @@ describe('OrderMapper', () => {
     it('should map order to response DTO', () => {
       const order: Order = {
         id: 1,
-        totalPrice: 10,
+        clientId: 1,
+        deliveryTime: new Date(),
+        contactMethod: 'phone',
         paymentMethod: 'cash',
+        stateId: 1,
+        subTotal: 8,
+        total: 10,
+        taxTotal: 2,
         createdAt: new Date(),
         state: { name: 'Pending' } as any,
         client: { name: 'Client', phoneNumber: '123', address: 'Addr' } as any,
-        deliveryTime: new Date(),
         lines: [],
       } as any;
 
@@ -53,7 +58,21 @@ describe('OrderMapper', () => {
 
   describe('ordersToOrderSearchResponseDTO', () => {
     it('should create search response DTO', () => {
-      const orders: Order[] = [{ id: 1, client: { name: 'Client' } as any, deliveryTime: new Date(), state: { name: 'Pending' } as any, totalPrice: 10 } as Order];
+      const orders: Order[] = [{
+        id: 1,
+        clientId: 1,
+        deliveryTime: new Date(),
+        contactMethod: 'phone',
+        paymentMethod: 'cash',
+        stateId: 1,
+        subTotal: 8,
+        total: 10,
+        taxTotal: 2,
+        createdAt: new Date(),
+        client: { name: 'Client' } as any,
+        state: { name: 'Pending' } as any,
+        lines: []
+      } as Order];
       const search = 'Client';
       const page = 1;
       const limit = 10;

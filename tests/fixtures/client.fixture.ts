@@ -17,6 +17,8 @@ export const mockClientEntity: Client = {
   address: '123 Main St',
   facebookUsername: 'johndoe_fb',
   instagramUsername: 'johndoe_ig',
+  createdAt: new Date(),
+  updatedAt: new Date(),
   orders: [],
 };
 
