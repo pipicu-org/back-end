@@ -7,20 +7,21 @@ export class OrderResponseDTO {
   phone: string;
   address: string;
   deliveryTime: string;
+  contactMethod: string;
   paymentMethod: string;
-  totalPrice: number;
+  total: number;
   lines: Array<{
     id: string;
     product: string;
     quantity: number;
     totalPrice: number;
-    state: string;
-    personalization: Array<{
-      id: string;
-      quantity: number;
-      ingredient: string;
-      note: string;
-    }> | null;
+    // state: string;
+    // personalization: Array<{
+    //   id: string;
+    //   quantity: number;
+    //   ingredient: string;
+    //   note: string;
+    // }> | null;
   }>;
 
   constructor(order: Order) {
@@ -30,22 +31,23 @@ export class OrderResponseDTO {
     this.phone = order.client.phoneNumber;
     this.address = order.client.address;
     this.deliveryTime = order.deliveryTime.toISOString();
+    this.contactMethod = order.contactMethod;
     this.paymentMethod = order.paymentMethod;
-    this.totalPrice = order.totalPrice;
+    this.total = order.total;
     this.lines = order.lines.map((line) => ({
       id: line.id.toString(),
       product: line.product.name,
       quantity: line.quantity,
       totalPrice: line.product.price * line.quantity,
-      state: line.preparation.state.name,
-      personalization: line.personalizations
-        ? line.personalizations.map((item) => ({
-            id: item.id.toString(),
-            quantity: item.personalization.quantity,
-            ingredient: item.personalization.ingredient.name,
-            note: item.personalization.note,
-          }))
-        : null,
+      // state: line.preparation.state.name,
+      // personalization: line.personalizations
+      //   ? line.personalizations.map((item) => ({
+      //       id: item.id.toString(),
+      //       quantity: item.personalization.quantity,
+      //       ingredient: item.personalization.ingredient.name,
+      //       note: item.personalization.note,
+      //     }))
+      //   : null,
     }));
   }
 }

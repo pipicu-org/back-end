@@ -14,12 +14,18 @@ describe('LineMapper', () => {
     it('should map line entity to response DTO', () => {
       const line: Line = {
         id: 1,
+        note: '',
+        productId: 1,
+        productTypeId: 1,
+        orderId: 1,
+        unitPrice: 5,
         quantity: 2,
         totalPrice: 10,
-        addedAt: new Date(),
-        preparation: { state: { id: 1, name: 'Pending' } } as any,
+        createdAt: new Date(),
+        updatedAt: new Date(),
         order: { id: 1, client: { id: 1, name: 'Client' } } as any,
         product: { id: 1, name: 'Product', price: 5 } as any,
+        productType: { id: 1 } as any,
       } as Line;
 
       const result = lineMapper.toResponseDTO(line);
@@ -31,7 +37,6 @@ describe('LineMapper', () => {
       expect(result.product.name).toBe(line.product.name);
       expect(result.order.id).toBe(line.order.id);
       expect(result.order.clientName).toBe(line.order.client.name);
-      expect(result.state.name).toBe(line.preparation.state.name);
     });
   });
 
@@ -39,10 +44,18 @@ describe('LineMapper', () => {
     it('should create search response DTO', () => {
       const lines: Line[] = [{
         id: 1,
+        note: '',
+        productId: 1,
+        productTypeId: 1,
+        orderId: 1,
+        unitPrice: 5,
         quantity: 2,
+        totalPrice: 10,
+        createdAt: new Date(),
+        updatedAt: new Date(),
         product: { id: 1, name: 'Product' } as any,
         order: { id: 1, client: { id: 1, name: 'Client' } } as any,
-        preparation: { state: { name: 'Pending' } } as any,
+        productType: { id: 1 } as any,
       } as Line];
       const page = 1;
       const limit = 10;
@@ -62,7 +75,6 @@ describe('LineMapper', () => {
       expect(result.data[0].order.id).toBe(lines[0].order.id.toString());
       expect(result.data[0].client.id).toBe(lines[0].order.client.id.toString());
       expect(result.data[0].client.name).toBe(lines[0].order.client.name);
-      expect(result.data[0].state).toBe(lines[0].preparation.state.name);
     });
   });
 });

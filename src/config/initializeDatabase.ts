@@ -15,7 +15,7 @@ export const AppDataSource = new DataSource({
     config.nodeEnv == 'development'
       ? ['src/migrations/*.ts']
       : ['build/migrations/*.js'],
-  synchronize: false,
+  synchronize: config.dbSynchronization,
   logging: false,
 });
 
@@ -39,6 +39,8 @@ export async function initializeDataSource() {
   await AppDataSource.runMigrations();
   console.info('Migraciones ejecutadas exitosamente.');
 
-  const seedRunner = new SeedRunner(AppDataSource);
-  await seedRunner.run();
+  if (config.dbSeed) {
+    const seedRunner = new SeedRunner(AppDataSource);
+    await seedRunner.run();
+  }
 }

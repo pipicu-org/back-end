@@ -9,6 +9,7 @@ export class ProductSearchResponseDTO {
     id: string;
     name: string;
     category: string;
+    preTaxPrice: number;
     price: number;
   }>;
 
@@ -26,6 +27,7 @@ export class ProductSearchResponseDTO {
       id: product.id.toString(),
       name: product.name,
       category: product.category.name,
+      preTaxPrice: product.preTaxPrice,
       price: product.price,
     }));
   }

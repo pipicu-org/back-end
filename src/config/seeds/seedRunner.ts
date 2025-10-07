@@ -5,6 +5,7 @@ import { StateSeed } from './entities/state.seed';
 import { ISeed } from './ISeed';
 import { ClientSeed } from './entities/client.seed';
 import { TransitionTypeSeed } from './entities/transitionType.seed';
+import { UnitSeed } from './entities/unit.seed';
 
 export class SeedRunner {
   constructor(private readonly datasource: DataSource) {}
@@ -13,6 +14,7 @@ export class SeedRunner {
     console.log('Running seed scripts...');
     try {
       const seeds: ISeed<unknown>[] = [
+        UnitSeed.getInstance(),
         CategorySeed.getInstance(),
         ClientSeed.getInstance(),
         IngredientSeed.getInstance(),

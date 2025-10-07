@@ -1,18 +1,12 @@
-import {
-  Column,
-  Entity,
-  OneToMany,
-  OneToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Product } from './product';
-import { RecipeIngredients } from './recipeIngredients';
+import { RecipeIngredient } from './recipeIngredient';
+import { CustomProduct } from './customProduct';
 
 interface IRecipe {
   id: number;
-  totalPrice: number;
-  recipeIngredients: RecipeIngredients[];
-  product: Product;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 @Entity('Recipe')
@@ -20,23 +14,26 @@ export class Recipe implements IRecipe {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column({ type: 'numeric', precision: 10, scale: 2 })
-  totalPrice!: number;
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt!: Date;
 
-  @OneToMany(
-    () => RecipeIngredients,
-    (recipeIngredient) => recipeIngredient.recipe,
-    {
-      cascade: ['insert', 'update', 'remove'],
-      eager: true,
-      onDelete: 'CASCADE',
-      onUpdate: 'CASCADE',
-    },
-  )
-  recipeIngredients!: RecipeIngredients[];
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
+  updatedAt!: Date;
 
+  // Relación uno-a-muchos con RecipeIngredient
+  @OneToMany(() => RecipeIngredient, (recipeIngredient) => recipeIngredient.recipe, {
+    cascade: ['insert', 'update', 'remove'],
+    onDelete: 'CASCADE',
+  })
+  recipeIngredient!: RecipeIngredient[];
+
+  // Relación uno-a-uno con Product
   @OneToOne(() => Product, (product) => product.recipe, {
     nullable: true,
   })
-  product!: Product;
+  product!: Product | null;
+
+  // Relación uno-a-muchos con CustomProduct
+  @OneToMany(() => CustomProduct, (customProduct) => customProduct.recipe, {})
+  customProducts!: CustomProduct[];
 }
