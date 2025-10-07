@@ -1,4 +1,4 @@
-import { Allow, IsNotEmpty } from 'class-validator';
+import { IsNotEmpty } from 'class-validator';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Order } from './order';
 

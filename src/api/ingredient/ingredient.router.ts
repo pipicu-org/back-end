@@ -74,14 +74,6 @@ export const ingredientRouter = (controller = ingredientController): Router => {
    *               lossFactor: 0.1
    *               createdAt: "2023-01-01T00:00:00Z"
    *               updatedAt: "2023-01-01T00:00:00Z"
-   *               unitId: 1
-   *               lossFactor: 0.1
-   *               createdAt: "2023-01-01T00:00:00Z"
-   *               updatedAt: "2023-01-01T00:00:00Z"
-   *               unitId: 1
-   *               lossFactor: 0.1
-   *               createdAt: "2023-01-01T00:00:00Z"
-   *               updatedAt: "2023-01-01T00:00:00Z"
    *       404:
    *         $ref: '#/components/responses/NotFoundError'
    *       500:

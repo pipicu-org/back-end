@@ -7,11 +7,6 @@ export class OrderRequestDTO {
   lines: Array<{
     product: number;
     quantity: number;
-    personalizations: Array<{
-      ingredient: number;
-      quantity: number;
-      note: string;
-    }>;
   }>;
 
   constructor(order: Order) {
@@ -21,12 +16,6 @@ export class OrderRequestDTO {
     this.lines = order.lines.map((line) => ({
       product: line.product.id,
       quantity: line.quantity,
-      personalizations:
-        line.personalizations?.map((productPersonalization) => ({
-          ingredient: productPersonalization.personalization.ingredient.id,
-          quantity: productPersonalization.personalization.quantity,
-          note: productPersonalization.personalization.note,
-        })) || [],
     }));
   }
 }

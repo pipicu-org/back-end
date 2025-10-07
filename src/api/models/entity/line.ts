@@ -1,5 +1,5 @@
 import { Column, Entity, ManyToOne, JoinColumn, PrimaryGeneratedColumn } from 'typeorm';
-import { IsNotEmpty, Min } from 'class-validator';
+import { Min } from 'class-validator';
 import { Order } from './order';
 import { Product } from './product';
 import { ProductType } from './productType';

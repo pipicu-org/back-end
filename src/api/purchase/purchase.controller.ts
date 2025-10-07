@@ -1,7 +1,7 @@
 import { CreatePurchaseDto, UpdatePurchaseDto } from '../models/DTO/request/purchaseRequestDTO';
 import { IPurchaseService } from './purchase.service';
 import { NextFunction, Request, Response } from 'express';
-import { validate, ValidationError } from 'class-validator';
+import { validate } from 'class-validator';
 import { plainToClass } from 'class-transformer';
 
 export class PurchaseController {

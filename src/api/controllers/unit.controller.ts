@@ -1,7 +1,7 @@
 import { CreateUnitDto, UpdateUnitDto } from '../models/DTO/request/unitRequestDTO';
 import { IUnitService } from '../unit/unit.service';
 import { NextFunction, Request, Response } from 'express';
-import { validate, ValidationError } from 'class-validator';
+import { validate } from 'class-validator';
 import { plainToClass } from 'class-transformer';
 
 export class UnitController {
