@@ -5,11 +5,15 @@ import {
   Line,
   Order,
   Product,
+  Provider,
+  Purchase,
+  PurchaseItem,
   Recipe,
-  RecipeIngredients,
+  RecipeIngredient,
   State,
   Transition,
   TransitionType,
+  Unit,
 } from '../api/models/entity';
 import { OrderController } from '../api/order/order.controller';
 import { OrderRepository } from '../api/order/order.repository';
@@ -35,9 +39,21 @@ import { LineMapper } from '../api/models/mappers/lineMapper';
 import { LineController } from '../api/line/line.controller';
 import { LineService } from '../api/line/line.service.impl';
 import { LineRepository } from '../api/line/line.repository';
-import { RecipeIngredientsRepository } from '../api/recipeIngredients/recipeIngredients.repository';
-import { RecipeIngredientsService } from '../api/recipeIngredients/recipeIngredients.service.impl';
-import { RecipeIngredientsController } from '../api/recipeIngredients/recipeIngredients.controller';
+import { RecipeIngredientRepository } from '../api/recipeIngredient/recipeIngredient.repository';
+import { RecipeIngredientService } from '../api/recipeIngredient/recipeIngredient.service.impl';
+import { RecipeIngredientController } from '../api/recipeIngredient/recipeIngredient.controller';
+import { PurchaseRepository } from '../api/purchase/purchase.repository';
+import { PurchaseService } from '../api/purchase/purchase.service.impl';
+import { PurchaseController } from '../api/purchase/purchase.controller';
+import { PurchaseMapper } from '../api/models/mappers/purchaseMapper';
+import { ProviderRepository } from '../api/provider/provider.repository';
+import { ProviderService } from '../api/provider/provider.service.impl';
+import { ProviderController } from '../api/provider/provider.controller';
+import { ProviderMapper } from '../api/models/mappers/providerMapper';
+import { UnitRepository } from '../api/unit/unit.repository';
+import { UnitService } from '../api/unit/unit.service.impl';
+import { UnitController } from '../api/controllers/unit.controller';
+import { UnitMapper } from '../api/models/mappers/unitMapper';
 
 initializeDataSource().catch((err) =>
   console.error('Error inicializando la fuente de datos', err),
@@ -83,10 +99,26 @@ export const dbTransitionRepository = AppDataSource.getRepository<Transition>(
   'Transition',
 ).extend({});
 
-export const dbRecipeIngredientsRepository =
-  AppDataSource.getRepository<RecipeIngredients>('RecipeIngredients').extend(
+export const dbRecipeIngredientRepository =
+  AppDataSource.getRepository<RecipeIngredient>('RecipeIngredient').extend(
     {},
   );
+
+export const dbPurchaseRepository = AppDataSource.getRepository<Purchase>(
+  'Purchase',
+).extend({});
+
+export const dbPurchaseItemRepository = AppDataSource.getRepository<PurchaseItem>(
+  'PurchaseItem',
+).extend({});
+
+export const dbProviderRepository = AppDataSource.getRepository<Provider>(
+  'Provider',
+).extend({});
+
+export const dbUnitRepository = AppDataSource.getRepository<Unit>(
+  'Unit',
+).extend({});
 // Mappers
 
 export const clientMapper = new ClientMapper();
@@ -106,6 +138,12 @@ export const productMapper = new ProductMapper(
 export const ingredientMapper = new IngredientMapper();
 
 export const lineMapper = new LineMapper();
+
+export const purchaseMapper = new PurchaseMapper();
+
+export const providerMapper = new ProviderMapper();
+
+export const unitMapper = new UnitMapper();
 
 // Repositories
 
@@ -138,8 +176,8 @@ export const ingredientRepository = new IngredientRepository(
   ingredientMapper,
 );
 
-export const recipeIngredientsRepository = new RecipeIngredientsRepository(
-  dbRecipeIngredientsRepository,
+export const recipeIngredientRepository = new RecipeIngredientRepository(
+  dbRecipeIngredientRepository,
 );
 
 export const lineRepository = new LineRepository(
@@ -159,8 +197,8 @@ export const orderService = new OrderService(
 
 // Services
 
-export const recipeIngredientsService = new RecipeIngredientsService(
-  recipeIngredientsRepository,
+export const recipeIngredientService = new RecipeIngredientService(
+  recipeIngredientRepository,
 );
 
 export const clientService = new ClientService(clientRepository, clientMapper);
@@ -186,6 +224,44 @@ export const ingredientController = new IngredientController(ingredientService);
 
 export const lineController = new LineController(lineService);
 
-export const recipeIngredientsController = new RecipeIngredientsController(
-  recipeIngredientsService,
+export const recipeIngredientController = new RecipeIngredientController(
+  recipeIngredientService,
 );
+
+export const purchaseRepository = new PurchaseRepository(
+  dbPurchaseRepository,
+  purchaseMapper,
+);
+
+export const purchaseService = new PurchaseService(
+  purchaseRepository,
+  purchaseMapper,
+  AppDataSource,
+);
+
+export const purchaseController = new PurchaseController(purchaseService);
+
+export const providerRepository = new ProviderRepository(
+  dbProviderRepository,
+  providerMapper,
+);
+
+export const providerService = new ProviderService(
+  providerRepository,
+  providerMapper,
+);
+
+export const providerController = new ProviderController(providerService);
+
+export const unitRepository = new UnitRepository(
+  dbUnitRepository,
+  unitMapper,
+);
+
+export const unitService = new UnitService(
+  unitRepository,
+  unitMapper,
+  AppDataSource,
+);
+
+export const unitController = new UnitController(unitService);

@@ -4,6 +4,7 @@ import { ProductResponseDTO } from '../../src/api/models/DTO/response/productRes
 export const mockProductRequestDTO = new ProductRequestDTO(
   1,
   'Pizza Margherita',
+  8.99,
   10.99,
   [
     { id: 1, quantity: 1 },
@@ -14,14 +15,18 @@ export const mockProductRequestDTO = new ProductRequestDTO(
 export const mockProductResponseDTO: ProductResponseDTO = {
   id: 1,
   name: 'Pizza Margherita',
+  preTaxPrice: 8.99,
   price: 10.99,
+  recipeId: 1,
+  categoryId: 1,
+  createdAt: new Date(),
+  updatedAt: new Date(),
   category: {
     id: 1,
     name: 'Pizza',
   },
   recipe: {
     id: 1,
-    totalPrice: 10.99,
     ingredients: [
       {
         id: 1,
@@ -29,7 +34,6 @@ export const mockProductResponseDTO: ProductResponseDTO = {
         ingredient: {
           id: 1,
           name: 'Tomato Sauce',
-          price: 2.0,
         },
       },
       {
@@ -38,7 +42,6 @@ export const mockProductResponseDTO: ProductResponseDTO = {
         ingredient: {
           id: 2,
           name: 'Cheese',
-          price: 3.0,
         },
       },
     ],

@@ -29,7 +29,7 @@ describe('ProductMapper', () => {
         name: 'Product',
         price: 10,
         category: { id: 1, name: 'Cat' } as any,
-        recipe: { recipeIngredients: [] } as any,
+        recipe: { recipeIngredient: [] } as any,
       } as Product;
 
       const result = productMapper.toResponseDTO(product);
@@ -43,7 +43,7 @@ describe('ProductMapper', () => {
 
   describe('searchToResponseDTO', () => {
     it('should create search response DTO', () => {
-      const products: Product[] = [{ id: 1, name: 'Product', price: 10, category: { name: 'Cat' } as any } as Product];
+      const products: Product[] = [{ id: 1, name: 'Product', preTaxPrice: 8, price: 10, category: { name: 'Cat' } as any } as Product];
       const search = 'Prod';
       const page = 1;
       const limit = 10;
@@ -57,6 +57,7 @@ describe('ProductMapper', () => {
       expect(result.page).toBe(page);
       expect(result.limit).toBe(limit);
       expect(result.data).toHaveLength(1);
+      expect(result.data[0].preTaxPrice).toBe(8);
     });
   });
 });

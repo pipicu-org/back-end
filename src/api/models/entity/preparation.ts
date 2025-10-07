@@ -2,15 +2,15 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToOne,
+  // OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Line } from './line';
+// import { Line } from './line';
 import { State } from './state';
 
 interface IPreparation {
   id: number;
-  Line: Line;
+  // Line: Line;
   state: State;
 }
 
@@ -23,6 +23,6 @@ export class Preparation implements IPreparation {
   @JoinColumn([{ name: 'stateId', referencedColumnName: 'id' }])
   state!: State;
 
-  @OneToOne(() => Line, (line) => line.preparation, { nullable: false })
-  Line!: Line;
+  // @OneToOne(() => Line, (line) => line.preparation, { nullable: false })
+  // Line!: Line;
 }

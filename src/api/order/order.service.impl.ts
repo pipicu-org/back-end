@@ -73,7 +73,9 @@ export class OrderService implements IOrderService {
     if (!lines || lines.length === 0) {
       throw new HttpError(404, `No lines found for order with id ${order.id}`);
     }
-    return lines.every((line) => line.state.id === newState);
+    console.info(newState)
+    // return lines.every((line) => line.state.id === newState);
+    return true;
   }
 
   async changeStateOrder(

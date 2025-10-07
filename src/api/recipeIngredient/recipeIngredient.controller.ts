@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
-import { IRecipeIngredientService } from './recipeIngredients.service';
+import { IRecipeIngredientService } from './recipeIngredient.service';
 
-export class RecipeIngredientsController {
+export class RecipeIngredientController {
   constructor(
-    private readonly _recipeIngredientsService: IRecipeIngredientService,
+    private readonly _recipeIngredientService: IRecipeIngredientService,
   ) {}
 
   async getKitchenBoard(
@@ -13,7 +13,7 @@ export class RecipeIngredientsController {
   ): Promise<void> {
     const { page, limit } = req.query;
     try {
-      const result = await this._recipeIngredientsService.getKitchenBoard(
+      const result = await this._recipeIngredientService.getKitchenBoard(
         Number(page) || 1,
         Number(limit) || 10,
       );

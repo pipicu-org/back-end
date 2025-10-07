@@ -4,10 +4,7 @@ import {
   Ingredient,
   Line,
   Order,
-  Personalization,
-  Preparation,
   Product,
-  ProductPersonalization,
   State,
 } from '../entity';
 import { OrderSearchResponseDTO } from '../DTO/response/orderSearchResponseDTO';
@@ -41,7 +38,7 @@ export class OrderMapper {
         name: order.client.name,
         deliveryTime: order.deliveryTime.toISOString(),
         state: order.state.name,
-        totalPrice: order.totalPrice,
+        total: order.total,
       })),
     );
   }
@@ -75,7 +72,8 @@ export class OrderMapper {
       order.deliveryTime = orderRequest.deliveryTime
         ? new Date(orderRequest.deliveryTime)
         : new Date(Date.now() + 30 * 60 * 1000);
-      order.totalPrice = 0;
+      order.total = 0;
+      order.subTotal = 0;
       for (const line of orderRequest.lines) {
         const product = products.find((p) => String(p.id) === String(line.product));
         if (!product) {
@@ -87,9 +85,13 @@ export class OrderMapper {
             `Quantity for product id ${line.product} must be greater than 0`,
           );
         }
-        order.totalPrice += product.price * line.quantity;
+        order.total += product.price * line.quantity;
+        order.subTotal += product.preTaxPrice * line.quantity;
       }
-      order.totalPrice = Number(order.totalPrice);
+      order.total = Number(order.total);
+      order.subTotal = Number(order.total);
+      order.contactMethod = orderRequest.contactMethod;
+      order.taxTotal = order.total - order.subTotal 
       order.paymentMethod = orderRequest.paymentMethod;
       const state = await this.stateRepository.findOneBy({
         id: 1,
@@ -109,40 +111,40 @@ export class OrderMapper {
               `Product with id ${line.product} not found`,
             );
           }
-          entityLine.personalizations = line.personalizations
-            ? await Promise.all(
-                line.personalizations.map(async (productPersonalization) => {
-                  const ingredient = await this.ingredientRepository.findOneBy({
-                    id: productPersonalization.ingredient,
-                  });
-                  if (!ingredient) {
-                    throw new HttpError(
-                      404,
-                      `Ingredient with id ${productPersonalization.ingredient} not found`,
-                    );
-                  }
-                  const productPersonalizationEntity =
-                    new ProductPersonalization();
-                  productPersonalizationEntity.product = product;
-                  productPersonalizationEntity.line = entityLine;
-                  const personalization = new Personalization();
-                  personalization.ingredient = ingredient;
-                  personalization.quantity = productPersonalization.quantity;
-                  personalization.note = productPersonalization.note;
-                  productPersonalizationEntity.personalization =
-                    personalization;
-                  return productPersonalizationEntity;
-                }),
-              )
-            : [];
+          // TODO: Implementar la nueva estructura de CustomProducts
+          // entityLine.personalizations = line.personalizations
+          //   ? await Promise.all(
+          //       line.personalizations.map(async (productPersonalization) => {
+          //         const ingredient = await this.ingredientRepository.findOneBy({
+          //           id: productPersonalization.ingredient,
+          //         });
+          //         if (!ingredient) {
+          //           throw new HttpError(
+          //             404,
+          //             `Ingredient with id ${productPersonalization.ingredient} not found`,
+          //           );
+          //         }
+          //         const productPersonalizationEntity =
+          //           new ProductPersonalization();
+          //         productPersonalizationEntity.product = product;
+          //         productPersonalizationEntity.line = entityLine;
+          //         const personalization = new Personalization();
+          //         personalization.ingredient = ingredient;
+          //         personalization.quantity = productPersonalization.quantity;
+          //         personalization.note = productPersonalization.note;
+          //         productPersonalizationEntity.personalization =
+          //           personalization;
+          //         return productPersonalizationEntity;
+          //       }),
+          //     )
+          //   : [];
           entityLine.product = product;
+          entityLine.unitPrice = product.price;
           entityLine.quantity = line.quantity;
           entityLine.totalPrice = product.price * line.quantity;
-          entityLine.addedAt = new Date();
-          const preparation = new Preparation();
-          preparation.state = order.state;
-          entityLine.preparation = preparation;
+          entityLine.createdAt = new Date();
           entityLine.order = order;
+          entityLine.productTypeId = 1;
           return entityLine;
         }),
       );
