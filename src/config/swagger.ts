@@ -16,6 +16,45 @@ const options = {
       },
     ],
     components: {
+      responses: {
+        ValidationError: {
+          description: 'Validation error',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  message: { type: 'string', example: 'Validation failed' },
+                  errors: { type: 'array', items: { type: 'object' } },
+                },
+              },
+            },
+          },
+        },
+        NotFoundError: {
+          description: 'Resource not found',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  message: { type: 'string', example: 'Resource not found' },
+                },
+              },
+            },
+          },
+        },
+        ErrorResponse: {
+          description: 'Internal server error',
+          content: {
+            'application/json': {
+              schema: {
+                $ref: '#/components/schemas/ErrorResponse',
+              },
+            },
+          },
+        },
+      },
       schemas: {
         ClientRequestDTO: {
           type: 'object',
@@ -199,6 +238,27 @@ const options = {
             page: { type: 'number', example: 1 },
             limit: { type: 'number', example: 10 },
             totalPages: { type: 'number', example: 10 },
+          },
+        },
+        IngredientRequest: {
+          type: 'object',
+          required: ['name', 'price', 'unitId', 'lossFactor'],
+          properties: {
+            name: { type: 'string', example: 'Tomato' },
+            price: { type: 'number', example: 2.50 },
+            unitId: { type: 'number', example: 1 },
+            lossFactor: { type: 'number', example: 0.1 },
+          },
+        },
+        IngredientResponse: {
+          type: 'object',
+          properties: {
+            id: { type: 'number', example: 1 },
+            name: { type: 'string', example: 'Tomato' },
+            unitId: { type: 'number', example: 1 },
+            lossFactor: { type: 'number', example: 0.1 },
+            createdAt: { type: 'string', format: 'date-time', example: '2023-01-01T00:00:00Z' },
+            updatedAt: { type: 'string', format: 'date-time', example: '2023-01-01T00:00:00Z' },
           },
         },
       },

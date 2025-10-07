@@ -28,6 +28,8 @@ export const ingredientRouter = (controller = ingredientController): Router => {
    *           example:
    *             name: "Tomato"
    *             price: 2.50
+   *             unitId: 1
+   *             lossFactor: 0.1
    *     responses:
    *       201:
    *         description: Ingredient created successfully
@@ -35,6 +37,9 @@ export const ingredientRouter = (controller = ingredientController): Router => {
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/IngredientResponse'
+   *             example:
+   *               id: 1
+   *               name: "Tomato"
    *       400:
    *         $ref: '#/components/responses/ValidationError'
    *       500:
@@ -62,6 +67,21 @@ export const ingredientRouter = (controller = ingredientController): Router => {
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/IngredientResponse'
+   *             example:
+   *               id: 1
+   *               name: "Tomato"
+   *               unitId: 1
+   *               lossFactor: 0.1
+   *               createdAt: "2023-01-01T00:00:00Z"
+   *               updatedAt: "2023-01-01T00:00:00Z"
+   *               unitId: 1
+   *               lossFactor: 0.1
+   *               createdAt: "2023-01-01T00:00:00Z"
+   *               updatedAt: "2023-01-01T00:00:00Z"
+   *               unitId: 1
+   *               lossFactor: 0.1
+   *               createdAt: "2023-01-01T00:00:00Z"
+   *               updatedAt: "2023-01-01T00:00:00Z"
    *       404:
    *         $ref: '#/components/responses/NotFoundError'
    *       500:
@@ -90,6 +110,11 @@ export const ingredientRouter = (controller = ingredientController): Router => {
    *         application/json:
    *           schema:
    *             $ref: '#/components/schemas/IngredientRequest'
+   *           example:
+   *             name: "Updated Tomato"
+   *             price: 3.00
+   *             unitId: 1
+   *             lossFactor: 0.05
    *     responses:
    *       200:
    *         description: Ingredient updated successfully
@@ -97,6 +122,13 @@ export const ingredientRouter = (controller = ingredientController): Router => {
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/IngredientResponse'
+   *             example:
+   *               id: 1
+   *               name: "Updated Tomato"
+   *               unitId: 1
+   *               lossFactor: 0.05
+   *               createdAt: "2023-01-01T00:00:00Z"
+   *               updatedAt: "2023-01-01T00:00:00Z"
    *       404:
    *         $ref: '#/components/responses/NotFoundError'
    *       400:
@@ -172,6 +204,19 @@ export const ingredientRouter = (controller = ingredientController): Router => {
    *                     $ref: '#/components/schemas/IngredientResponse'
    *                 pagination:
    *                   $ref: '#/components/schemas/Pagination'
+   *           example:
+   *             data:
+   *               - id: 1
+   *                 name: "Tomato"
+   *                 unitId: 1
+   *                 lossFactor: 0.1
+   *                 createdAt: "2023-01-01T00:00:00Z"
+   *                 updatedAt: "2023-01-01T00:00:00Z"
+   *             pagination:
+   *               total: 1
+   *               page: 1
+   *               limit: 10
+   *               totalPages: 1
    *       500:
    *         $ref: '#/components/responses/ErrorResponse'
    */

@@ -3,11 +3,17 @@ import { Ingredient } from '../../entity/ingredient';
 export class IngredientResponseDTO {
   id: number;
   name: string;
-  // price: number;
+  unitId: number;
+  lossFactor: number;
+  createdAt: Date;
+  updatedAt: Date;
 
   constructor(ingredient: Ingredient) {
     this.id = ingredient.id;
     this.name = ingredient.name;
-    // this.price = ingredient.price;
+    this.unitId = ingredient.unitId;
+    this.lossFactor = ingredient.lossFactor;
+    this.createdAt = ingredient.createdAt;
+    this.updatedAt = ingredient.updatedAt;
   }
 }

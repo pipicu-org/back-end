@@ -54,11 +54,7 @@ export class IngredientMapper implements IIngredientEntityMapper, IIngredientRes
       resultsAndCount[1],
       page,
       limit,
-      resultsAndCount[0].map((ingredient) => ({
-        id: ingredient.id.toString(),
-        name: ingredient.name,
-        // price: ingredient.price,
-      })),
+      resultsAndCount[0].map((ingredient) => this.toResponseDTO(ingredient)),
     );
   }
 }

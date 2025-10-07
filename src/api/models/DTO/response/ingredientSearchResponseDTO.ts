@@ -1,23 +1,17 @@
+import { IngredientResponseDTO } from './ingredientResponseDTO';
+
 export class IngredientSearchResponseDTO {
   search: string;
   total: number;
   page: number;
   limit: number;
-  data: Array<{
-    id: string;
-    name: string;
-    // price: number;
-  }>;
+  data: IngredientResponseDTO[];
   constructor(
     search: string,
     total: number,
     page: number,
     limit: number,
-    data: Array<{
-      id: string;
-      name: string;
-      // price: number;
-    }>,
+    data: IngredientResponseDTO[],
   ) {
     this.search = search;
     this.total = total;
