@@ -47,6 +47,7 @@ export class ProductMapper implements IProductEntityMapper, IProductResponseMapp
   ): Promise<Product> {
     const product = new Product();
     product.name = requestDTO.name;
+    product.preTaxPrice = requestDTO.preTaxPrice;
     product.price = requestDTO.price;
     const category = await this.categoryRepository.findOneBy({
       id: requestDTO.category,
@@ -75,6 +76,7 @@ export class ProductMapper implements IProductEntityMapper, IProductResponseMapp
       recipeIngredient.quantity = ingredient.quantity;
       recipeIngredient.ingredient = ingredientEntity;
       recipeIngredient.recipe = recipeEntity;
+      recipeIngredient.unitId = ingredientEntity.unitId;
       return recipeIngredient;
     });
 

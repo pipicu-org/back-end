@@ -261,6 +261,70 @@ const options = {
             updatedAt: { type: 'string', format: 'date-time', example: '2023-01-01T00:00:00Z' },
           },
         },
+        ProductRequest: {
+          type: 'object',
+          required: ['category', 'name', 'preTaxPrice', 'price', 'ingredients'],
+          properties: {
+            category: { type: 'number', example: 1 },
+            name: { type: 'string', example: 'Pizza Margherita' },
+            preTaxPrice: { type: 'number', example: 10.99 },
+            price: { type: 'number', example: 12.99 },
+            ingredients: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  id: { type: 'number', example: 1 },
+                  quantity: { type: 'number', example: 2 },
+                },
+              },
+            },
+          },
+        },
+        ProductResponse: {
+          type: 'object',
+          properties: {
+            id: { type: 'number', example: 1 },
+            name: { type: 'string', example: 'Pizza Margherita' },
+            preTaxPrice: { type: 'number', example: 10.99 },
+            price: { type: 'number', example: 12.99 },
+            recipeId: { type: 'number', nullable: true, example: 1 },
+            categoryId: { type: 'number', example: 1 },
+            createdAt: { type: 'string', format: 'date-time', example: '2023-01-01T00:00:00Z' },
+            updatedAt: { type: 'string', format: 'date-time', example: '2023-01-01T00:00:00Z' },
+            category: {
+              type: 'object',
+              properties: {
+                id: { type: 'number', example: 1 },
+                name: { type: 'string', example: 'Pizzas' },
+              },
+            },
+            recipe: {
+              type: 'object',
+              nullable: true,
+              properties: {
+                id: { type: 'number', example: 1 },
+                ingredients: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      id: { type: 'number', example: 1 },
+                      quantity: { type: 'number', example: 2 },
+                      ingredient: {
+                        type: 'object',
+                        properties: {
+                          id: { type: 'number', example: 1 },
+                          name: { type: 'string', example: 'Tomato' },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     },
   },
