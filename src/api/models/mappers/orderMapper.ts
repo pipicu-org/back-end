@@ -76,6 +76,7 @@ export class OrderMapper {
         ? new Date(orderRequest.deliveryTime)
         : new Date(Date.now() + 30 * 60 * 1000);
       order.total = 0;
+      order.subTotal = 0;
       for (const line of orderRequest.lines) {
         const product = products.find((p) => String(p.id) === String(line.product));
         if (!product) {
@@ -88,8 +89,12 @@ export class OrderMapper {
           );
         }
         order.total += product.price * line.quantity;
+        order.subTotal += product.preTaxPrice * line.quantity;
       }
       order.total = Number(order.total);
+      order.subTotal = Number(order.total);
+      order.contactMethod = orderRequest.contactMethod;
+      order.taxTotal = order.total - order.subTotal 
       order.paymentMethod = orderRequest.paymentMethod;
       const state = await this.stateRepository.findOneBy({
         id: 1,
@@ -137,13 +142,12 @@ export class OrderMapper {
           //     )
           //   : [];
           entityLine.product = product;
+          entityLine.unitPrice = product.price;
           entityLine.quantity = line.quantity;
           entityLine.totalPrice = product.price * line.quantity;
           entityLine.createdAt = new Date();
-          const preparation = new Preparation();
-          preparation.state = order.state;
-          // entityLine.preparation = preparation;
           entityLine.order = order;
+          entityLine.productTypeId = 1;
           return entityLine;
         }),
       );
