@@ -5,6 +5,7 @@ export class IngredientResponseDTO {
   name: string;
   unitId: number;
   lossFactor: number;
+  stock: number;
   createdAt: Date;
   updatedAt: Date;
 
@@ -13,6 +14,7 @@ export class IngredientResponseDTO {
     this.name = ingredient.name;
     this.unitId = ingredient.unitId;
     this.lossFactor = ingredient.lossFactor;
+    this.stock = ingredient.stock;
     this.createdAt = ingredient.createdAt;
     this.updatedAt = ingredient.updatedAt;
   }

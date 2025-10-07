@@ -29,7 +29,11 @@ export class Unit implements IUnit {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt!: Date;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
   updatedAt!: Date;
 
   // Relación uno-a-muchos con Ingredient
@@ -45,6 +49,10 @@ export class Unit implements IUnit {
   stockMovements!: StockMovement[];
 
   // Relación uno-a-muchos con RecipeIngredient
-  @OneToMany(() => RecipeIngredient, (recipeIngredient) => recipeIngredient.unit, {})
+  @OneToMany(
+    () => RecipeIngredient,
+    (recipeIngredient) => recipeIngredient.unit,
+    {},
+  )
   recipeIngredient!: RecipeIngredient[];
 }
