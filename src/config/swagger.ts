@@ -167,6 +167,31 @@ const options = {
             updatedAt: { type: 'string', format: 'date-time', example: '2023-01-01T00:00:00Z' },
           },
         },
+        CreateUnitDto: {
+          type: 'object',
+          required: ['name', 'factor'],
+          properties: {
+            name: { type: 'string', example: 'Kilogram' },
+            factor: { type: 'number', example: 1.0 },
+          },
+        },
+        UpdateUnitDto: {
+          type: 'object',
+          properties: {
+            name: { type: 'string', example: 'Updated Kilogram' },
+            factor: { type: 'number', example: 1.5 },
+          },
+        },
+        UnitResponseDTO: {
+          type: 'object',
+          properties: {
+            id: { type: 'number', example: 1 },
+            name: { type: 'string', example: 'Kilogram' },
+            factor: { type: 'number', example: 1.0 },
+            createdAt: { type: 'string', format: 'date-time', example: '2023-01-01T00:00:00Z' },
+            updatedAt: { type: 'string', format: 'date-time', example: '2023-01-01T00:00:00Z' },
+          },
+        },
         Pagination: {
           type: 'object',
           properties: {

@@ -12,6 +12,7 @@ import { recipeIngredientRouter } from './api/recipeIngredient/recipeIngredient.
 import { categoryRouter } from './api/category/category.router';
 import { purchaseRouter } from './api/purchase/purchase.router';
 import { providerRouter } from './api/provider/provider.router';
+import { unitRouter } from './api/unit/unit.router';
 import { swaggerUi, specs } from './config/swagger';
 
 const app = express();
@@ -36,6 +37,7 @@ app.use('/api', lineRouter());
 app.use('/api', categoryRouter());
 app.use('/api', purchaseRouter());
 app.use('/api', providerRouter());
+app.use('/api', unitRouter());
 
 // Global error handler (should be after routes)
 app.use(errorHandler);

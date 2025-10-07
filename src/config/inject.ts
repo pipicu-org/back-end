@@ -13,6 +13,7 @@ import {
   State,
   Transition,
   TransitionType,
+  Unit,
 } from '../api/models/entity';
 import { OrderController } from '../api/order/order.controller';
 import { OrderRepository } from '../api/order/order.repository';
@@ -49,6 +50,10 @@ import { ProviderRepository } from '../api/provider/provider.repository';
 import { ProviderService } from '../api/provider/provider.service.impl';
 import { ProviderController } from '../api/provider/provider.controller';
 import { ProviderMapper } from '../api/models/mappers/providerMapper';
+import { UnitRepository } from '../api/unit/unit.repository';
+import { UnitService } from '../api/unit/unit.service.impl';
+import { UnitController } from '../api/controllers/unit.controller';
+import { UnitMapper } from '../api/models/mappers/unitMapper';
 
 initializeDataSource().catch((err) =>
   console.error('Error inicializando la fuente de datos', err),
@@ -110,6 +115,10 @@ export const dbPurchaseItemRepository = AppDataSource.getRepository<PurchaseItem
 export const dbProviderRepository = AppDataSource.getRepository<Provider>(
   'Provider',
 ).extend({});
+
+export const dbUnitRepository = AppDataSource.getRepository<Unit>(
+  'Unit',
+).extend({});
 // Mappers
 
 export const clientMapper = new ClientMapper();
@@ -133,6 +142,8 @@ export const lineMapper = new LineMapper();
 export const purchaseMapper = new PurchaseMapper();
 
 export const providerMapper = new ProviderMapper();
+
+export const unitMapper = new UnitMapper();
 
 // Repositories
 
@@ -241,3 +252,16 @@ export const providerService = new ProviderService(
 );
 
 export const providerController = new ProviderController(providerService);
+
+export const unitRepository = new UnitRepository(
+  dbUnitRepository,
+  unitMapper,
+);
+
+export const unitService = new UnitService(
+  unitRepository,
+  unitMapper,
+  AppDataSource,
+);
+
+export const unitController = new UnitController(unitService);
