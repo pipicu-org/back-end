@@ -43,7 +43,7 @@ export class StockMovementService implements IStockMovementService {
       // Adjust stock based on movement type
       if (requestDTO.stockMovementTypeId === 1) {
         // 'In'
-        ingredient.stock += requestDTO.quantity * unit.factor;
+        ingredient.stock += requestDTO.quantity;
       } else if (requestDTO.stockMovementTypeId === 2) {
         // 'Out'
         if (ingredient.stock < requestDTO.quantity) {
@@ -52,7 +52,7 @@ export class StockMovementService implements IStockMovementService {
             `Insufficient stock for ingredient ${ingredient.name}`,
           );
         }
-        ingredient.stock -= requestDTO.quantity * unit.factor;
+        ingredient.stock -= requestDTO.quantity;
       } else {
         throw new HttpError(
           400,
@@ -70,7 +70,6 @@ export class StockMovementService implements IStockMovementService {
       ingredient.stockMovements.push(stockMovement);
       stockMovement.ingredient = ingredient;
       stockMovement.unit = unit;
-      console.log('Created stock movement entity:', stockMovement);
       const createdStockMovement =
         await queryRunner.manager.save(stockMovement);
 
@@ -95,46 +94,6 @@ export class StockMovementService implements IStockMovementService {
       return await this._stockMovementRepository.findById(id);
     } catch (error: any) {
       logger.error('Error fetching stock movement by ID', {
-        id,
-        error: error.message,
-        stack: error.stack,
-      });
-      throw error;
-    }
-  }
-
-  async updateStockMovement(
-    id: number,
-    requestDTO: StockMovementRequestDTO,
-  ): Promise<StockMovementResponseDTO | void> {
-    // TODO: Considerar si hacer stocks inmutables
-    try {
-      const updatedStockMovement =
-        this._stockMovementMapper.requestDTOToEntity(requestDTO);
-      return await this._stockMovementRepository.update(
-        id,
-        updatedStockMovement,
-      );
-    } catch (error: any) {
-      logger.error('Error updating stock movement', {
-        id,
-        error: error.message,
-        stack: error.stack,
-      });
-      throw error;
-    }
-  }
-
-  async deleteStockMovement(
-    id: number,
-  ): Promise<StockMovementResponseDTO | void> {
-    // Note: Deleting stock movements is not recommended as it affects historical data.
-    // For simplicity, we allow delete but do not reverse stock adjustment.
-    // In a real app, consider soft deletes or preventing deletion.
-    try {
-      return await this._stockMovementRepository.delete(id);
-    } catch (error: any) {
-      logger.error('Error deleting stock movement', {
         id,
         error: error.message,
         stack: error.stack,

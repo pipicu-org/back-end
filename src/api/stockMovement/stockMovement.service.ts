@@ -8,11 +8,6 @@ export interface IStockMovementService {
     requestDTO: StockMovementRequestDTO,
   ): Promise<StockMovement | void>;
   getStockMovementById(id: number): Promise<StockMovementResponseDTO | void>;
-  updateStockMovement(
-    id: number,
-    requestDTO: StockMovementRequestDTO,
-  ): Promise<StockMovementResponseDTO | void>;
-  deleteStockMovement(id: number): Promise<StockMovementResponseDTO | void>;
   getStockMovementsPaginated(
     page: number,
     limit: number,
