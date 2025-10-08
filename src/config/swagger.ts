@@ -325,6 +325,59 @@ const options = {
             },
           },
         },
+        OrderRequest: {
+          type: 'object',
+          required: ['client', 'deliveryTime', 'contactMethod', 'paymentMethod', 'lines'],
+          properties: {
+            client: { type: 'number', example: 1 },
+            deliveryTime: { type: 'string', format: 'date-time', example: '2024-01-01T12:00:00Z' },
+            contactMethod: { type: 'string', example: 'phone' },
+            paymentMethod: { type: 'string', example: 'cash' },
+            lines: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  product: { type: 'number', example: 1 },
+                  quantity: { type: 'number', example: 2 },
+                  personalizations: { type: 'array', items: { type: 'object' }, example: [] },
+                },
+              },
+            },
+          },
+        },
+        OrderResponse: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', example: '1' },
+            state: { type: 'string', example: 'pending' },
+            client: { type: 'string', example: 'Juan Pérez' },
+            phone: { type: 'string', example: '123456789' },
+            address: { type: 'string', example: 'Calle Principal 123' },
+            deliveryTime: { type: 'string', format: 'date-time', example: '2024-01-01T12:00:00Z' },
+            contactMethod: { type: 'string', example: 'phone' },
+            paymentMethod: { type: 'string', example: 'cash' },
+            total: { type: 'number', example: 25.99 },
+            lines: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  id: { type: 'string', example: '1' },
+                  product: { type: 'string', example: 'Pizza Margherita' },
+                  quantity: { type: 'number', example: 2 },
+                  totalPrice: { type: 'number', example: 25.98 },
+                },
+              },
+            },
+          },
+        },
+        ComandaResponse: {
+          type: 'object',
+          properties: {
+            // Define properties for ComandaResponse if needed
+          },
+        },
       },
     },
   },

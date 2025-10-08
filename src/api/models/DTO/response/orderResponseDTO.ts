@@ -7,6 +7,7 @@ export class OrderResponseDTO {
   phone: string;
   address: string;
   deliveryTime: string;
+  contactMethod: string;
   paymentMethod: string;
   total: number;
   lines: Array<{
@@ -30,6 +31,7 @@ export class OrderResponseDTO {
     this.phone = order.client.phoneNumber;
     this.address = order.client.address;
     this.deliveryTime = order.deliveryTime.toISOString();
+    this.contactMethod = order.contactMethod;
     this.paymentMethod = order.paymentMethod;
     this.total = order.total;
     this.lines = order.lines.map((line) => ({

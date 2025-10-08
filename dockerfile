@@ -4,14 +4,17 @@ RUN npm ci && npm cache clean --force
 COPY . .
 USER root
 RUN npm run build
-FROM node:23-alpine3.22 as run
-RUN getent group nodejs || addgroup -g 1001 -S nodejs
-RUN id -u deploy || adduser -S deploy -u 1001
+
+FROM node:24-alpine3.22 as run
+
 WORKDIR /app
-COPY --from=build --chown=deploy:nodejs . .
-RUN grep logs || mkdir logs
-USER deploy
-EXPOSE 9091
-# HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-#   CMD wget --spider http://localhost:9091 || exit 1
+COPY --from=build . .
+
+# Crear directorio logs y dar permisos
+RUN mkdir -p logs && chmod 755 logs
+
+# Dar permisos de ejecución al entrypoint
+RUN chmod +x entrypoint.sh
+
+EXPOSE 3001
 CMD ["sh", "./entrypoint.sh"]

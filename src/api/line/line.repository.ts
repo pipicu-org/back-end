@@ -35,8 +35,6 @@ export class LineRepository implements ILineRepository {
       const line = await this._dbLineRepository
         .createQueryBuilder('line')
         .where('line.id = :lineId', { lineId })
-        .leftJoinAndSelect('line.preparation', 'preparation')
-        .leftJoinAndSelect('preparation.state', 'state')
         .leftJoinAndSelect('line.order', 'order')
         .leftJoinAndSelect('order.client', 'client')
         .leftJoinAndSelect('line.product', 'product')
@@ -81,8 +79,6 @@ export class LineRepository implements ILineRepository {
     try {
       const line = await this._dbLineRepository
         .createQueryBuilder('line')
-        .leftJoinAndSelect('line.preparation', 'preparation')
-        .leftJoinAndSelect('preparation.state', 'state')
         .leftJoinAndSelect('line.order', 'order')
         .leftJoinAndSelect('order.client', 'client')
         .leftJoinAndSelect('line.product', 'product')
@@ -102,8 +98,6 @@ export class LineRepository implements ILineRepository {
     try {
       const lines = await this._dbLineRepository
         .createQueryBuilder('line')
-        .leftJoinAndSelect('line.preparation', 'preparation')
-        .leftJoinAndSelect('preparation.state', 'state')
         .leftJoinAndSelect('line.order', 'order')
         .leftJoinAndSelect('order.client', 'client')
         .leftJoinAndSelect('line.product', 'product')
@@ -128,8 +122,6 @@ export class LineRepository implements ILineRepository {
       const linesAndCount = await this._dbLineRepository
         .createQueryBuilder('line')
         .leftJoinAndSelect('line.order', 'order')
-        .leftJoinAndSelect('line.preparation', 'preparation')
-        .leftJoinAndSelect('preparation.state', 'state')
         .leftJoinAndSelect('order.client', 'client')
         .leftJoinAndSelect('line.product', 'product')
         .where('state.id = :stateId', { stateId })
