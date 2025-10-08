@@ -4,7 +4,7 @@ import {
   UpdatePurchaseDto,
 } from '../models/DTO/request/purchaseRequestDTO';
 import { PurchaseResponseDTO } from '../models/DTO/response/purchaseResponseDTO';
-import { Purchase, PurchaseItem, Ingredient } from '../models/entity';
+import { Purchase, PurchaseItem, Ingredient, Unit } from '../models/entity';
 import { PurchaseMapper } from '../models/mappers/purchaseMapper';
 import { IPurchaseRepository } from './purchase.repository';
 import { IPurchaseService } from './purchase.service';
@@ -32,14 +32,20 @@ export class PurchaseService implements IPurchaseService {
       const purchase = new Purchase();
       purchase.providerId = purchaseDto.providerId;
 
+      const units = await queryRunner.manager.find(Unit);
+
       const purchaseItems: PurchaseItem[] = [];
       for (const itemDto of purchaseDto.purchaseItems) {
+        const unit = units.find((u) => u.id === itemDto.unitId);
+        if (!unit) {
+          throw new HttpError(400, `Unit with id ${itemDto.unitId} not found`);
+        }
         const item = new PurchaseItem();
         item.ingredientId = itemDto.ingredientId;
         item.cost = itemDto.cost;
         item.quantity = itemDto.quantity;
         item.unitId = itemDto.unitId;
-        item.unitQuantity = itemDto.unitQuantity;
+        item.unitQuantity = itemDto.quantity * unit.factor;
 
         // Load ingredient for stock update
         const ingredient = await queryRunner.manager.findOne(Ingredient, {
@@ -54,9 +60,9 @@ export class PurchaseService implements IPurchaseService {
 
         // Create StockMovement via service
         const stockMovementRequest = new StockMovementRequestDTO();
-        stockMovementRequest.ingredientId = itemDto.ingredientId;
-        stockMovementRequest.quantity = itemDto.quantity;
-        stockMovementRequest.unitId = itemDto.unitId;
+        stockMovementRequest.ingredientId = item.ingredientId;
+        stockMovementRequest.quantity = item.unitQuantity;
+        stockMovementRequest.unitId = item.unitId;
         stockMovementRequest.stockMovementTypeId = 1; // "Buy" for purchases
         stockMovementRequest.purchaseItemId = undefined; // will be set after save
         const stockMovement =
