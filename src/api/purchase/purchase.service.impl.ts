@@ -1,10 +1,15 @@
 import { DataSource } from 'typeorm';
-import { CreatePurchaseDto, UpdatePurchaseDto } from '../models/DTO/request/purchaseRequestDTO';
+import {
+  CreatePurchaseDto,
+  UpdatePurchaseDto,
+} from '../models/DTO/request/purchaseRequestDTO';
 import { PurchaseResponseDTO } from '../models/DTO/response/purchaseResponseDTO';
-import { Purchase, PurchaseItem } from '../models/entity';
+import { Purchase, PurchaseItem, Ingredient } from '../models/entity';
 import { PurchaseMapper } from '../models/mappers/purchaseMapper';
 import { IPurchaseRepository } from './purchase.repository';
 import { IPurchaseService } from './purchase.service';
+import { IStockMovementService } from '../stockMovement/stockMovement.service';
+import { StockMovementRequestDTO } from '../models/DTO/request/stockMovementRequestDTO';
 import { HttpError } from '../../errors/httpError';
 import logger from '../../config/logger';
 
@@ -13,9 +18,12 @@ export class PurchaseService implements IPurchaseService {
     private readonly _purchaseRepository: IPurchaseRepository,
     private readonly _purchaseMapper: PurchaseMapper,
     private readonly _dataSource: DataSource,
+    private readonly _stockMovementService: IStockMovementService,
   ) {}
 
-  async createPurchase(purchaseDto: CreatePurchaseDto): Promise<PurchaseResponseDTO> {
+  async createPurchase(
+    purchaseDto: CreatePurchaseDto,
+  ): Promise<PurchaseResponseDTO> {
     const queryRunner = this._dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -24,28 +32,56 @@ export class PurchaseService implements IPurchaseService {
       const purchase = new Purchase();
       purchase.providerId = purchaseDto.providerId;
 
-      const savedPurchase = await queryRunner.manager.save(Purchase, purchase);
-
       const purchaseItems: PurchaseItem[] = [];
       for (const itemDto of purchaseDto.purchaseItems) {
         const item = new PurchaseItem();
-        item.purchaseId = savedPurchase.id;
         item.ingredientId = itemDto.ingredientId;
         item.cost = itemDto.cost;
         item.quantity = itemDto.quantity;
         item.unitId = itemDto.unitId;
         item.unitQuantity = itemDto.unitQuantity;
+
+        // Load ingredient for stock update
+        const ingredient = await queryRunner.manager.findOne(Ingredient, {
+          where: { id: itemDto.ingredientId },
+        });
+        if (!ingredient) {
+          throw new HttpError(
+            400,
+            `Ingredient with id ${itemDto.ingredientId} not found`,
+          );
+        }
+
+        // Create StockMovement via service
+        const stockMovementRequest = new StockMovementRequestDTO();
+        stockMovementRequest.ingredientId = itemDto.ingredientId;
+        stockMovementRequest.quantity = itemDto.quantity;
+        stockMovementRequest.unitId = itemDto.unitId;
+        stockMovementRequest.stockMovementTypeId = 1; // "Buy" for purchases
+        stockMovementRequest.purchaseItemId = undefined; // will be set after save
+        const stockMovement =
+          await this._stockMovementService.createStockMovement(
+            stockMovementRequest,
+          );
+        if (stockMovement) {
+          item.stockMovements = [stockMovement];
+        }
+
         purchaseItems.push(item);
       }
 
-      await queryRunner.manager.save(PurchaseItem, purchaseItems);
-      savedPurchase.purchaseItems = purchaseItems;
+      purchase.purchaseItems = purchaseItems;
+
+      const savedPurchase = await queryRunner.manager.save(Purchase, purchase);
 
       await queryRunner.commitTransaction();
       return this._purchaseMapper.toResponseDTO(savedPurchase);
     } catch (error: any) {
       await queryRunner.rollbackTransaction();
-      logger.error('Error creating purchase with items', { error: error.message, stack: error.stack });
+      logger.error('Error creating purchase with items', {
+        error: error.message,
+        stack: error.stack,
+      });
       throw new HttpError(500, 'Failed to create purchase');
     } finally {
       await queryRunner.release();
@@ -60,7 +96,10 @@ export class PurchaseService implements IPurchaseService {
     return await this._purchaseRepository.findById(id);
   }
 
-  async updatePurchase(id: number, purchaseDto: UpdatePurchaseDto): Promise<PurchaseResponseDTO | void> {
+  async updatePurchase(
+    id: number,
+    purchaseDto: UpdatePurchaseDto,
+  ): Promise<PurchaseResponseDTO | void> {
     const purchase = new Purchase();
     if (purchaseDto.providerId !== undefined) {
       purchase.providerId = purchaseDto.providerId;

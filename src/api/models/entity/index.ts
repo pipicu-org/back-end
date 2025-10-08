@@ -20,5 +20,3 @@ export * from './tax';
 export * from './transition';
 export * from './transitionType';
 export * from './unit';
-// export * from './personalization';
-// export * from './productPersonalization';

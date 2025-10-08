@@ -22,7 +22,16 @@ export class Unit implements IUnit {
   @IsNotEmpty({ message: 'Unit name is required' })
   name!: string;
 
-  @Column({ type: 'numeric', precision: 10, scale: 2, nullable: false })
+  @Column({
+    type: 'numeric',
+    precision: 10,
+    scale: 2,
+    nullable: false,
+    transformer: {
+      from: (value: string) => parseFloat(value),
+      to: (value: number) => value,
+    },
+  })
   @Min(0, { message: 'Factor must be positive' })
   factor!: number;
 

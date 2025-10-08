@@ -4,7 +4,6 @@ import {
   ManyToOne,
   JoinColumn,
   PrimaryGeneratedColumn,
-  BeforeInsert,
 } from 'typeorm';
 import { Ingredient } from './ingredient';
 import { Unit } from './unit';
@@ -81,9 +80,4 @@ export class StockMovement implements IStockMovement {
   )
   @JoinColumn({ name: 'purchaseItemId' })
   purchaseItem!: PurchaseItem | null;
-
-  @BeforeInsert()
-  private adjustStock() {
-    this.ingredient.stock += this.quantity;
-  }
 }

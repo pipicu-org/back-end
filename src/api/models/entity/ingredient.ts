@@ -38,7 +38,16 @@ export class Ingredient implements IIngredient {
   @Max(1, { message: 'Loss factor must be at most 1' })
   lossFactor!: number;
 
-  @Column({ type: 'numeric', precision: 10, scale: 2, default: 0 })
+  @Column({
+    type: 'numeric',
+    precision: 10,
+    scale: 2,
+    default: 0,
+    transformer: {
+      from: (value: string) => parseFloat(value),
+      to: (value: number) => value,
+    },
+  })
   stock!: number;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

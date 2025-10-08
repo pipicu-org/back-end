@@ -1,4 +1,11 @@
-import { Column, Entity, ManyToOne, JoinColumn, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  JoinColumn,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Provider } from './provider';
 import { PurchaseItem } from './purchaseItem';
 
@@ -20,15 +27,23 @@ export class Purchase implements IPurchase {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt!: Date;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
   updatedAt!: Date;
 
   // Relación muchos-a-uno con Provider
-  @ManyToOne(() => Provider, (provider) => provider.purchases, { nullable: false })
+  @ManyToOne(() => Provider, (provider) => provider.purchases, {
+    nullable: false,
+  })
   @JoinColumn({ name: 'providerId' })
   provider!: Provider;
 
   // Relación uno-a-muchos con PurchaseItem
-  @OneToMany(() => PurchaseItem, (purchaseItem) => purchaseItem.purchase, {})
+  @OneToMany(() => PurchaseItem, (purchaseItem) => purchaseItem.purchase, {
+    cascade: true,
+  })
   purchaseItems!: PurchaseItem[];
 }

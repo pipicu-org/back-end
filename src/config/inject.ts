@@ -11,6 +11,7 @@ import {
   Recipe,
   RecipeIngredient,
   State,
+  StockMovement,
   Transition,
   TransitionType,
   Unit,
@@ -54,6 +55,10 @@ import { UnitRepository } from '../api/unit/unit.repository';
 import { UnitService } from '../api/unit/unit.service.impl';
 import { UnitController } from '../api/controllers/unit.controller';
 import { UnitMapper } from '../api/models/mappers/unitMapper';
+import { StockMovementRepository } from '../api/stockMovement/stockMovement.repository';
+import { StockMovementService } from '../api/stockMovement/stockMovement.service.impl';
+import { StockMovementController } from '../api/stockMovement/stockMovement.controller';
+import { StockMovementMapper } from '../api/models/mappers/stockMovementMapper';
 
 initializeDataSource().catch((err) =>
   console.error('Error inicializando la fuente de datos', err),
@@ -100,17 +105,14 @@ export const dbTransitionRepository = AppDataSource.getRepository<Transition>(
 ).extend({});
 
 export const dbRecipeIngredientRepository =
-  AppDataSource.getRepository<RecipeIngredient>('RecipeIngredient').extend(
-    {},
-  );
+  AppDataSource.getRepository<RecipeIngredient>('RecipeIngredient').extend({});
 
 export const dbPurchaseRepository = AppDataSource.getRepository<Purchase>(
   'Purchase',
 ).extend({});
 
-export const dbPurchaseItemRepository = AppDataSource.getRepository<PurchaseItem>(
-  'PurchaseItem',
-).extend({});
+export const dbPurchaseItemRepository =
+  AppDataSource.getRepository<PurchaseItem>('PurchaseItem').extend({});
 
 export const dbProviderRepository = AppDataSource.getRepository<Provider>(
   'Provider',
@@ -119,6 +121,9 @@ export const dbProviderRepository = AppDataSource.getRepository<Provider>(
 export const dbUnitRepository = AppDataSource.getRepository<Unit>(
   'Unit',
 ).extend({});
+
+export const dbStockMovementRepository =
+  AppDataSource.getRepository<StockMovement>('StockMovement').extend({});
 // Mappers
 
 export const clientMapper = new ClientMapper();
@@ -144,6 +149,8 @@ export const purchaseMapper = new PurchaseMapper();
 export const providerMapper = new ProviderMapper();
 
 export const unitMapper = new UnitMapper();
+
+export const stockMovementMapper = new StockMovementMapper();
 
 // Repositories
 
@@ -228,6 +235,21 @@ export const recipeIngredientController = new RecipeIngredientController(
   recipeIngredientService,
 );
 
+export const stockMovementRepository = new StockMovementRepository(
+  dbStockMovementRepository,
+  stockMovementMapper,
+);
+
+export const stockMovementService = new StockMovementService(
+  stockMovementRepository,
+  stockMovementMapper,
+  AppDataSource,
+);
+
+export const stockMovementController = new StockMovementController(
+  stockMovementService,
+);
+
 export const purchaseRepository = new PurchaseRepository(
   dbPurchaseRepository,
   purchaseMapper,
@@ -237,6 +259,7 @@ export const purchaseService = new PurchaseService(
   purchaseRepository,
   purchaseMapper,
   AppDataSource,
+  stockMovementService,
 );
 
 export const purchaseController = new PurchaseController(purchaseService);
@@ -253,10 +276,7 @@ export const providerService = new ProviderService(
 
 export const providerController = new ProviderController(providerService);
 
-export const unitRepository = new UnitRepository(
-  dbUnitRepository,
-  unitMapper,
-);
+export const unitRepository = new UnitRepository(dbUnitRepository, unitMapper);
 
 export const unitService = new UnitService(
   unitRepository,

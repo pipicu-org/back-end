@@ -21,13 +21,19 @@ export class PurchaseRepository implements IPurchaseRepository {
 
   async findAll(): Promise<PurchaseResponseDTO[]> {
     try {
+      // TODO: Agregar paginacion
       const purchases = await this._dbPurchaseRepository
         .createQueryBuilder('purchase')
         .leftJoinAndSelect('purchase.purchaseItems', 'purchaseItem')
         .getMany();
-      return purchases.map(purchase => this._purchaseMapper.toResponseDTO(purchase));
+      return purchases.map((purchase) =>
+        this._purchaseMapper.toResponseDTO(purchase),
+      );
     } catch (error: any) {
-      logger.error('Error fetching all purchases', { error: error.message, stack: error.stack });
+      logger.error('Error fetching all purchases', {
+        error: error.message,
+        stack: error.stack,
+      });
       throw new HttpError(500, 'Failed to fetch purchases');
     }
   }
@@ -45,7 +51,11 @@ export class PurchaseRepository implements IPurchaseRepository {
         throw new HttpError(404, `Purchase with id ${id} not found`);
       }
     } catch (error: any) {
-      logger.error('Error fetching purchase by ID', { id, error: error.message, stack: error.stack });
+      logger.error('Error fetching purchase by ID', {
+        id,
+        error: error.message,
+        stack: error.stack,
+      });
       throw new HttpError(
         error.status || 500,
         error.message || 'Failed to fetch purchase',
@@ -58,7 +68,10 @@ export class PurchaseRepository implements IPurchaseRepository {
       const savedPurchase = await this._dbPurchaseRepository.save(purchase);
       return this._purchaseMapper.toResponseDTO(savedPurchase);
     } catch (error: any) {
-      logger.error('Error creating purchase', { error: error.message, stack: error.stack });
+      logger.error('Error creating purchase', {
+        error: error.message,
+        stack: error.stack,
+      });
       throw new HttpError(
         error.status || 500,
         error.message || 'Failed to create purchase',
@@ -66,18 +79,30 @@ export class PurchaseRepository implements IPurchaseRepository {
     }
   }
 
-  async update(id: number, purchase: Purchase): Promise<PurchaseResponseDTO | void> {
+  async update(
+    id: number,
+    purchase: Purchase,
+  ): Promise<PurchaseResponseDTO | void> {
     try {
-      const existingPurchase = await this._dbPurchaseRepository.update(id, purchase);
+      const existingPurchase = await this._dbPurchaseRepository.update(
+        id,
+        purchase,
+      );
       if (existingPurchase.affected === 0) {
         throw new HttpError(404, `Purchase with id ${id} not found`);
       }
-      const updatedPurchase = await this._dbPurchaseRepository.findOneBy({ id });
+      const updatedPurchase = await this._dbPurchaseRepository.findOneBy({
+        id,
+      });
       if (updatedPurchase) {
         return this._purchaseMapper.toResponseDTO(updatedPurchase);
       }
     } catch (error: any) {
-      logger.error('Error updating purchase', { id, error: error.message, stack: error.stack });
+      logger.error('Error updating purchase', {
+        id,
+        error: error.message,
+        stack: error.stack,
+      });
       throw new HttpError(
         error.status || 500,
         error.message || `Failed to update purchase with id ${id}`,
@@ -99,7 +124,11 @@ export class PurchaseRepository implements IPurchaseRepository {
         throw new HttpError(404, `Purchase with id ${id} not found`);
       }
     } catch (error: any) {
-      logger.error('Error deleting purchase', { id, error: error.message, stack: error.stack });
+      logger.error('Error deleting purchase', {
+        id,
+        error: error.message,
+        stack: error.stack,
+      });
       throw new HttpError(
         error.status || 500,
         error.message || `Failed to delete purchase with id ${id}`,
