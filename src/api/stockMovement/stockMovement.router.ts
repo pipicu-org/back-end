@@ -10,45 +10,6 @@ export const stockMovementRouter = (
 
   /**
    * @swagger
-   * tags:
-   *   name: StockMovements
-   *   description: Stock movement management endpoints
-   */
-
-  /**
-   * @swagger
-   * /api/stockMovement:
-   *   post:
-   *     summary: Create a new stock movement
-   *     tags: [StockMovements]
-   *     requestBody:
-   *       required: true
-   *       content:
-   *         application/json:
-   *           schema:
-   *             $ref: '#/components/schemas/StockMovementRequest'
-   *           example:
-   *             ingredientId: 1
-   *             quantity: 10.5
-   *             unitId: 1
-   *             stockMovementTypeId: 1
-   *             purchaseItemId: null
-   *     responses:
-   *       201:
-   *         description: Stock movement created successfully
-   *         content:
-   *           application/json:
-   *             schema:
-   *               $ref: '#/components/schemas/StockMovementResponse'
-   *       400:
-   *         $ref: '#/components/responses/ValidationError'
-   *       500:
-   *         $ref: '#/components/responses/ErrorResponse'
-   */
-  router.post(`${PATH}`, (req, res, next) => controller.create(req, res, next));
-
-  /**
-   * @swagger
    * /api/stockMovement:
    *   get:
    *     summary: Get paginated stock movements
