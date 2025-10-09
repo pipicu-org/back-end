@@ -27,7 +27,6 @@ export const ingredientRouter = (controller = ingredientController): Router => {
    *             $ref: '#/components/schemas/IngredientRequest'
    *           example:
    *             name: "Tomato"
-   *             price: 2.50
    *             unitId: 1
    *             lossFactor: 0.1
    *     responses:
@@ -72,6 +71,12 @@ export const ingredientRouter = (controller = ingredientController): Router => {
    *               name: "Tomato"
    *               unitId: 1
    *               lossFactor: 0.1
+   *               stock: 0.0
+   *               createdAt: "2023-01-01T00:00:00Z"
+   *               updatedAt: "2023-01-01T00:00:00Z"
+   *               unitId: 1
+   *               lossFactor: 0.1
+   *               stock: 100.0
    *               createdAt: "2023-01-01T00:00:00Z"
    *               updatedAt: "2023-01-01T00:00:00Z"
    *       404:
@@ -104,7 +109,6 @@ export const ingredientRouter = (controller = ingredientController): Router => {
    *             $ref: '#/components/schemas/IngredientRequest'
    *           example:
    *             name: "Updated Tomato"
-   *             price: 3.00
    *             unitId: 1
    *             lossFactor: 0.05
    *     responses:
@@ -119,6 +123,7 @@ export const ingredientRouter = (controller = ingredientController): Router => {
    *               name: "Updated Tomato"
    *               unitId: 1
    *               lossFactor: 0.05
+   *               stock: 100.0
    *               createdAt: "2023-01-01T00:00:00Z"
    *               updatedAt: "2023-01-01T00:00:00Z"
    *       404:
@@ -202,6 +207,7 @@ export const ingredientRouter = (controller = ingredientController): Router => {
    *                 name: "Tomato"
    *                 unitId: 1
    *                 lossFactor: 0.1
+   *                 stock: 100.0
    *                 createdAt: "2023-01-01T00:00:00Z"
    *                 updatedAt: "2023-01-01T00:00:00Z"
    *             pagination:

@@ -1,16 +1,20 @@
+import { IngredientRequestDTO } from '../models/DTO/request/ingredientRequestDTO';
+import { IngredientResponseDTO } from '../models/DTO/response/ingredientResponseDTO';
+import { IngredientSearchResponseDTO } from '../models/DTO/response/ingredientSearchResponseDTO';
+
 export interface IIngredientService {
   createIngredient(
-    requestDTO: import('../models/DTO/request/ingredientRequestDTO').IngredientRequestDTO,
-  ): Promise<import('../models/DTO/response/ingredientResponseDTO').IngredientResponseDTO | void>;
-  getIngredientById(id: number): Promise<import('../models/DTO/response/ingredientResponseDTO').IngredientResponseDTO | void>;
+    requestDTO: IngredientRequestDTO,
+  ): Promise<IngredientResponseDTO | void>;
+  getIngredientById(id: number): Promise<IngredientResponseDTO | void>;
   searchIngredients(
     search: string,
     page: number,
     limit: number,
-  ): Promise<import('../models/DTO/response/ingredientSearchResponseDTO').IngredientSearchResponseDTO | void>;
+  ): Promise<IngredientSearchResponseDTO | void>;
   updateIngredient(
     id: number,
     requestDTO: import('../models/DTO/request/ingredientRequestDTO').IngredientRequestDTO,
-  ): Promise<import('../models/DTO/response/ingredientResponseDTO').IngredientResponseDTO | void>;
-  deleteIngredient(id: number): Promise<import('../models/DTO/response/ingredientResponseDTO').IngredientResponseDTO | void>;
+  ): Promise<IngredientResponseDTO | void>;
+  deleteIngredient(id: number): Promise<IngredientResponseDTO | void>;
 }

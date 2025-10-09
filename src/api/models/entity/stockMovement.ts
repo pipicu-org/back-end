@@ -1,4 +1,10 @@
-import { Column, Entity, ManyToOne, JoinColumn, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  JoinColumn,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Ingredient } from './ingredient';
 import { Unit } from './unit';
 import { StockMovementType } from './stockMovementType';
@@ -38,11 +44,17 @@ export class StockMovement implements IStockMovement {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt!: Date;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
   updatedAt!: Date;
 
   // Relación muchos-a-uno con Ingredient
-  @ManyToOne(() => Ingredient, (ingredient) => ingredient.stockMovements, { nullable: false })
+  @ManyToOne(() => Ingredient, (ingredient) => ingredient.stockMovements, {
+    nullable: false,
+  })
   @JoinColumn({ name: 'ingredientId' })
   ingredient!: Ingredient;
 
@@ -52,12 +64,20 @@ export class StockMovement implements IStockMovement {
   unit!: Unit;
 
   // Relación muchos-a-uno con StockMovementType
-  @ManyToOne(() => StockMovementType, (stockMovementType) => stockMovementType.stockMovements, { nullable: false })
+  @ManyToOne(
+    () => StockMovementType,
+    (stockMovementType) => stockMovementType.stockMovements,
+    { nullable: false },
+  )
   @JoinColumn({ name: 'stockMovementTypeId' })
   stockMovementType!: StockMovementType;
 
   // Relación muchos-a-uno con PurchaseItem (opcional)
-  @ManyToOne(() => PurchaseItem, (purchaseItem) => purchaseItem.stockMovements, { nullable: true })
+  @ManyToOne(
+    () => PurchaseItem,
+    (purchaseItem) => purchaseItem.stockMovements,
+    { nullable: true },
+  )
   @JoinColumn({ name: 'purchaseItemId' })
   purchaseItem!: PurchaseItem | null;
 }

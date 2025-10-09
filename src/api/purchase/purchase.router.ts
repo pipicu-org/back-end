@@ -60,17 +60,61 @@ export const purchaseRouter = (controller = purchaseController): Router => {
    * @swagger
    * /api/purchase:
    *   get:
-   *     summary: Get all purchases
+   *     summary: Get all purchases with pagination
    *     tags: [Purchases]
+   *     parameters:
+   *       - in: query
+   *         name: page
+   *         schema:
+   *           type: integer
+   *           minimum: 0
+   *           default: 0
+   *         description: Page number (0-based)
+   *       - in: query
+   *         name: size
+   *         schema:
+   *           type: integer
+   *           minimum: 1
+   *           maximum: 100
+   *           default: 10
+   *         description: Number of items per page
+   *       - in: query
+   *         name: sort
+   *         schema:
+   *           type: string
+   *           enum: [date_asc, date_desc]
+   *           default: date_desc
+   *         description: Sort field and order (field_order)
    *     responses:
    *       200:
    *         description: Purchases retrieved successfully
    *         content:
    *           application/json:
    *             schema:
-   *               type: array
-   *               items:
-   *                 $ref: '#/components/schemas/PurchaseResponseDTO'
+   *               $ref: '#/components/schemas/PurchasePageResponseDTO'
+   *             example:
+   *               purchases:
+   *                 - id: 1
+   *                   providerId: 1
+   *                   createdAt: "2023-01-01T00:00:00Z"
+   *                   updatedAt: "2023-01-01T00:00:00Z"
+   *                   purchaseItems: []
+   *               totalElements: 50
+   *               totalPages: 5
+   *               currentPage: 0
+   *               pageSize: 10
+   *               hasPrevious: false
+   *               hasNext: true
+   *       400:
+   *         description: Bad request - Invalid parameters
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/ErrorResponse'
+   *             example:
+   *               error:
+   *                 message: "Page must be >= 0"
+   *                 status: 400
    */
   router.get(`${PATH}`, (req, res, next) => {
     controller.getAllPurchases(req, res, next);

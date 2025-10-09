@@ -13,7 +13,7 @@ describe('IngredientMapper', () => {
 
   describe('requestDTOToEntity', () => {
     it('should create ingredient entity from request DTO', () => {
-      const requestDTO: IngredientRequestDTO = new IngredientRequestDTO('Tomato', 2.5, 1, 0.1);
+      const requestDTO: IngredientRequestDTO = new IngredientRequestDTO('Tomato', 2.5, 1);
 
       const result = ingredientMapper.requestDTOToEntity(requestDTO);
 

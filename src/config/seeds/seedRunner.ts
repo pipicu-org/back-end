@@ -6,6 +6,7 @@ import { ISeed } from './ISeed';
 import { ClientSeed } from './entities/client.seed';
 import { TransitionTypeSeed } from './entities/transitionType.seed';
 import { UnitSeed } from './entities/unit.seed';
+import { StockMovementTypeSeed } from './entities/stockMovementType.seed';
 
 export class SeedRunner {
   constructor(private readonly datasource: DataSource) {}
@@ -20,6 +21,7 @@ export class SeedRunner {
         IngredientSeed.getInstance(),
         StateSeed.getInstance(),
         TransitionTypeSeed.getInstance(),
+        StockMovementTypeSeed.getInstance(),
       ];
       for (const seed of seeds) {
         await this.datasource
