@@ -26,7 +26,15 @@ export class PurchaseController {
 
   async getAllPurchases(req: Request, res: Response, next: NextFunction) {
     try {
-      const purchases = await this._purchaseService.getAllPurchases();
+      const page = req.query.page ? parseInt(req.query.page as string, 10) : 0;
+      const size = req.query.size ? parseInt(req.query.size as string, 10) : 10;
+      const sort = (req.query.sort as string) || 'date_desc';
+
+      const purchases = await this._purchaseService.getAllPurchases(
+        page,
+        size,
+        sort,
+      );
       res.status(200).json(purchases);
     } catch (error: any) {
       next(error);

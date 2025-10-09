@@ -4,6 +4,7 @@ import {
   UpdatePurchaseDto,
 } from '../models/DTO/request/purchaseRequestDTO';
 import { PurchaseResponseDTO } from '../models/DTO/response/purchaseResponseDTO';
+import { PurchasePageResponseDTO } from '../models/DTO/response/purchasePageResponseDTO';
 import { Purchase, PurchaseItem, Ingredient, Unit } from '../models/entity';
 import { PurchaseMapper } from '../models/mappers/purchaseMapper';
 import { IPurchaseRepository } from './purchase.repository';
@@ -94,8 +95,36 @@ export class PurchaseService implements IPurchaseService {
     }
   }
 
-  async getAllPurchases(): Promise<PurchaseResponseDTO[]> {
-    return await this._purchaseRepository.findAll();
+  async getAllPurchases(
+    page: number = 0,
+    size: number = 10,
+    sort: string = 'date_desc',
+  ): Promise<PurchasePageResponseDTO> {
+    // Validate parameters
+    if (page < 0) {
+      throw new HttpError(400, 'Page must be >= 0');
+    }
+    if (size < 1 || size > 100) {
+      throw new HttpError(400, 'Size must be between 1 and 100');
+    }
+
+    // Parse sort parameter
+    const [sortField, sortOrderStr] = sort.split('_');
+    let sortOrder: 'ASC' | 'DESC' = 'DESC';
+    if (sortOrderStr && sortOrderStr.toLowerCase() === 'asc') {
+      sortOrder = 'ASC';
+    }
+
+    if (sortField !== 'date') {
+      throw new HttpError(400, 'Sort field must be "date"');
+    }
+
+    return await this._purchaseRepository.findAllPaginated(
+      page,
+      size,
+      sortField,
+      sortOrder,
+    );
   }
 
   async getPurchaseById(id: number): Promise<PurchaseResponseDTO | void> {
@@ -110,7 +139,6 @@ export class PurchaseService implements IPurchaseService {
     if (purchaseDto.providerId !== undefined) {
       purchase.providerId = purchaseDto.providerId;
     }
-    // Note: Updating purchase items would require more complex logic, omitted for simplicity
     return await this._purchaseRepository.update(id, purchase);
   }
 

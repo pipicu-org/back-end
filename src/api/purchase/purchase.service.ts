@@ -1,10 +1,21 @@
-import { CreatePurchaseDto, UpdatePurchaseDto } from '../models/DTO/request/purchaseRequestDTO';
+import {
+  CreatePurchaseDto,
+  UpdatePurchaseDto,
+} from '../models/DTO/request/purchaseRequestDTO';
 import { PurchaseResponseDTO } from '../models/DTO/response/purchaseResponseDTO';
+import { PurchasePageResponseDTO } from '../models/DTO/response/purchasePageResponseDTO';
 
 export interface IPurchaseService {
   createPurchase(purchase: CreatePurchaseDto): Promise<PurchaseResponseDTO>;
-  getAllPurchases(): Promise<PurchaseResponseDTO[]>;
+  getAllPurchases(
+    page?: number,
+    size?: number,
+    sort?: string,
+  ): Promise<PurchasePageResponseDTO>;
   getPurchaseById(id: number): Promise<PurchaseResponseDTO | void>;
-  updatePurchase(id: number, purchase: UpdatePurchaseDto): Promise<PurchaseResponseDTO | void>;
+  updatePurchase(
+    id: number,
+    purchase: UpdatePurchaseDto,
+  ): Promise<PurchaseResponseDTO | void>;
   deletePurchase(id: number): Promise<PurchaseResponseDTO | void>;
 }

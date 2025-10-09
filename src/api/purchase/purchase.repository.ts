@@ -1,12 +1,18 @@
 import { Repository } from 'typeorm';
 import { Purchase } from '../models/entity';
 import { PurchaseResponseDTO } from '../models/DTO/response/purchaseResponseDTO';
+import { PurchasePageResponseDTO } from '../models/DTO/response/purchasePageResponseDTO';
 import { PurchaseMapper } from '../models/mappers/purchaseMapper';
 import { HttpError } from '../../errors/httpError';
 import logger from '../../config/logger';
 
 export interface IPurchaseRepository {
-  findAll(): Promise<PurchaseResponseDTO[]>;
+  findAllPaginated(
+    page: number,
+    size: number,
+    sortField: string,
+    sortOrder: 'ASC' | 'DESC',
+  ): Promise<PurchasePageResponseDTO>;
   findById(id: number): Promise<PurchaseResponseDTO | void>;
   create(purchase: Purchase): Promise<PurchaseResponseDTO>;
   update(id: number, purchase: Purchase): Promise<PurchaseResponseDTO | void>;
@@ -19,22 +25,44 @@ export class PurchaseRepository implements IPurchaseRepository {
     private readonly _purchaseMapper: PurchaseMapper,
   ) {}
 
-  async findAll(): Promise<PurchaseResponseDTO[]> {
+  async findAllPaginated(
+    page: number,
+    size: number,
+    sortField: string,
+    sortOrder: 'ASC' | 'DESC',
+  ): Promise<PurchasePageResponseDTO> {
     try {
-      // TODO: Agregar paginacion
-      const purchases = await this._dbPurchaseRepository
+      let queryBuilder = this._dbPurchaseRepository
         .createQueryBuilder('purchase')
-        .leftJoinAndSelect('purchase.purchaseItems', 'purchaseItem')
-        .getMany();
-      return purchases.map((purchase) =>
-        this._purchaseMapper.toResponseDTO(purchase),
+        .leftJoinAndSelect('purchase.purchaseItems', 'purchaseItem');
+
+      if (sortField === 'date') {
+        queryBuilder = queryBuilder.orderBy('purchase.createdAt', sortOrder);
+      } else {
+        // Default sort by createdAt desc
+        queryBuilder = queryBuilder.orderBy('purchase.createdAt', 'DESC');
+      }
+
+      const [purchases, total] = await queryBuilder
+        .skip(page * size)
+        .take(size)
+        .getManyAndCount();
+
+      return this._purchaseMapper.toPaginationDTO(
+        [purchases, total],
+        page,
+        size,
       );
     } catch (error: any) {
-      logger.error('Error fetching all purchases', {
+      logger.error('Error fetching paginated purchases', {
+        page,
+        size,
+        sortField,
+        sortOrder,
         error: error.message,
         stack: error.stack,
       });
-      throw new HttpError(500, 'Failed to fetch purchases');
+      throw new HttpError(500, 'Failed to fetch paginated purchases');
     }
   }
 
