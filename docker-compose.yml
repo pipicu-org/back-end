@@ -31,6 +31,7 @@ services:
       - POSTGRES_DB=pipicucu
       - PORT=9091
       - NODE_ENV=production
+      - DB_SEED=true
     networks:
       - pipicucu-network
     volumes:
