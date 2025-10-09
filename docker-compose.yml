@@ -12,7 +12,7 @@ services:
     ports:
       - 8080:5432
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       timeout: 30s
       retries: 5
   api-pipicucu:
@@ -29,14 +29,15 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=pipicucu
-      - PORT=3001
+      - PORT=9091
       - NODE_ENV=production
+      - DB_SEED=true
     networks:
       - pipicucu-network
     volumes:
       - .:/src
     ports:
-      - 3001:3001
+      - 9091:9091
 networks:
   pipicucu-network:
     driver: bridge

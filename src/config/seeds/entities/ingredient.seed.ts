@@ -20,6 +20,7 @@ export class IngredientSeed implements ISeed<Ingredient> {
       recipeIngredient: [],
       purchaseItems: [],
       stockMovements: [],
+      stock: 0,
       unit: {
         id: 1,
         name: 'unit',
@@ -29,11 +30,11 @@ export class IngredientSeed implements ISeed<Ingredient> {
         stockMovements: [],
         recipeIngredient: [],
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       },
       lossFactor: 0,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     },
   ];
 

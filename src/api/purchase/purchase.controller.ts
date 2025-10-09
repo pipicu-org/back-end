@@ -1,4 +1,7 @@
-import { CreatePurchaseDto, UpdatePurchaseDto } from '../models/DTO/request/purchaseRequestDTO';
+import {
+  CreatePurchaseDto,
+  UpdatePurchaseDto,
+} from '../models/DTO/request/purchaseRequestDTO';
 import { IPurchaseService } from './purchase.service';
 import { NextFunction, Request, Response } from 'express';
 import { validate } from 'class-validator';
@@ -23,7 +26,15 @@ export class PurchaseController {
 
   async getAllPurchases(req: Request, res: Response, next: NextFunction) {
     try {
-      const purchases = await this._purchaseService.getAllPurchases();
+      const page = req.query.page ? parseInt(req.query.page as string, 10) : 0;
+      const size = req.query.size ? parseInt(req.query.size as string, 10) : 10;
+      const sort = (req.query.sort as string) || 'date_desc';
+
+      const purchases = await this._purchaseService.getAllPurchases(
+        page,
+        size,
+        sort,
+      );
       res.status(200).json(purchases);
     } catch (error: any) {
       next(error);
@@ -51,7 +62,10 @@ export class PurchaseController {
       if (errors.length > 0) {
         return res.status(400).json({ message: 'Validation failed', errors });
       }
-      const updatedPurchase = await this._purchaseService.updatePurchase(id, purchaseDto);
+      const updatedPurchase = await this._purchaseService.updatePurchase(
+        id,
+        purchaseDto,
+      );
       if (!updatedPurchase) {
         return res.status(404).json({ message: 'Purchase not found' });
       }

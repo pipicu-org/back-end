@@ -1,4 +1,11 @@
-import { Column, Entity, ManyToOne, JoinColumn, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  JoinColumn,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Purchase } from './purchase';
 import { Ingredient } from './ingredient';
 import { Unit } from './unit';
@@ -43,16 +50,24 @@ export class PurchaseItem implements IPurchaseItem {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt!: Date;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
   updatedAt!: Date;
 
   // Relación muchos-a-uno con Purchase
-  @ManyToOne(() => Purchase, (purchase) => purchase.purchaseItems, { nullable: false })
+  @ManyToOne(() => Purchase, (purchase) => purchase.purchaseItems, {
+    nullable: false,
+  })
   @JoinColumn({ name: 'purchaseId' })
   purchase!: Purchase;
 
   // Relación muchos-a-uno con Ingredient
-  @ManyToOne(() => Ingredient, (ingredient) => ingredient.purchaseItems, { nullable: false })
+  @ManyToOne(() => Ingredient, (ingredient) => ingredient.purchaseItems, {
+    nullable: false,
+  })
   @JoinColumn({ name: 'ingredientId' })
   ingredient!: Ingredient;
 
@@ -62,10 +77,18 @@ export class PurchaseItem implements IPurchaseItem {
   unit!: Unit;
 
   // Relación uno-a-muchos con PurchaseItemTax
-  @OneToMany(() => PurchaseItemTax, (purchaseItemTax) => purchaseItemTax.purchaseItem, {})
+  @OneToMany(
+    () => PurchaseItemTax,
+    (purchaseItemTax) => purchaseItemTax.purchaseItem,
+    {},
+  )
   purchaseItemTaxes!: PurchaseItemTax[];
 
   // Relación uno-a-muchos con StockMovement
-  @OneToMany(() => StockMovement, (stockMovement) => stockMovement.purchaseItem, {})
+  @OneToMany(
+    () => StockMovement,
+    (stockMovement) => stockMovement.purchaseItem,
+    {},
+  )
   stockMovements!: StockMovement[];
 }

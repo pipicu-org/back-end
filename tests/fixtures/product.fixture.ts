@@ -34,6 +34,7 @@ export const mockProductResponseDTO: ProductResponseDTO = {
         ingredient: {
           id: 1,
           name: 'Tomato Sauce',
+          stock: 50.0,
         },
       },
       {
@@ -42,6 +43,7 @@ export const mockProductResponseDTO: ProductResponseDTO = {
         ingredient: {
           id: 2,
           name: 'Cheese',
+          stock: 20.0,
         },
       },
     ],

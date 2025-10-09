@@ -22,14 +22,27 @@ export class Unit implements IUnit {
   @IsNotEmpty({ message: 'Unit name is required' })
   name!: string;
 
-  @Column({ type: 'numeric', precision: 10, scale: 2, nullable: false })
+  @Column({
+    type: 'numeric',
+    precision: 10,
+    scale: 2,
+    nullable: false,
+    transformer: {
+      from: (value: string) => parseFloat(value),
+      to: (value: number) => value,
+    },
+  })
   @Min(0, { message: 'Factor must be positive' })
   factor!: number;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt!: Date;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
   updatedAt!: Date;
 
   // Relación uno-a-muchos con Ingredient
@@ -45,6 +58,10 @@ export class Unit implements IUnit {
   stockMovements!: StockMovement[];
 
   // Relación uno-a-muchos con RecipeIngredient
-  @OneToMany(() => RecipeIngredient, (recipeIngredient) => recipeIngredient.unit, {})
+  @OneToMany(
+    () => RecipeIngredient,
+    (recipeIngredient) => recipeIngredient.unit,
+    {},
+  )
   recipeIngredient!: RecipeIngredient[];
 }

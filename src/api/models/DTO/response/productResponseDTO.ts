@@ -22,6 +22,7 @@ export class ProductResponseDTO {
       ingredient: {
         id: number;
         name: string;
+        stock: number;
         // price: number;
       };
     }>;
@@ -50,6 +51,7 @@ export class ProductResponseDTO {
           ingredient: {
             id: ingredientsList.ingredient.id,
             name: ingredientsList.ingredient.name,
+            stock: ingredientsList.ingredient.stock,
             // price: ingredientsList.ingredient.price,
           },
         })),

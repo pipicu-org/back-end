@@ -125,13 +125,19 @@ const options = {
         },
         CreatePurchaseItemDto: {
           type: 'object',
-          required: ['ingredientId', 'cost', 'quantity', 'unitId', 'unitQuantity'],
+          required: [
+            'ingredientId',
+            'cost',
+            'quantity',
+            'unitId',
+            'unitQuantity',
+          ],
           properties: {
             ingredientId: { type: 'number', example: 1 },
-            cost: { type: 'number', example: 10.50 },
-            quantity: { type: 'number', example: 100.00 },
+            cost: { type: 'number', example: 10.5 },
+            quantity: { type: 'number', example: 100.0 },
             unitId: { type: 'number', example: 1 },
-            unitQuantity: { type: 'number', example: 1.00 },
+            unitQuantity: { type: 'number', example: 1.0 },
           },
         },
         CreatePurchaseDto: {
@@ -165,12 +171,20 @@ const options = {
             id: { type: 'number', example: 1 },
             purchaseId: { type: 'number', example: 1 },
             ingredientId: { type: 'number', example: 1 },
-            cost: { type: 'number', example: 10.50 },
-            quantity: { type: 'number', example: 100.00 },
+            cost: { type: 'number', example: 10.5 },
+            quantity: { type: 'number', example: 100.0 },
             unitId: { type: 'number', example: 1 },
-            unitQuantity: { type: 'number', example: 1.00 },
-            createdAt: { type: 'string', format: 'date-time', example: '2023-01-01T00:00:00Z' },
-            updatedAt: { type: 'string', format: 'date-time', example: '2023-01-01T00:00:00Z' },
+            unitQuantity: { type: 'number', example: 1.0 },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+              example: '2023-01-01T00:00:00Z',
+            },
+            updatedAt: {
+              type: 'string',
+              format: 'date-time',
+              example: '2023-01-01T00:00:00Z',
+            },
           },
         },
         PurchaseResponseDTO: {
@@ -178,12 +192,37 @@ const options = {
           properties: {
             id: { type: 'number', example: 1 },
             providerId: { type: 'number', example: 1 },
-            createdAt: { type: 'string', format: 'date-time', example: '2023-01-01T00:00:00Z' },
-            updatedAt: { type: 'string', format: 'date-time', example: '2023-01-01T00:00:00Z' },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+              example: '2023-01-01T00:00:00Z',
+            },
+            updatedAt: {
+              type: 'string',
+              format: 'date-time',
+              example: '2023-01-01T00:00:00Z',
+            },
             purchaseItems: {
               type: 'array',
               items: {
                 $ref: '#/components/schemas/PurchaseItemResponseDTO',
+              },
+            },
+          },
+        },
+        PurchasePageResponseDTO: {
+          type: 'object',
+          properties: {
+            totalElements: { type: 'number', example: 50 },
+            totalPages: { type: 'number', example: 5 },
+            currentPage: { type: 'number', example: 0 },
+            pageSize: { type: 'number', example: 10 },
+            hasPrevious: { type: 'boolean', example: false },
+            hasNext: { type: 'boolean', example: true },
+            purchases: {
+              type: 'array',
+              items: {
+                $ref: '#/components/schemas/PurchaseResponseDTO',
               },
             },
           },
@@ -193,7 +232,10 @@ const options = {
           required: ['name'],
           properties: {
             name: { type: 'string', example: 'ABC Supplies' },
-            description: { type: 'string', example: 'Provider of office supplies' },
+            description: {
+              type: 'string',
+              example: 'Provider of office supplies',
+            },
           },
         },
         ProviderResponse: {
@@ -201,9 +243,20 @@ const options = {
           properties: {
             id: { type: 'number', example: 1 },
             name: { type: 'string', example: 'ABC Supplies' },
-            description: { type: 'string', example: 'Provider of office supplies' },
-            createdAt: { type: 'string', format: 'date-time', example: '2023-01-01T00:00:00Z' },
-            updatedAt: { type: 'string', format: 'date-time', example: '2023-01-01T00:00:00Z' },
+            description: {
+              type: 'string',
+              example: 'Provider of office supplies',
+            },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+              example: '2023-01-01T00:00:00Z',
+            },
+            updatedAt: {
+              type: 'string',
+              format: 'date-time',
+              example: '2023-01-01T00:00:00Z',
+            },
           },
         },
         CreateUnitDto: {
@@ -227,8 +280,16 @@ const options = {
             id: { type: 'number', example: 1 },
             name: { type: 'string', example: 'Kilogram' },
             factor: { type: 'number', example: 1.0 },
-            createdAt: { type: 'string', format: 'date-time', example: '2023-01-01T00:00:00Z' },
-            updatedAt: { type: 'string', format: 'date-time', example: '2023-01-01T00:00:00Z' },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+              example: '2023-01-01T00:00:00Z',
+            },
+            updatedAt: {
+              type: 'string',
+              format: 'date-time',
+              example: '2023-01-01T00:00:00Z',
+            },
           },
         },
         Pagination: {
@@ -245,7 +306,7 @@ const options = {
           required: ['name', 'price', 'unitId', 'lossFactor'],
           properties: {
             name: { type: 'string', example: 'Tomato' },
-            price: { type: 'number', example: 2.50 },
+            price: { type: 'number', example: 2.5 },
             unitId: { type: 'number', example: 1 },
             lossFactor: { type: 'number', example: 0.1 },
           },
@@ -257,8 +318,16 @@ const options = {
             name: { type: 'string', example: 'Tomato' },
             unitId: { type: 'number', example: 1 },
             lossFactor: { type: 'number', example: 0.1 },
-            createdAt: { type: 'string', format: 'date-time', example: '2023-01-01T00:00:00Z' },
-            updatedAt: { type: 'string', format: 'date-time', example: '2023-01-01T00:00:00Z' },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+              example: '2023-01-01T00:00:00Z',
+            },
+            updatedAt: {
+              type: 'string',
+              format: 'date-time',
+              example: '2023-01-01T00:00:00Z',
+            },
           },
         },
         ProductRequest: {
@@ -290,8 +359,16 @@ const options = {
             price: { type: 'number', example: 12.99 },
             recipeId: { type: 'number', nullable: true, example: 1 },
             categoryId: { type: 'number', example: 1 },
-            createdAt: { type: 'string', format: 'date-time', example: '2023-01-01T00:00:00Z' },
-            updatedAt: { type: 'string', format: 'date-time', example: '2023-01-01T00:00:00Z' },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+              example: '2023-01-01T00:00:00Z',
+            },
+            updatedAt: {
+              type: 'string',
+              format: 'date-time',
+              example: '2023-01-01T00:00:00Z',
+            },
             category: {
               type: 'object',
               properties: {

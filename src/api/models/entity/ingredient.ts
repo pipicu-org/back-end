@@ -1,5 +1,12 @@
 import { IsNotEmpty, Min, Max } from 'class-validator';
-import { Column, Entity, ManyToOne, JoinColumn, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  JoinColumn,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Unit } from './unit';
 import { RecipeIngredient } from './recipeIngredient';
 import { StockMovement } from './stockMovement';
@@ -31,10 +38,26 @@ export class Ingredient implements IIngredient {
   @Max(1, { message: 'Loss factor must be at most 1' })
   lossFactor!: number;
 
+  @Column({
+    type: 'numeric',
+    precision: 10,
+    scale: 2,
+    default: 0,
+    transformer: {
+      from: (value: string) => parseFloat(value),
+      to: (value: number) => value,
+    },
+  })
+  stock!: number;
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt!: Date;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
   updatedAt!: Date;
 
   // Relación muchos-a-uno con Unit
@@ -43,11 +66,19 @@ export class Ingredient implements IIngredient {
   unit!: Unit;
 
   // Relación uno-a-muchos con RecipeIngredient
-  @OneToMany(() => RecipeIngredient, (recipeIngredient) => recipeIngredient.ingredient, {})
+  @OneToMany(
+    () => RecipeIngredient,
+    (recipeIngredient) => recipeIngredient.ingredient,
+    {},
+  )
   recipeIngredient!: RecipeIngredient[];
 
   // Relación uno-a-muchos con StockMovement
-  @OneToMany(() => StockMovement, (stockMovement) => stockMovement.ingredient, {})
+  @OneToMany(
+    () => StockMovement,
+    (stockMovement) => stockMovement.ingredient,
+    {},
+  )
   stockMovements!: StockMovement[];
 
   // Relación uno-a-muchos con PurchaseItem
