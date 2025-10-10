@@ -1,4 +1,4 @@
-import { ILike, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Product } from '../models/entity';
 import { ProductMapper } from '../models/mappers/productMapper';
 import { ProductSearchResponseDTO } from '../models/DTO/response/productSearchResponseDTO';
