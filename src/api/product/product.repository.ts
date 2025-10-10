@@ -70,7 +70,7 @@ export class ProductRepository implements IProductRepository {
       `;
       const costResult = await this._dbProductRepository.query(costQuery, [product.recipeId]);
       if (costResult.length > 0) {
-        (product.recipe as any).cost = parseFloat(costResult[0].cost);
+        product.recipe.cost = parseFloat(costResult[0].cost);
       }
       return this._productMapper.toResponseDTO(product);
     } catch (error: any) {
