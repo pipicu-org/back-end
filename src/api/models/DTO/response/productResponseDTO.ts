@@ -15,6 +15,7 @@ export class ProductResponseDTO {
   };
   recipe?: {
     id: number;
+    cost?: number;
     // totalPrice: number;
     ingredients: Array<{
       id: number;
@@ -44,7 +45,7 @@ export class ProductResponseDTO {
     if (product.recipe) {
       this.recipe = {
         id: product.recipe.id,
-        // totalPrice: product.recipe.totalPrice,
+        cost: product.recipe.cost,
         ingredients: product.recipe.recipeIngredient.map((ingredientsList) => ({
           id: ingredientsList.id,
           quantity: ingredientsList.quantity,
@@ -52,7 +53,6 @@ export class ProductResponseDTO {
             id: ingredientsList.ingredient.id,
             name: ingredientsList.ingredient.name,
             stock: ingredientsList.ingredient.stock,
-            // price: ingredientsList.ingredient.price,
           },
         })),
       };

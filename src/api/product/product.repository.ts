@@ -30,10 +30,47 @@ export class ProductRepository implements IProductRepository {
 
   async findById(id: number): Promise<ProductResponseDTO> {
     try {
-      const product = await this._dbProductRepository.findOneBy({ id });
+      const product = await this._dbProductRepository
+        .createQueryBuilder('product')
+        .leftJoinAndSelect('product.category', 'category')
+        .leftJoinAndSelect('product.recipe', 'recipe')
+        .leftJoinAndSelect('recipe.recipeIngredient', 'recipeIngredient')
+        .leftJoinAndSelect('recipeIngredient.ingredient', 'ingredient')
+        .where('product.id = :id', { id })
+        .getOne();
       if (!product) {
         console.warn(`No product found with id ${id}`);
         throw new HttpError(404, `Product id ${id} not found`);
+      }
+      // Get cost using CTE
+      const costQuery = `
+        WITH ingredient_cost_table AS (
+          SELECT i.id, p.cost, p."createdAt" FROM "Ingredient" i
+          JOIN LATERAL (
+            SELECT t.id, t."createdAt", t.cost FROM "PurchaseItem" t
+            WHERE t."ingredientId" = i.id
+            ORDER BY t."createdAt" ASC
+            LIMIT 1
+          ) p ON TRUE
+        ),
+        prepareable_table AS (
+          SELECT ri."recipeId", ri."ingredientId",
+                 CASE WHEN i.stock > 0 THEN trunc((i.stock / ri.quantity),0) ELSE 0 END AS "prepareable"
+          FROM "RecipeIngredient" ri
+          INNER JOIN "Ingredient" i ON i.id = ri."ingredientId"
+        ),
+        prepareable_recipes_table AS (
+          SELECT r.id, SUM(ict.cost) AS "cost"
+          FROM "Recipe" r
+          INNER JOIN prepareable_table pt ON pt."recipeId" = r.id
+          INNER JOIN ingredient_cost_table ict ON ict.id = pt."ingredientId"
+          GROUP BY r.id
+        )
+        SELECT prt."cost" FROM prepareable_recipes_table prt WHERE prt.id = $1
+      `;
+      const costResult = await this._dbProductRepository.query(costQuery, [product.recipeId]);
+      if (costResult.length > 0) {
+        (product.recipe as any).cost = parseFloat(costResult[0].cost);
       }
       return this._productMapper.toResponseDTO(product);
     } catch (error: any) {
@@ -119,14 +156,70 @@ export class ProductRepository implements IProductRepository {
     limit: number,
   ): Promise<ProductSearchResponseDTO> {
     try {
-      const findAndCount = await this._dbProductRepository.findAndCount({
-        where: { category: { id: categoryId } },
-        skip: (page - 1) * limit,
-        take: limit,
-      });
+      const offset = (page - 1) * limit;
+      const cteQuery = `
+        WITH ingredient_cost_table AS (
+          SELECT i.id, p.cost, p."createdAt" FROM "Ingredient" i
+          JOIN LATERAL (
+            SELECT t.id, t."createdAt", t.cost FROM "PurchaseItem" t
+            WHERE t."ingredientId" = i.id
+            ORDER BY t."createdAt" ASC
+            LIMIT 1
+          ) p ON TRUE
+        ),
+        prepareable_table AS (
+          SELECT ri."recipeId", ri."ingredientId",
+                 CASE WHEN i.stock > 0 THEN trunc((i.stock / ri.quantity),0) ELSE 0 END AS "prepareable"
+          FROM "RecipeIngredient" ri
+          INNER JOIN "Ingredient" i ON i.id = ri."ingredientId"
+        ),
+        prepareable_recipes_table AS (
+          SELECT r.id, MIN(pt.prepareable) AS "maxPrepareable", SUM(ict.cost) AS "cost"
+          FROM "Recipe" r
+          INNER JOIN prepareable_table pt ON pt."recipeId" = r.id
+          INNER JOIN ingredient_cost_table ict ON ict.id = pt."ingredientId"
+          GROUP BY r.id
+        )
+      `;
+      const dataQuery = `${cteQuery}
+        SELECT p.id, p.name, p."preTaxPrice", p.price, p."createdAt", p."updatedAt", p."recipeId", p."categoryId",
+               c.name AS "categoryName", prt."maxPrepareable", prt."cost"
+        FROM "Product" p
+        INNER JOIN prepareable_recipes_table prt ON prt.id = p."recipeId"
+        INNER JOIN "Category" c ON p."categoryId" = c.id
+        WHERE p."categoryId" = $1
+        ORDER BY p.id
+        LIMIT $2 OFFSET $3
+      `;
+      const countQuery = `${cteQuery}
+        SELECT COUNT(*) AS total
+        FROM "Product" p
+        INNER JOIN prepareable_recipes_table prt ON prt.id = p."recipeId"
+        WHERE p."categoryId" = $1
+      `;
+      const [dataResult, countResult] = await Promise.all([
+        this._dbProductRepository.query(dataQuery, [categoryId, limit, offset]),
+        this._dbProductRepository.query(countQuery, [categoryId])
+      ]);
+      const total = parseInt(countResult[0].total);
+      // Map to Product-like objects
+      const products = dataResult.map((row: any) => ({
+        id: row.id,
+        name: row.name,
+        preTaxPrice: parseFloat(row.preTaxPrice),
+        price: parseFloat(row.price),
+        createdAt: row.createdAt,
+        updatedAt: row.updatedAt,
+        recipeId: row.recipeId,
+        categoryId: row.categoryId,
+        category: { name: row.categoryName },
+        maxPrepareable: parseFloat(row.maxPrepareable),
+        cost: parseFloat(row.cost)
+      }));
+      const findAndCount: [any[], number] = [products, total];
       return this._productMapper.searchToResponseDTO(
         findAndCount,
-        findAndCount[0][0].category.name,
+        products[0]?.category.name || '',
         page,
         limit,
       );
@@ -148,11 +241,66 @@ export class ProductRepository implements IProductRepository {
     limit: number,
   ): Promise<ProductSearchResponseDTO> {
     try {
-      const findAndCount = await this._dbProductRepository.findAndCount({
-        where: { name: ILike(`%${name}%`) },
-        skip: (page - 1) * limit,
-        take: limit,
-      });
+      const offset = (page - 1) * limit;
+      const cteQuery = `
+        WITH ingredient_cost_table AS (
+          SELECT i.id, p.cost, p."createdAt" FROM "Ingredient" i
+          JOIN LATERAL (
+            SELECT t.id, t."createdAt", t.cost FROM "PurchaseItem" t
+            WHERE t."ingredientId" = i.id
+            ORDER BY t."createdAt" ASC
+            LIMIT 1
+          ) p ON TRUE
+        ),
+        prepareable_table AS (
+          SELECT ri."recipeId", ri."ingredientId",
+                 CASE WHEN i.stock > 0 THEN trunc((i.stock / ri.quantity),0) ELSE 0 END AS "prepareable"
+          FROM "RecipeIngredient" ri
+          INNER JOIN "Ingredient" i ON i.id = ri."ingredientId"
+        ),
+        prepareable_recipes_table AS (
+          SELECT r.id, MIN(pt.prepareable) AS "maxPrepareable", SUM(ict.cost) AS "cost"
+          FROM "Recipe" r
+          INNER JOIN prepareable_table pt ON pt."recipeId" = r.id
+          INNER JOIN ingredient_cost_table ict ON ict.id = pt."ingredientId"
+          GROUP BY r.id
+        )
+      `;
+      const dataQuery = `${cteQuery}
+        SELECT p.id, p.name, p."preTaxPrice", p.price, p."createdAt", p."updatedAt", p."recipeId", p."categoryId",
+               c.name AS "categoryName", prt."maxPrepareable", prt."cost"
+        FROM "Product" p
+        INNER JOIN prepareable_recipes_table prt ON prt.id = p."recipeId"
+        INNER JOIN "Category" c ON p."categoryId" = c.id
+        WHERE p.name ILIKE $1
+        ORDER BY p.id
+        LIMIT $2 OFFSET $3
+      `;
+      const countQuery = `${cteQuery}
+        SELECT COUNT(*) AS total
+        FROM "Product" p
+        INNER JOIN prepareable_recipes_table prt ON prt.id = p."recipeId"
+        WHERE p.name ILIKE $1
+      `;
+      const [dataResult, countResult] = await Promise.all([
+        this._dbProductRepository.query(dataQuery, [`%${name}%`, limit, offset]),
+        this._dbProductRepository.query(countQuery, [`%${name}%`])
+      ]);
+      const total = parseInt(countResult[0].total);
+      const products = dataResult.map((row: any) => ({
+        id: row.id,
+        name: row.name,
+        preTaxPrice: parseFloat(row.preTaxPrice),
+        price: parseFloat(row.price),
+        createdAt: row.createdAt,
+        updatedAt: row.updatedAt,
+        recipeId: row.recipeId,
+        categoryId: row.categoryId,
+        category: { name: row.categoryName },
+        maxPrepareable: parseFloat(row.maxPrepareable),
+        cost: parseFloat(row.cost)
+      }));
+      const findAndCount: [any[], number] = [products, total];
       return this._productMapper.searchToResponseDTO(
         findAndCount,
         name,
