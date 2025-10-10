@@ -45,6 +45,10 @@ export class Product implements IProduct {
   @Column({ type: 'int', nullable: false })
   categoryId!: number;
 
+  maxPrepareable!: number;
+
+  cost!: number;
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt!: Date;
 
