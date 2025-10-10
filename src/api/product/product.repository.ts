@@ -45,9 +45,9 @@ export class ProductRepository implements IProductRepository {
       // Get cost using CTE
       const costQuery = `
         WITH ingredient_cost_table AS (
-          SELECT i.id, p.cost, p."createdAt" FROM "Ingredient" i
+          SELECT i.id, trunc((p.cost/p."unitQuantity"),2) as "cost", p."createdAt" FROM "Ingredient" i
           JOIN LATERAL (
-            SELECT t.id, t."createdAt", t.cost FROM "PurchaseItem" t
+            SELECT t.id, t."createdAt", t.cost, t."unitQuantity" FROM "PurchaseItem" t
             WHERE t."ingredientId" = i.id
             ORDER BY t."createdAt" ASC
             LIMIT 1
@@ -159,9 +159,9 @@ export class ProductRepository implements IProductRepository {
       const offset = (page - 1) * limit;
       const cteQuery = `
         WITH ingredient_cost_table AS (
-          SELECT i.id, p.cost, p."createdAt" FROM "Ingredient" i
+          SELECT i.id, trunc((p.cost/p."unitQuantity"),2) as "cost", p."createdAt" FROM "Ingredient" i
           JOIN LATERAL (
-            SELECT t.id, t."createdAt", t.cost FROM "PurchaseItem" t
+            SELECT t.id, t."createdAt", t.cost, t."unitQuantity" FROM "PurchaseItem" t
             WHERE t."ingredientId" = i.id
             ORDER BY t."createdAt" ASC
             LIMIT 1
@@ -244,9 +244,9 @@ export class ProductRepository implements IProductRepository {
       const offset = (page - 1) * limit;
       const cteQuery = `
         WITH ingredient_cost_table AS (
-          SELECT i.id, p.cost, p."createdAt" FROM "Ingredient" i
+          SELECT i.id, trunc((p.cost/p."unitQuantity"),2) as "cost", p."createdAt" FROM "Ingredient" i
           JOIN LATERAL (
-            SELECT t.id, t."createdAt", t.cost FROM "PurchaseItem" t
+            SELECT t.id, t."createdAt", t.cost, t."unitQuantity" FROM "PurchaseItem" t
             WHERE t."ingredientId" = i.id
             ORDER BY t."createdAt" ASC
             LIMIT 1
