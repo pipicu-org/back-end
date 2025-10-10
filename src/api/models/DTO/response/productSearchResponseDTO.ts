@@ -11,6 +11,8 @@ export class ProductSearchResponseDTO {
     category: string;
     preTaxPrice: number;
     price: number;
+    maxPrepareable: number;
+    cost: number;
   }>;
 
   constructor(
@@ -29,6 +31,8 @@ export class ProductSearchResponseDTO {
       category: product.category.name,
       preTaxPrice: product.preTaxPrice,
       price: product.price,
+      maxPrepareable: product.maxPrepareable,
+      cost: product.cost
     }));
   }
 }

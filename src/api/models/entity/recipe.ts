@@ -14,6 +14,8 @@ export class Recipe implements IRecipe {
   @PrimaryGeneratedColumn()
   id!: number;
 
+  cost!: number;
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt!: Date;
 
