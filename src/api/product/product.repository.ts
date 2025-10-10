@@ -45,9 +45,9 @@ export class ProductRepository implements IProductRepository {
       // Get cost using CTE
       const costQuery = `
         WITH ingredient_cost_table AS (
-          SELECT i.id, p.cost, p."createdAt" FROM "Ingredient" i
+          SELECT i.id, trunc((p.cost/p."unitQuantity"),2) as "cost", p."createdAt" FROM "Ingredient" i
           JOIN LATERAL (
-            SELECT t.id, t."createdAt", t.cost FROM "PurchaseItem" t
+            SELECT t.id, t."createdAt", t.cost, t."unitQuantity" FROM "PurchaseItem" t
             WHERE t."ingredientId" = i.id
             ORDER BY t."createdAt" ASC
             LIMIT 1
@@ -60,7 +60,7 @@ export class ProductRepository implements IProductRepository {
           INNER JOIN "Ingredient" i ON i.id = ri."ingredientId"
         ),
         prepareable_recipes_table AS (
-          SELECT r.id, SUM(ict.cost) AS "cost"
+          SELECT r.id, SUM(ict.cost * pt.quantity) AS "cost"
           FROM "Recipe" r
           INNER JOIN prepareable_table pt ON pt."recipeId" = r.id
           INNER JOIN ingredient_cost_table ict ON ict.id = pt."ingredientId"
@@ -159,22 +159,22 @@ export class ProductRepository implements IProductRepository {
       const offset = (page - 1) * limit;
       const cteQuery = `
         WITH ingredient_cost_table AS (
-          SELECT i.id, p.cost, p."createdAt" FROM "Ingredient" i
+          SELECT i.id, trunc((p.cost/p."unitQuantity"),2) as "cost", p."createdAt" FROM "Ingredient" i
           JOIN LATERAL (
-            SELECT t.id, t."createdAt", t.cost FROM "PurchaseItem" t
+            SELECT t.id, t."createdAt", t.cost, t."unitQuantity" FROM "PurchaseItem" t
             WHERE t."ingredientId" = i.id
             ORDER BY t."createdAt" ASC
             LIMIT 1
           ) p ON TRUE
         ),
         prepareable_table AS (
-          SELECT ri."recipeId", ri."ingredientId",
+          SELECT ri."recipeId", ri."ingredientId", ri.quantity,
                  CASE WHEN i.stock > 0 THEN trunc((i.stock / ri.quantity),0) ELSE 0 END AS "prepareable"
           FROM "RecipeIngredient" ri
           INNER JOIN "Ingredient" i ON i.id = ri."ingredientId"
         ),
         prepareable_recipes_table AS (
-          SELECT r.id, MIN(pt.prepareable) AS "maxPrepareable", SUM(ict.cost) AS "cost"
+          SELECT r.id, MIN(pt.prepareable) AS "maxPrepareable", SUM(ict.cost * pt.quantity) AS "cost"
           FROM "Recipe" r
           INNER JOIN prepareable_table pt ON pt."recipeId" = r.id
           INNER JOIN ingredient_cost_table ict ON ict.id = pt."ingredientId"
@@ -244,9 +244,9 @@ export class ProductRepository implements IProductRepository {
       const offset = (page - 1) * limit;
       const cteQuery = `
         WITH ingredient_cost_table AS (
-          SELECT i.id, p.cost, p."createdAt" FROM "Ingredient" i
+          SELECT i.id, trunc((p.cost/p."unitQuantity"),2) as "cost", p."createdAt" FROM "Ingredient" i
           JOIN LATERAL (
-            SELECT t.id, t."createdAt", t.cost FROM "PurchaseItem" t
+            SELECT t.id, t."createdAt", t.cost, t."unitQuantity" FROM "PurchaseItem" t
             WHERE t."ingredientId" = i.id
             ORDER BY t."createdAt" ASC
             LIMIT 1
@@ -259,7 +259,7 @@ export class ProductRepository implements IProductRepository {
           INNER JOIN "Ingredient" i ON i.id = ri."ingredientId"
         ),
         prepareable_recipes_table AS (
-          SELECT r.id, MIN(pt.prepareable) AS "maxPrepareable", SUM(ict.cost) AS "cost"
+          SELECT r.id, MIN(pt.prepareable) AS "maxPrepareable", SUM(ict.cost * pt.quantity) AS "cost"
           FROM "Recipe" r
           INNER JOIN prepareable_table pt ON pt."recipeId" = r.id
           INNER JOIN ingredient_cost_table ict ON ict.id = pt."ingredientId"
