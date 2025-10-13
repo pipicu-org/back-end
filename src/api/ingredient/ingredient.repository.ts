@@ -1,5 +1,5 @@
 import { Repository } from 'typeorm';
-import { Ingredient } from '../models/entity';
+import { Ingredient, Unit } from '../models/entity';
 import { IngredientSearchResponseDTO } from '../models/DTO/response/ingredientSearchResponseDTO';
 import { IngredientMapper } from '../models/mappers/ingredientMapper';
 import { IngredientResponseDTO } from '../models/DTO/response/ingredientResponseDTO';
@@ -18,6 +18,7 @@ export interface IIngredientRepository {
     ingredient: Ingredient,
   ): Promise<IngredientResponseDTO | void>;
   delete(id: number): Promise<IngredientResponseDTO | void>;
+  getAllUnits(): Promise<Unit[] | void>;
 }
 
 export class IngredientRepository implements IIngredientRepository {
@@ -128,6 +129,19 @@ export class IngredientRepository implements IIngredientRepository {
       throw new HttpError(
         error.status || 500,
         error.message || `Could not delete ingredient with id ${id}`,
+      );
+    }
+  }
+
+  async getAllUnits(): Promise<Unit[] | void> {
+    try {
+      const units = await this._dbIngredientRepository.manager.find(Unit);
+      return units;
+    } catch (error: any) {
+      console.error('Error fetching all units:', error);
+      throw new HttpError(
+        error.status || 500,
+        error.message || 'Internal Server Error',
       );
     }
   }

@@ -88,7 +88,7 @@ export class PurchaseItem implements IPurchaseItem {
   @OneToMany(
     () => StockMovement,
     (stockMovement) => stockMovement.purchaseItem,
-    {},
+    { onUpdate: 'CASCADE' },
   )
   stockMovements!: StockMovement[];
 }

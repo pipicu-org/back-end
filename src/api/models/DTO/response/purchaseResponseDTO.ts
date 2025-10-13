@@ -32,16 +32,20 @@ export class PurchaseResponseDTO implements IPurchaseResponseDTO {
     this.providerId = purchase.providerId;
     this.createdAt = purchase.createdAt;
     this.updatedAt = purchase.updatedAt;
-    this.purchaseItems = purchase.purchaseItems.map(item => ({
-      id: item.id,
-      purchaseId: item.purchaseId,
-      ingredientId: item.ingredientId,
-      cost: item.cost,
-      quantity: item.quantity,
-      unitId: item.unitId,
-      unitQuantity: item.unitQuantity,
-      createdAt: item.createdAt,
-      updatedAt: item.updatedAt,
-    }));
+    if (purchase.purchaseItems) {
+      this.purchaseItems = purchase.purchaseItems.map((item) => ({
+        id: item.id,
+        purchaseId: item.purchaseId,
+        ingredientId: item.ingredientId,
+        cost: item.cost,
+        quantity: item.quantity,
+        unitId: item.unitId,
+        unitQuantity: item.unitQuantity,
+        createdAt: item.createdAt,
+        updatedAt: item.updatedAt,
+      }));
+    } else {
+      this.purchaseItems = [];
+    }
   }
 }

@@ -1,12 +1,5 @@
 import { In, Repository } from 'typeorm';
-import {
-  Client,
-  Ingredient,
-  Line,
-  Order,
-  Product,
-  State,
-} from '../entity';
+import { Client, Ingredient, Line, Order, Product, State } from '../entity';
 import { OrderSearchResponseDTO } from '../DTO/response/orderSearchResponseDTO';
 import { OrderResponseDTO } from '../DTO/response/orderResponseDTO';
 import { OrderRequestDTO } from '../DTO/request/orderRequestDTO';
@@ -75,7 +68,9 @@ export class OrderMapper {
       order.total = 0;
       order.subTotal = 0;
       for (const line of orderRequest.lines) {
-        const product = products.find((p) => String(p.id) === String(line.product));
+        const product = products.find(
+          (p) => String(p.id) === String(line.product),
+        );
         if (!product) {
           throw new HttpError(404, `Product with id ${line.product} not found`);
         }
@@ -91,7 +86,7 @@ export class OrderMapper {
       order.total = Number(order.total);
       order.subTotal = Number(order.total);
       order.contactMethod = orderRequest.contactMethod;
-      order.taxTotal = order.total - order.subTotal 
+      order.taxTotal = order.total - order.subTotal;
       order.paymentMethod = orderRequest.paymentMethod;
       const state = await this.stateRepository.findOneBy({
         id: 1,
@@ -104,7 +99,9 @@ export class OrderMapper {
       order.lines = await Promise.all(
         orderRequest.lines.map(async (line) => {
           const entityLine = new Line();
-          const product = products.find((p) => String(p.id) === String(line.product));
+          const product = products.find(
+            (p) => String(p.id) === String(line.product),
+          );
           if (!product) {
             throw new HttpError(
               404,
@@ -144,7 +141,7 @@ export class OrderMapper {
           entityLine.totalPrice = product.price * line.quantity;
           entityLine.createdAt = new Date();
           entityLine.order = order;
-          entityLine.productTypeId = 1;
+          entityLine.productTypeId = line.productType === 'custom' ? 2 : 1;
           return entityLine;
         }),
       );

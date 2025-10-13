@@ -8,6 +8,7 @@ export class OrderRequestDTO {
   lines: Array<{
     product: number;
     quantity: number;
+    productType?: string;
   }>;
 
   constructor(order: Order) {
