@@ -14,6 +14,14 @@ const options = {
         url: 'http://localhost:9091',
         description: 'Development server',
       },
+      {
+        url: 'http://localhost:3000',
+        description: 'Docker compose',
+      },
+      {
+        url: 'https://api.pipicucu.vmdigitai.com',
+        description: 'Prod',
+      },
     ],
     components: {
       responses: {
