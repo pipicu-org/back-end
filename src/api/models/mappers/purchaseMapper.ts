@@ -23,6 +23,9 @@ export class PurchaseMapper {
   }
 
   responseDTOToEntity(dto: PurchaseResponseDTO): Purchase {
+    if (!dto.purchaseItems || dto.purchaseItems.length === 0) {
+      throw new Error('Purchase must have at least one purchase item');
+    }
     const purchase = new Purchase();
     purchase.id = dto.id;
     purchase.providerId = dto.providerId;
@@ -44,6 +47,9 @@ export class PurchaseMapper {
   }
 
   createDTOToEntity(dto: CreatePurchaseDto): Purchase {
+    if (!dto.purchaseItems || dto.purchaseItems.length === 0) {
+      throw new Error('Purchase must have at least one purchase item');
+    }
     const purchase = new Purchase();
     purchase.providerId = dto.providerId;
     purchase.purchaseItems = dto.purchaseItems.map((itemDto) => {

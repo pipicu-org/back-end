@@ -127,6 +127,15 @@ export class PurchaseRepository implements IPurchaseRepository {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
+      for (const item of purchase.purchaseItems) {
+        item.purchase = purchase;
+        item.purchaseId = purchase.id;
+        console.log(
+          'Item in create method (purchase.repository line 166)',
+          item,
+        );
+      }
+
       const savedPurchase = await queryRunner.manager.save(purchase);
       await queryRunner.commitTransaction();
       return this._purchaseMapper.toResponseDTO(savedPurchase);
@@ -149,22 +158,21 @@ export class PurchaseRepository implements IPurchaseRepository {
     id: number,
     purchase: Purchase,
   ): Promise<PurchaseResponseDTO | void> {
-    const queryRunner = this._dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
     try {
       purchase.id = id;
-      await queryRunner.manager.save(purchase);
-      console.log('Purchase updated: (purchase.repository line 157)', purchase);
-      await queryRunner.commitTransaction();
-      const updatedPurchase = await this._dbPurchaseRepository.findOneBy({
-        id,
-      });
+      for (const item of purchase.purchaseItems) {
+        item.purchaseId = id;
+      }
+      await this._dbPurchaseRepository.save(purchase);
+      const updatedPurchase = await this._dbPurchaseRepository
+        .createQueryBuilder('purchase')
+        .leftJoinAndSelect('purchase.purchaseItems', 'purchaseItem')
+        .where('purchase.id = :id', { id })
+        .getOne();
       if (updatedPurchase) {
         return this._purchaseMapper.toResponseDTO(updatedPurchase);
       }
     } catch (error: any) {
-      await queryRunner.rollbackTransaction();
       logger.error('Error updating purchase', {
         id,
         error: error.message,
@@ -174,8 +182,6 @@ export class PurchaseRepository implements IPurchaseRepository {
         error.status || 500,
         error.message || `Failed to update purchase with id ${id}`,
       );
-    } finally {
-      await queryRunner.release();
     }
   }
 

@@ -12,7 +12,7 @@ export interface IPurchaseItemFactory {
     itemDto: CreatePurchaseItemDto,
     units: Unit[],
     ingredients: IngredientSearchResponseDTO,
-    purchase?: Purchase,
+    purchase: Purchase,
   ): PurchaseItem;
 }
 
@@ -24,7 +24,7 @@ export class PurchaseItemFactory implements IPurchaseItemFactory {
     itemDto: CreatePurchaseItemDto,
     units: Unit[],
     ingredients: IngredientSearchResponseDTO,
-    purchase?: Purchase,
+    purchase: Purchase,
   ): PurchaseItem {
     // Validate unit and ingredient
     const unit = this._validator.validateUnit(itemDto.unitId, units);
@@ -36,10 +36,8 @@ export class PurchaseItemFactory implements IPurchaseItemFactory {
     item.quantity = itemDto.quantity;
     item.unitId = itemDto.unitId;
     item.unitQuantity = itemDto.quantity * unit.factor;
-    if (purchase) {
-      item.purchase = purchase;
-      item.purchaseId = purchase.id;
-    }
+    item.purchase = purchase;
+    item.purchaseId = purchase.id;
     console.log('Created Item: (purchaseItemFactory line 39)', item);
     return item;
   }

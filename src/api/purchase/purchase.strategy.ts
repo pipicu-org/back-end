@@ -10,7 +10,6 @@ import { IPurchaseValidator } from './purchase.validator';
 import { IPurchaseItemFactory } from './purchase.item.factory';
 import { IStockMovementHandler } from './stock.movement.handler';
 
-// Strategy Pattern: Defines different algorithms for purchase operations
 export interface IPurchaseStrategy {
   execute(
     dto: CreatePurchaseDto | UpdatePurchaseDto,
@@ -53,7 +52,6 @@ export abstract class BasePurchaseStrategy implements IPurchaseStrategy {
 export class CreatePurchaseStrategy extends BasePurchaseStrategy {
   async execute(dto: CreatePurchaseDto): Promise<PurchaseResponseDTO> {
     const { units, ingredients } = await this.loadCommonData();
-    this._validator.validatePurchaseItems(dto.purchaseItems);
 
     const purchase = new Purchase();
     purchase.providerId = dto.providerId;
@@ -64,10 +62,12 @@ export class CreatePurchaseStrategy extends BasePurchaseStrategy {
         itemDto,
         units,
         ingredients,
+        purchase,
       );
       await this._stockHandler.handleStockMovementForPurchaseItem(item);
       purchaseItems.push(item);
     }
+    console.log('Created Items: (purchase.strategy line 86)', purchaseItems);
     purchase.purchaseItems = purchaseItems;
 
     return await this._repository.create(purchase);
@@ -82,11 +82,10 @@ export class UpdatePurchaseStrategy extends BasePurchaseStrategy {
     if (!dto.providerId) {
       throw new Error('providerId is required');
     }
-    if (!dto.purchaseItems) {
+    if (!dto.purchaseItems || dto.purchaseItems.length === 0) {
       throw new Error('Purchase must have at least one item');
     }
     const { units, ingredients } = await this.loadCommonData();
-    this._validator.validatePurchaseItems(dto.purchaseItems);
 
     const existingItems = await this._repository.findItemsByPurchaseId(id);
     const purchaseEntity = new Purchase();
@@ -100,6 +99,7 @@ export class UpdatePurchaseStrategy extends BasePurchaseStrategy {
       );
       const newItem = existingItem || new PurchaseItem();
       const previousQuantity = newItem.unitQuantity || 0;
+      const existingId = existingItem?.id;
 
       Object.assign(
         newItem,
@@ -110,6 +110,9 @@ export class UpdatePurchaseStrategy extends BasePurchaseStrategy {
           purchaseEntity,
         ),
       );
+      if (existingId) {
+        newItem.id = existingId;
+      }
       await this._stockHandler.handleStockMovementForPurchaseItem(
         newItem,
         true,

@@ -10,8 +10,7 @@ export interface IPurchaseValidator {
   validateIngredient(
     ingredientId: number,
     ingredients: IngredientSearchResponseDTO,
-  ): any;
-  validatePurchaseItems(purchaseItems: any[]): void;
+  ): Ingredient;
 }
 
 export class PurchaseValidator implements IPurchaseValidator {
@@ -36,11 +35,5 @@ export class PurchaseValidator implements IPurchaseValidator {
       throw new HttpError(400, `Ingredient with id ${ingredientId} not found`);
     }
     return this._ingredientMapper.toEntity(ingredient);
-  }
-
-  validatePurchaseItems(purchaseItems: any[]): void {
-    if (!purchaseItems || purchaseItems.length === 0) {
-      throw new HttpError(400, 'Purchase must have at least one item');
-    }
   }
 }
