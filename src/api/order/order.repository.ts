@@ -135,7 +135,7 @@ export class OrderRepository implements IOrderRepository {
         .innerJoinAndSelect('line.product', 'product')
         .where('order.id = :id', { id })
         .getOne();
-      
+
       if (!order) throw new HttpError(404, `Order id ${id} not found`);
       return this._orderMapper.orderToOrderResponseDTO(order);
     } catch (error: any) {
@@ -255,6 +255,11 @@ export class OrderRepository implements IOrderRepository {
   ): Promise<OrderResponseDTO> {
     try {
       newOrder.id = id;
+      if (newOrder.lines) {
+        newOrder.lines.forEach((line) => {
+          line.orderId = id;
+        });
+      }
       await this._dbOrderRepository.save(newOrder);
       return await this.getById(id);
     } catch (error: any) {
