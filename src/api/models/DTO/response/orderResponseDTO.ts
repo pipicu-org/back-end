@@ -4,6 +4,7 @@ export class OrderResponseDTO {
   id: string;
   state: string;
   client: string;
+  clientId: number;
   phone: string;
   address: string;
   deliveryTime: string;
@@ -28,6 +29,7 @@ export class OrderResponseDTO {
     this.id = order.id.toString();
     this.state = order.state.name;
     this.client = order.client.name;
+    this.clientId = order.client.id;
     this.phone = order.client.phoneNumber;
     this.address = order.client.address;
     this.deliveryTime = order.deliveryTime.toISOString();
