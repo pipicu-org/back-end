@@ -1,5 +1,5 @@
-import { Repository } from 'typeorm';
-import { Purchase } from '../models/entity';
+import { DataSource, Repository } from 'typeorm';
+import { Purchase, PurchaseItem } from '../models/entity';
 import { PurchaseResponseDTO } from '../models/DTO/response/purchaseResponseDTO';
 import { PurchasePageResponseDTO } from '../models/DTO/response/purchasePageResponseDTO';
 import { PurchaseMapper } from '../models/mappers/purchaseMapper';
@@ -17,13 +17,44 @@ export interface IPurchaseRepository {
   create(purchase: Purchase): Promise<PurchaseResponseDTO>;
   update(id: number, purchase: Purchase): Promise<PurchaseResponseDTO | void>;
   delete(id: number): Promise<PurchaseResponseDTO | void>;
+  findItemsByPurchaseId(purchaseId: number): Promise<PurchaseItem[]>;
 }
 
 export class PurchaseRepository implements IPurchaseRepository {
   constructor(
     private readonly _dbPurchaseRepository: Repository<Purchase>,
     private readonly _purchaseMapper: PurchaseMapper,
+    private readonly _dataSource: DataSource,
   ) {}
+
+  async findItemsByPurchaseId(purchaseId: number): Promise<PurchaseItem[]> {
+    const queryRunner = this._dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const purchaseItems = await queryRunner.manager.find(PurchaseItem, {
+        where: {
+          purchaseId,
+        },
+      });
+      await queryRunner.commitTransaction();
+      return purchaseItems;
+    } catch (error: any) {
+      await queryRunner.rollbackTransaction();
+      logger.error('Error finding purchase items by purchaseId', {
+        purchaseId,
+        error: error.message,
+        stack: error.stack,
+      });
+      throw new HttpError(
+        error.status || 500,
+        error.message ||
+          `Failed to find purchase items for purchaseId ${purchaseId}`,
+      );
+    } finally {
+      await queryRunner.release();
+    }
+  }
 
   async findAllPaginated(
     page: number,
@@ -92,10 +123,24 @@ export class PurchaseRepository implements IPurchaseRepository {
   }
 
   async create(purchase: Purchase): Promise<PurchaseResponseDTO> {
+    const queryRunner = this._dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
     try {
-      const savedPurchase = await this._dbPurchaseRepository.save(purchase);
+      for (const item of purchase.purchaseItems) {
+        item.purchase = purchase;
+        item.purchaseId = purchase.id;
+        console.log(
+          'Item in create method (purchase.repository line 166)',
+          item,
+        );
+      }
+
+      const savedPurchase = await queryRunner.manager.save(purchase);
+      await queryRunner.commitTransaction();
       return this._purchaseMapper.toResponseDTO(savedPurchase);
     } catch (error: any) {
+      await queryRunner.rollbackTransaction();
       logger.error('Error creating purchase', {
         error: error.message,
         stack: error.stack,
@@ -104,6 +149,8 @@ export class PurchaseRepository implements IPurchaseRepository {
         error.status || 500,
         error.message || 'Failed to create purchase',
       );
+    } finally {
+      await queryRunner.release();
     }
   }
 
@@ -112,16 +159,16 @@ export class PurchaseRepository implements IPurchaseRepository {
     purchase: Purchase,
   ): Promise<PurchaseResponseDTO | void> {
     try {
-      const existingPurchase = await this._dbPurchaseRepository.update(
-        id,
-        purchase,
-      );
-      if (existingPurchase.affected === 0) {
-        throw new HttpError(404, `Purchase with id ${id} not found`);
+      purchase.id = id;
+      for (const item of purchase.purchaseItems) {
+        item.purchaseId = id;
       }
-      const updatedPurchase = await this._dbPurchaseRepository.findOneBy({
-        id,
-      });
+      await this._dbPurchaseRepository.save(purchase);
+      const updatedPurchase = await this._dbPurchaseRepository
+        .createQueryBuilder('purchase')
+        .leftJoinAndSelect('purchase.purchaseItems', 'purchaseItem')
+        .where('purchase.id = :id', { id })
+        .getOne();
       if (updatedPurchase) {
         return this._purchaseMapper.toResponseDTO(updatedPurchase);
       }
@@ -139,6 +186,9 @@ export class PurchaseRepository implements IPurchaseRepository {
   }
 
   async delete(id: number): Promise<PurchaseResponseDTO | void> {
+    const queryRunner = this._dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
     try {
       const purchase = await this._dbPurchaseRepository
         .createQueryBuilder('purchase')
@@ -147,11 +197,13 @@ export class PurchaseRepository implements IPurchaseRepository {
         .getOne();
       if (purchase) {
         await this._dbPurchaseRepository.delete(id);
+        await queryRunner.commitTransaction();
         return this._purchaseMapper.toResponseDTO(purchase);
       } else {
         throw new HttpError(404, `Purchase with id ${id} not found`);
       }
     } catch (error: any) {
+      await queryRunner.rollbackTransaction();
       logger.error('Error deleting purchase', {
         id,
         error: error.message,
@@ -161,6 +213,8 @@ export class PurchaseRepository implements IPurchaseRepository {
         error.status || 500,
         error.message || `Failed to delete purchase with id ${id}`,
       );
+    } finally {
+      await queryRunner.release();
     }
   }
 }

@@ -71,11 +71,6 @@ export const ingredientRouter = (controller = ingredientController): Router => {
    *               name: "Tomato"
    *               unitId: 1
    *               lossFactor: 0.1
-   *               stock: 0.0
-   *               createdAt: "2023-01-01T00:00:00Z"
-   *               updatedAt: "2023-01-01T00:00:00Z"
-   *               unitId: 1
-   *               lossFactor: 0.1
    *               stock: 100.0
    *               createdAt: "2023-01-01T00:00:00Z"
    *               updatedAt: "2023-01-01T00:00:00Z"

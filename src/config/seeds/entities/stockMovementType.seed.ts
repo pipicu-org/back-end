@@ -15,14 +15,14 @@ export class StockMovementTypeSeed implements ISeed<StockMovementType> {
   data: StockMovementType[] = [
     {
       id: 1,
-      name: 'Buy',
+      name: 'Compra',
       createdAt: new Date(),
       updatedAt: new Date(),
       stockMovements: [],
     },
     {
       id: 2,
-      name: 'Sell',
+      name: 'Venta',
       createdAt: new Date(),
       updatedAt: new Date(),
       stockMovements: [],

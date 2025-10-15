@@ -1,6 +1,7 @@
 import { IngredientRequestDTO } from '../models/DTO/request/ingredientRequestDTO';
 import { IngredientResponseDTO } from '../models/DTO/response/ingredientResponseDTO';
 import { IngredientSearchResponseDTO } from '../models/DTO/response/ingredientSearchResponseDTO';
+import { Unit } from '../models/entity';
 
 export interface IIngredientService {
   createIngredient(
@@ -17,4 +18,5 @@ export interface IIngredientService {
     requestDTO: import('../models/DTO/request/ingredientRequestDTO').IngredientRequestDTO,
   ): Promise<IngredientResponseDTO | void>;
   deleteIngredient(id: number): Promise<IngredientResponseDTO | void>;
+  getAllUnits(): Promise<Unit[] | void>;
 }

@@ -39,7 +39,7 @@ describe('ClientMapper', () => {
       expect(result).toBeInstanceOf(ClientResponseDTO);
       expect(result.id).toBe(mockClientEntity.id);
       expect(result.name).toBe(mockClientEntity.name);
-      expect(result.phone).toBe(mockClientEntity.phoneNumber);
+      expect(result.phoneNumber).toBe(mockClientEntity.phoneNumber);
       expect(result.address).toBe(mockClientEntity.address);
       expect(result.facebookusername).toBe(mockClientEntity.facebookUsername);
       expect(result.instagramusername).toBe(mockClientEntity.instagramUsername);

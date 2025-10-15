@@ -43,7 +43,7 @@ export class Purchase implements IPurchase {
 
   // Relación uno-a-muchos con PurchaseItem
   @OneToMany(() => PurchaseItem, (purchaseItem) => purchaseItem.purchase, {
-    cascade: true,
+    cascade: ['insert', 'update'],
   })
   purchaseItems!: PurchaseItem[];
 }

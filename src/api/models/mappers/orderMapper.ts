@@ -1,12 +1,5 @@
 import { In, Repository } from 'typeorm';
-import {
-  Client,
-  Ingredient,
-  Line,
-  Order,
-  Product,
-  State,
-} from '../entity';
+import { Client, Ingredient, Line, Order, Product, State } from '../entity';
 import { OrderSearchResponseDTO } from '../DTO/response/orderSearchResponseDTO';
 import { OrderResponseDTO } from '../DTO/response/orderResponseDTO';
 import { OrderRequestDTO } from '../DTO/request/orderRequestDTO';
@@ -55,7 +48,7 @@ export class OrderMapper {
       const client = await this.clientRepository.findOneBy({
         id: orderRequest.client,
       });
-      const productIds = orderRequest.lines.map((line) => line.product);
+      const productIds = orderRequest.lines.map((line) => line.product.id);
       const products = await this.productRepository.findBy({
         id: In(productIds),
       });
@@ -75,14 +68,16 @@ export class OrderMapper {
       order.total = 0;
       order.subTotal = 0;
       for (const line of orderRequest.lines) {
-        const product = products.find((p) => String(p.id) === String(line.product));
+        const product = products.find(
+          (p) => String(p.id) === String(line.product.id),
+        );
         if (!product) {
-          throw new HttpError(404, `Product with id ${line.product} not found`);
+          throw new HttpError(404, `Product with id ${line.product.id} not found`);
         }
         if (line.quantity <= 0) {
           throw new HttpError(
             400,
-            `Quantity for product id ${line.product} must be greater than 0`,
+            `Quantity for product id ${line.product.id} must be greater than 0`,
           );
         }
         order.total += product.price * line.quantity;
@@ -91,7 +86,7 @@ export class OrderMapper {
       order.total = Number(order.total);
       order.subTotal = Number(order.total);
       order.contactMethod = orderRequest.contactMethod;
-      order.taxTotal = order.total - order.subTotal 
+      order.taxTotal = order.total - order.subTotal;
       order.paymentMethod = orderRequest.paymentMethod;
       const state = await this.stateRepository.findOneBy({
         id: 1,
@@ -104,47 +99,23 @@ export class OrderMapper {
       order.lines = await Promise.all(
         orderRequest.lines.map(async (line) => {
           const entityLine = new Line();
-          const product = products.find((p) => String(p.id) === String(line.product));
+          const product = products.find(
+            (p) => String(p.id) === String(line.product.id),
+          );
           if (!product) {
             throw new HttpError(
               404,
-              `Product with id ${line.product} not found`,
+              `Product with id ${line.product.id} not found`,
             );
           }
           // TODO: Implementar la nueva estructura de CustomProducts
-          // entityLine.personalizations = line.personalizations
-          //   ? await Promise.all(
-          //       line.personalizations.map(async (productPersonalization) => {
-          //         const ingredient = await this.ingredientRepository.findOneBy({
-          //           id: productPersonalization.ingredient,
-          //         });
-          //         if (!ingredient) {
-          //           throw new HttpError(
-          //             404,
-          //             `Ingredient with id ${productPersonalization.ingredient} not found`,
-          //           );
-          //         }
-          //         const productPersonalizationEntity =
-          //           new ProductPersonalization();
-          //         productPersonalizationEntity.product = product;
-          //         productPersonalizationEntity.line = entityLine;
-          //         const personalization = new Personalization();
-          //         personalization.ingredient = ingredient;
-          //         personalization.quantity = productPersonalization.quantity;
-          //         personalization.note = productPersonalization.note;
-          //         productPersonalizationEntity.personalization =
-          //           personalization;
-          //         return productPersonalizationEntity;
-          //       }),
-          //     )
-          //   : [];
           entityLine.product = product;
           entityLine.unitPrice = product.price;
           entityLine.quantity = line.quantity;
           entityLine.totalPrice = product.price * line.quantity;
           entityLine.createdAt = new Date();
           entityLine.order = order;
-          entityLine.productTypeId = 1;
+          entityLine.productTypeId = line.productType === 'custom' ? 2 : 1;
           return entityLine;
         }),
       );
