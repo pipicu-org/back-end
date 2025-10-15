@@ -34,9 +34,6 @@ export class OrderService implements IOrderService {
     id: number,
     orderRequest: OrderRequestDTO,
   ): Promise<OrderResponseDTO> {
-    console.log(`[DEBUG] Starting update for order ID: ${id}`);
-    console.log(`[DEBUG] OrderRequest lines:`, orderRequest.lines);
-
     if (this._hasRepeatedProducts(orderRequest)) {
       throw new HttpError(400, 'Order contains repeated products');
     }
@@ -52,9 +49,9 @@ export class OrderService implements IOrderService {
 
     // Update order with new totals and lines
     const orderUpdate = {
-      subTotal: recalculatedTotals.subTotal,
-      total: recalculatedTotals.total,
-      taxTotal: recalculatedTotals.taxTotal,
+      subTotal: Number(recalculatedTotals.subTotal),
+      total: Number(recalculatedTotals.total),
+      taxTotal: Number(recalculatedTotals.taxTotal),
       lines: updatedLines,
     };
 
@@ -68,8 +65,6 @@ export class OrderService implements IOrderService {
     existingOrder: OrderResponseDTO,
     newLines: Array<{ product: { id: number }; quantity: number; productType?: string }>,
   ): Promise<Line[]> {
-    console.log(`[DEBUG] Comparing lines for order ID: ${existingOrder.id}`);
-
     const existingLines = existingOrder.lines;
     const updatedLines: Line[] = [];
     const newLineMap = new Map<number, { product: { id: number }; quantity: number; productType?: string }>();
@@ -112,13 +107,20 @@ export class OrderService implements IOrderService {
   ): Promise<Line> {
     // Fetch existing line entity
     const lineEntity = await this._getLineEntityById(lineId);
+    console.log(`[DEBUG] Updating line ${lineId}: current quantity=${lineEntity.quantity}, new quantity=${newLineData.quantity}`);
+    console.log(`[DEBUG] Current unitPrice=${lineEntity.unitPrice}, current totalPrice=${lineEntity.totalPrice}`);
+
     // Update quantity and recalculate totalPrice
-    lineEntity.quantity = newLineData.quantity;
-    lineEntity.totalPrice = lineEntity.unitPrice * newLineData.quantity;
+    lineEntity.quantity = Number(newLineData.quantity);
+    lineEntity.totalPrice = Number((lineEntity.unitPrice * newLineData.quantity).toFixed(2));
     lineEntity.updatedAt = new Date();
+
+    console.log(`[DEBUG] Updated line: quantity=${lineEntity.quantity}, totalPrice=${lineEntity.totalPrice}`);
+
     // Update product if changed
     if (lineEntity.productId !== newLineData.product.id) {
       lineEntity.productId = newLineData.product.id;
+      console.log(`[DEBUG] Product changed from ${lineEntity.productId} to ${newLineData.product.id}`);
     }
     return lineEntity;
   }
@@ -130,12 +132,12 @@ export class OrderService implements IOrderService {
     // This is a simplified version - in practice, you'd need product repository
     const line = new Line();
     line.productId = newLineData.product.id;
-    line.quantity = newLineData.quantity;
+    line.quantity = Number(newLineData.quantity);
     line.productTypeId = newLineData.productType === 'custom' ? 2 : 1;
     // Note: unitPrice and totalPrice would be set when product is fetched
     // For now, set defaults
     line.unitPrice = 0; // Would be fetched from product
-    line.totalPrice = 0; // Would be calculated
+    line.totalPrice = Number((0 * newLineData.quantity).toFixed(2)); // Would be calculated
     line.createdAt = new Date();
     line.updatedAt = new Date();
     return line;
@@ -162,13 +164,20 @@ export class OrderService implements IOrderService {
     let total = 0;
 
     for (const line of lines) {
-      subTotal += line.unitPrice * line.quantity;
-      total += line.totalPrice;
+      const lineSubTotal = Number(line.unitPrice) * Number(line.quantity);
+      const lineTotal = Number(line.totalPrice);
+      subTotal += lineSubTotal;
+      total += lineTotal;
     }
 
     const taxTotal = total - subTotal;
 
-    return { subTotal, total, taxTotal };
+    // Ensure proper numeric conversion and rounding
+    const roundedSubTotal = Number(subTotal.toFixed(2));
+    const roundedTotal = Number(total.toFixed(2));
+    const roundedTaxTotal = Number(taxTotal.toFixed(2));
+
+    return { subTotal: roundedSubTotal, total: roundedTotal, taxTotal: roundedTaxTotal };
   }
 
   async delete(id: number): Promise<OrderResponseDTO> {
