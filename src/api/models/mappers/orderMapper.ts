@@ -83,10 +83,10 @@ export class OrderMapper {
         order.total += product.price * line.quantity;
         order.subTotal += product.preTaxPrice * line.quantity;
       }
-      order.total = Number(order.total);
-      order.subTotal = Number(order.total);
+      order.total = Number(order.total.toFixed(2));
+      order.subTotal = Number(order.subTotal.toFixed(2));
       order.contactMethod = orderRequest.contactMethod;
-      order.taxTotal = order.total - order.subTotal;
+      order.taxTotal = Number((order.total - order.subTotal).toFixed(2));
       order.paymentMethod = orderRequest.paymentMethod;
       const state = await this.stateRepository.findOneBy({
         id: 1,
