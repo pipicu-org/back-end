@@ -48,7 +48,7 @@ export class OrderMapper {
       const client = await this.clientRepository.findOneBy({
         id: orderRequest.client,
       });
-      const productIds = orderRequest.lines.map((line) => line.product);
+      const productIds = orderRequest.lines.map((line) => line.product.id);
       const products = await this.productRepository.findBy({
         id: In(productIds),
       });
@@ -69,15 +69,15 @@ export class OrderMapper {
       order.subTotal = 0;
       for (const line of orderRequest.lines) {
         const product = products.find(
-          (p) => String(p.id) === String(line.product),
+          (p) => String(p.id) === String(line.product.id),
         );
         if (!product) {
-          throw new HttpError(404, `Product with id ${line.product} not found`);
+          throw new HttpError(404, `Product with id ${line.product.id} not found`);
         }
         if (line.quantity <= 0) {
           throw new HttpError(
             400,
-            `Quantity for product id ${line.product} must be greater than 0`,
+            `Quantity for product id ${line.product.id} must be greater than 0`,
           );
         }
         order.total += product.price * line.quantity;
@@ -100,41 +100,15 @@ export class OrderMapper {
         orderRequest.lines.map(async (line) => {
           const entityLine = new Line();
           const product = products.find(
-            (p) => String(p.id) === String(line.product),
+            (p) => String(p.id) === String(line.product.id),
           );
           if (!product) {
             throw new HttpError(
               404,
-              `Product with id ${line.product} not found`,
+              `Product with id ${line.product.id} not found`,
             );
           }
           // TODO: Implementar la nueva estructura de CustomProducts
-          // entityLine.personalizations = line.personalizations
-          //   ? await Promise.all(
-          //       line.personalizations.map(async (productPersonalization) => {
-          //         const ingredient = await this.ingredientRepository.findOneBy({
-          //           id: productPersonalization.ingredient,
-          //         });
-          //         if (!ingredient) {
-          //           throw new HttpError(
-          //             404,
-          //             `Ingredient with id ${productPersonalization.ingredient} not found`,
-          //           );
-          //         }
-          //         const productPersonalizationEntity =
-          //           new ProductPersonalization();
-          //         productPersonalizationEntity.product = product;
-          //         productPersonalizationEntity.line = entityLine;
-          //         const personalization = new Personalization();
-          //         personalization.ingredient = ingredient;
-          //         personalization.quantity = productPersonalization.quantity;
-          //         personalization.note = productPersonalization.note;
-          //         productPersonalizationEntity.personalization =
-          //           personalization;
-          //         return productPersonalizationEntity;
-          //       }),
-          //     )
-          //   : [];
           entityLine.product = product;
           entityLine.unitPrice = product.price;
           entityLine.quantity = line.quantity;

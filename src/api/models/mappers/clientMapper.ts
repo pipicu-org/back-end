@@ -28,8 +28,8 @@ export class ClientMapper implements IClientEntityMapper, IClientResponseMapper,
       client.name = requestDTO.name;
       client.phoneNumber = requestDTO.phoneNumber;
       client.address = requestDTO.address;
-      client.facebookUsername = !!requestDTO.facebookUsername ? requestDTO.facebookUsername : null;
-      client.instagramUsername = !!requestDTO.instagramUsername ? requestDTO.instagramUsername : null;
+      client.facebookUsername = requestDTO.facebookUsername ? requestDTO.facebookUsername : null;
+      client.instagramUsername = requestDTO.instagramUsername ? requestDTO.instagramUsername : null;
       return client;
     } catch (error: any) {
       console.error('Error creating client from request DTO:', error);
@@ -53,8 +53,8 @@ export class ClientMapper implements IClientEntityMapper, IClientResponseMapper,
         name: client.name,
         phoneNumber: client.phoneNumber,
         address: client.address,
-        instagramUsername: !!client.instagramUsername ? client.instagramUsername : null,
-        facebookUsername: !!client.facebookUsername ? client.facebookUsername : null,
+        instagramUsername: client.instagramUsername ? client.instagramUsername : null,
+        facebookUsername: client.facebookUsername ? client.facebookUsername : null,
         lastOrder:
           client.orders[client.orders.length - 1]?.createdAt.toISOString() ??
           null,

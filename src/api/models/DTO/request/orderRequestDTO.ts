@@ -6,7 +6,9 @@ export class OrderRequestDTO {
   contactMethod: string;
   paymentMethod: string;
   lines: Array<{
-    product: number;
+    product: {
+      id: number;
+    };
     quantity: number;
     productType?: string;
   }>;
@@ -17,7 +19,9 @@ export class OrderRequestDTO {
     this.contactMethod = order.contactMethod;
     this.paymentMethod = order.paymentMethod;
     this.lines = order.lines.map((line) => ({
-      product: line.product.id,
+      product: {
+        id: line.product.id,
+      },
       quantity: line.quantity,
     }));
   }
