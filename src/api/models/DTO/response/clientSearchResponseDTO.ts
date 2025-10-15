@@ -6,7 +6,7 @@ export class ClientSearchResponseDTO {
   data: Array<{
     id: string;
     name: string;
-    phone: string;
+    phoneNumber: string;
     address: string;
     instagramUsername: string | null;
     facebookUsername: string | null;
@@ -21,7 +21,7 @@ export class ClientSearchResponseDTO {
     data: Array<{
       id: string;
       name: string;
-      phone: string;
+      phoneNumber: string;
       address: string;
       instagramUsername?: string | null;
       facebookUsername?: string | null;

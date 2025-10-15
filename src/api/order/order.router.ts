@@ -87,7 +87,7 @@ export const orderRouter = (controller = orderController): Router => {
    *                 client:
    *                   type: string
    *                   example: "Juan Pérez"
-   *                 phone:
+   *                 phoneNumber:
    *                   type: string
    *                   example: "123456789"
    *                 address:
@@ -162,7 +162,7 @@ export const orderRouter = (controller = orderController): Router => {
    *                 client:
    *                   type: string
    *                   example: "Juan Pérez"
-   *                 phone:
+   *                 phoneNumber:
    *                   type: string
    *                   example: "123456789"
    *                 address:
@@ -308,7 +308,7 @@ export const orderRouter = (controller = orderController): Router => {
    *                 client:
    *                   type: string
    *                   example: "Juan Pérez"
-   *                 phone:
+   *                 phoneNumber:
    *                   type: string
    *                   example: "123456789"
    *                 address:
@@ -427,7 +427,7 @@ export const orderRouter = (controller = orderController): Router => {
    *                       client:
    *                         type: string
    *                         example: "Juan Pérez"
-   *                       phone:
+   *                       phoneNumber:
    *                         type: string
    *                         example: "123456789"
    *                       address:
@@ -519,7 +519,7 @@ export const orderRouter = (controller = orderController): Router => {
    *                       client:
    *                         type: string
    *                         example: "Juan Pérez"
-   *                       phone:
+   *                       phoneNumber:
    *                         type: string
    *                         example: "123456789"
    *                       address:
@@ -606,7 +606,7 @@ export const orderRouter = (controller = orderController): Router => {
    *                 client:
    *                   type: string
    *                   example: "Juan Pérez"
-   *                 phone:
+   *                 phoneNumber:
    *                   type: string
    *                   example: "123456789"
    *                 address:
@@ -678,7 +678,7 @@ export const orderRouter = (controller = orderController): Router => {
    *                   client:
    *                     type: string
    *                     example: "Juan Pérez"
-   *                   phone:
+   *                   phoneNumber:
    *                     type: string
    *                     example: "123456789"
    *                   address:

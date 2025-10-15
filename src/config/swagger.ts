@@ -72,7 +72,7 @@ const options = {
           properties: {
             id: { type: 'number', example: 1 },
             name: { type: 'string', example: 'Juan Pérez' },
-            phone: { type: 'string', example: '123456789' },
+            phoneNumber: { type: 'string', example: '123456789' },
             address: { type: 'string', example: 'Calle Principal 123' },
             facebookusername: { type: 'string', example: 'juanperez' },
             instagramusername: { type: 'string', example: 'juanperez_ig' },
@@ -429,7 +429,7 @@ const options = {
             id: { type: 'string', example: '1' },
             state: { type: 'string', example: 'pending' },
             client: { type: 'string', example: 'Juan Pérez' },
-            phone: { type: 'string', example: '123456789' },
+            phoneNumber: { type: 'string', example: '123456789' },
             address: { type: 'string', example: 'Calle Principal 123' },
             deliveryTime: { type: 'string', format: 'date-time', example: '2024-01-01T12:00:00Z' },
             contactMethod: { type: 'string', example: 'phone' },
