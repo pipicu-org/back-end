@@ -19,7 +19,7 @@ import {
 import { OrderController } from '../api/order/order.controller';
 import { OrderRepository } from '../api/order/order.repository';
 import { OrderService } from '../api/order/order.service.impl';
-import { AppDataSource, initializeDataSource } from './initializeDatabase';
+import { AppDataSource } from './initializeDatabase';
 import { ProductRepository } from '../api/product/product.repository';
 import { ClientRepository } from '../api/client/client.repository';
 import { ClientService } from '../api/client/client.service.impl';
@@ -47,6 +47,13 @@ import { PurchaseRepository } from '../api/purchase/purchase.repository';
 import { PurchaseService } from '../api/purchase/purchase.service.impl';
 import { PurchaseController } from '../api/purchase/purchase.controller';
 import { PurchaseMapper } from '../api/models/mappers/purchaseMapper';
+import { PurchaseValidator } from '../api/purchase/purchase.validator';
+import { PurchaseItemFactory } from '../api/purchase/purchase.item.factory';
+import { StockMovementHandler } from '../api/purchase/stock.movement.handler';
+import {
+  CreatePurchaseStrategy,
+  UpdatePurchaseStrategy,
+} from '../api/purchase/purchase.strategy';
 import { ProviderRepository } from '../api/provider/provider.repository';
 import { ProviderService } from '../api/provider/provider.service.impl';
 import { ProviderController } from '../api/provider/provider.controller';
@@ -59,10 +66,6 @@ import { StockMovementRepository } from '../api/stockMovement/stockMovement.repo
 import { StockMovementService } from '../api/stockMovement/stockMovement.service.impl';
 import { StockMovementController } from '../api/stockMovement/stockMovement.controller';
 import { StockMovementMapper } from '../api/models/mappers/stockMovementMapper';
-
-initializeDataSource().catch((err) =>
-  console.error('Error inicializando la fuente de datos', err),
-);
 
 // Tables
 export const dbOrderRepository = AppDataSource.getRepository<Order>(
@@ -253,13 +256,38 @@ export const stockMovementController = new StockMovementController(
 export const purchaseRepository = new PurchaseRepository(
   dbPurchaseRepository,
   purchaseMapper,
+  AppDataSource,
+);
+
+// New dependencies for refactored purchase service
+export const purchaseValidator = new PurchaseValidator(ingredientMapper);
+
+export const purchaseItemFactory = new PurchaseItemFactory(purchaseValidator);
+
+export const stockMovementHandler = new StockMovementHandler(
+  stockMovementService,
+);
+
+export const createPurchaseStrategy = new CreatePurchaseStrategy(
+  purchaseRepository,
+  ingredientService,
+  purchaseValidator,
+  purchaseItemFactory,
+  stockMovementHandler,
+);
+
+export const updatePurchaseStrategy = new UpdatePurchaseStrategy(
+  purchaseRepository,
+  ingredientService,
+  purchaseValidator,
+  purchaseItemFactory,
+  stockMovementHandler,
 );
 
 export const purchaseService = new PurchaseService(
   purchaseRepository,
-  purchaseMapper,
-  AppDataSource,
-  stockMovementService,
+  createPurchaseStrategy,
+  updatePurchaseStrategy,
 );
 
 export const purchaseController = new PurchaseController(purchaseService);

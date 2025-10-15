@@ -25,7 +25,7 @@ export const mockClientEntity: Client = {
 export const mockClientResponseDTO: ClientResponseDTO = {
   id: 1,
   name: 'John Doe',
-  phone: '123456789',
+  phoneNumber: '123456789',
   address: '123 Main St',
   facebookusername: 'johndoe_fb',
   instagramusername: 'johndoe_ig',

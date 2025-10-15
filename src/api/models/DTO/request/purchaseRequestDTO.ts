@@ -1,4 +1,11 @@
-import { IsNotEmpty, IsArray, ValidateNested, IsOptional, IsNumber, Min } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsArray,
+  ValidateNested,
+  IsOptional,
+  IsNumber,
+  Min,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreatePurchaseItemDto {
@@ -34,6 +41,7 @@ export class CreatePurchaseDto {
   @IsArray({ message: 'Purchase items must be an array' })
   @ValidateNested({ each: true })
   @Type(() => CreatePurchaseItemDto)
+  @IsNotEmpty({ message: 'Purchase items cannot be empty' })
   purchaseItems!: CreatePurchaseItemDto[];
 }
 
@@ -41,11 +49,12 @@ export class UpdatePurchaseDto {
   @IsOptional()
   @IsNotEmpty({ message: 'Provider ID cannot be empty' })
   @IsNumber({}, { message: 'Provider ID must be a number' })
-  providerId?: number;
+  providerId!: number;
 
   @IsOptional()
   @IsArray({ message: 'Purchase items must be an array' })
   @ValidateNested({ each: true })
   @Type(() => CreatePurchaseItemDto)
-  purchaseItems?: CreatePurchaseItemDto[];
+  @IsNotEmpty({ message: 'Purchase items cannot be empty' })
+  purchaseItems!: CreatePurchaseItemDto[];
 }

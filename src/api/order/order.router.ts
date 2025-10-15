@@ -51,25 +51,22 @@ export const orderRouter = (controller = orderController): Router => {
    *                   type: object
    *                   properties:
    *                     product:
-   *                       type: integer
-   *                       example: 1
+   *                       type: object
+   *                       properties:
+   *                         id:
+   *                           type: integer
+   *                           example: 1
    *                     quantity:
-   *                       type: integer
+   *                       type: number
    *                       example: 2
-   *                     personalizations:
-   *                       type: array
-   *                       items:
-   *                         type: object
-   *                       example: []
    *           example:
    *             client: 1
    *             deliveryTime: "2024-01-01T12:00:00Z"
    *             contactMethod: "phone"
    *             paymentMethod: "cash"
    *             lines:
-   *               - product: 1
+   *               - product: { id: 1 }
    *                 quantity: 2
-   *                 personalizations: []
    *     responses:
    *       201:
    *         description: Order created successfully
@@ -87,7 +84,7 @@ export const orderRouter = (controller = orderController): Router => {
    *                 client:
    *                   type: string
    *                   example: "Juan Pérez"
-   *                 phone:
+   *                 phoneNumber:
    *                   type: string
    *                   example: "123456789"
    *                 address:
@@ -162,7 +159,7 @@ export const orderRouter = (controller = orderController): Router => {
    *                 client:
    *                   type: string
    *                   example: "Juan Pérez"
-   *                 phone:
+   *                 phoneNumber:
    *                   type: string
    *                   example: "123456789"
    *                 address:
@@ -189,9 +186,15 @@ export const orderRouter = (controller = orderController): Router => {
    *                       id:
    *                         type: string
    *                         example: "1"
-   *                       product:
-   *                         type: string
-   *                         example: "Pizza Margherita"
+   *                             product:
+   *                               type: object
+   *                               properties:
+   *                                 id:
+   *                                   type: string
+   *                                   example: "1"
+   *                                 name:
+   *                                   type: string
+   *                                   example: "Pizza Margherita"
    *                       quantity:
    *                         type: integer
    *                         example: 2
@@ -272,25 +275,22 @@ export const orderRouter = (controller = orderController): Router => {
    *                   type: object
    *                   properties:
    *                     product:
-   *                       type: integer
-   *                       example: 1
+   *                       type: object
+   *                       properties:
+   *                         id:
+   *                           type: integer
+   *                           example: 1
    *                     quantity:
-   *                       type: integer
+   *                       type: number
    *                       example: 2
-   *                     personalizations:
-   *                       type: array
-   *                       items:
-   *                         type: object
-   *                       example: []
    *           example:
    *             client: 1
    *             deliveryTime: "2024-01-01T12:00:00Z"
    *             contactMethod: "phone"
    *             paymentMethod: "cash"
    *             lines:
-   *               - product: 1
+   *               - product: { id: 1 }
    *                 quantity: 2
-   *                 personalizations: []
    *     responses:
    *       200:
    *         description: Order updated successfully
@@ -308,7 +308,7 @@ export const orderRouter = (controller = orderController): Router => {
    *                 client:
    *                   type: string
    *                   example: "Juan Pérez"
-   *                 phone:
+   *                 phoneNumber:
    *                   type: string
    *                   example: "123456789"
    *                 address:
@@ -336,8 +336,14 @@ export const orderRouter = (controller = orderController): Router => {
    *                         type: string
    *                         example: "1"
    *                       product:
-   *                         type: string
-   *                         example: "Pizza Margherita"
+   *                         type: object
+   *                         properties:
+   *                           id:
+   *                             type: string
+   *                             example: "1"
+   *                           name:
+   *                             type: string
+   *                             example: "Pizza Margherita"
    *                       quantity:
    *                         type: integer
    *                         example: 2
@@ -427,7 +433,7 @@ export const orderRouter = (controller = orderController): Router => {
    *                       client:
    *                         type: string
    *                         example: "Juan Pérez"
-   *                       phone:
+   *                       phoneNumber:
    *                         type: string
    *                         example: "123456789"
    *                       address:
@@ -455,8 +461,14 @@ export const orderRouter = (controller = orderController): Router => {
    *                               type: string
    *                               example: "1"
    *                             product:
-   *                               type: string
-   *                               example: "Pizza Margherita"
+   *                               type: object
+   *                               properties:
+   *                                 id:
+   *                                   type: string
+   *                                   example: "1"
+   *                                 name:
+   *                                   type: string
+   *                                   example: "Pizza Margherita"
    *                             quantity:
    *                               type: integer
    *                               example: 2
@@ -519,7 +531,7 @@ export const orderRouter = (controller = orderController): Router => {
    *                       client:
    *                         type: string
    *                         example: "Juan Pérez"
-   *                       phone:
+   *                       phoneNumber:
    *                         type: string
    *                         example: "123456789"
    *                       address:
@@ -547,8 +559,14 @@ export const orderRouter = (controller = orderController): Router => {
    *                               type: string
    *                               example: "1"
    *                             product:
-   *                               type: string
-   *                               example: "Pizza Margherita"
+   *                               type: object
+   *                               properties:
+   *                                 id:
+   *                                   type: string
+   *                                   example: "1"
+   *                                 name:
+   *                                   type: string
+   *                                   example: "Pizza Margherita"
    *                             quantity:
    *                               type: integer
    *                               example: 2
@@ -606,7 +624,7 @@ export const orderRouter = (controller = orderController): Router => {
    *                 client:
    *                   type: string
    *                   example: "Juan Pérez"
-   *                 phone:
+   *                 phoneNumber:
    *                   type: string
    *                   example: "123456789"
    *                 address:
@@ -678,7 +696,7 @@ export const orderRouter = (controller = orderController): Router => {
    *                   client:
    *                     type: string
    *                     example: "Juan Pérez"
-   *                   phone:
+   *                   phoneNumber:
    *                     type: string
    *                     example: "123456789"
    *                   address:

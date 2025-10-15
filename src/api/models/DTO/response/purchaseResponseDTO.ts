@@ -32,7 +32,7 @@ export class PurchaseResponseDTO implements IPurchaseResponseDTO {
     this.providerId = purchase.providerId;
     this.createdAt = purchase.createdAt;
     this.updatedAt = purchase.updatedAt;
-    this.purchaseItems = purchase.purchaseItems.map(item => ({
+    this.purchaseItems = purchase.purchaseItems.map((item) => ({
       id: item.id,
       purchaseId: item.purchaseId,
       ingredientId: item.ingredientId,

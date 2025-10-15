@@ -74,6 +74,8 @@ export class ClientRepository implements ICLientRepository {
 
   async create(client: Client): Promise<ClientResponseDTO> {
     try {
+      console.log(client)
+      console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
       return await this._dbClientRepository.save(client).then((savedClient) => {
         return this._clientMapper.toResponseDTO(savedClient);
       });
