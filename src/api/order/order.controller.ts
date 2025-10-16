@@ -8,6 +8,7 @@ export class OrderController {
   async create(req: Request, res: Response, next: NextFunction) {
     try {
       const orderRequestDTO = req.body as OrderRequestDTO;
+      console.log(orderRequestDTO);
       const order = await this.orderService.create(orderRequestDTO);
       res.status(201).json(order);
     } catch (error: any) {
@@ -18,7 +19,7 @@ export class OrderController {
   async getById(req: Request, res: Response, next: NextFunction) {
     try {
       const id = Number(req.params.id);
-      if (isNaN(id)) {
+      if (Number.isNaN(id)) {
         res.status(400).send('Invalid order ID');
         return;
       }

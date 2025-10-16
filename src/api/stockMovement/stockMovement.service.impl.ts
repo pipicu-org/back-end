@@ -5,7 +5,7 @@ import { StockMovementPaginationDTO } from '../models/DTO/response/stockMovement
 import { StockMovementMapper } from '../models/mappers/stockMovementMapper';
 import { IStockMovementRepository } from './stockMovement.repository';
 import { IStockMovementService } from './stockMovement.service';
-import { Ingredient, StockMovement, Unit } from '../models/entity';
+import { Ingredient, Line, StockMovement, Unit } from '../models/entity';
 import { HttpError } from '../../errors/httpError';
 import logger from '../../config/logger';
 
@@ -15,6 +15,24 @@ export class StockMovementService implements IStockMovementService {
     private readonly _stockMovementMapper: StockMovementMapper,
     private readonly _dataSource: DataSource,
   ) {}
+
+  async createStockMovementForOrderLine(line: Line): Promise<void> {
+    for (const recipe of line.product.recipe.recipeIngredient) {
+      const ingredient = recipe.ingredient;
+      const unit = recipe.unit;
+      const quantityNeeded = recipe.quantity * line.quantity;
+
+      if (ingredient.stock < quantityNeeded) {
+        throw new HttpError(
+          400,
+          `Insufficient stock for ingredient ${ingredient.name}`,
+        );
+      }
+      this.createStockMovement(
+        new StockMovementRequestDTO(ingredient.id, quantityNeeded, unit.id, 2),
+      );
+    }
+  }
 
   async createStockMovement(
     requestDTO: StockMovementRequestDTO,

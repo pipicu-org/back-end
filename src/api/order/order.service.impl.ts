@@ -9,21 +9,34 @@ import { PreparationResponseDTO } from '../models/DTO/response/preparationRespon
 import { OrderMapper } from '../models/mappers/orderMapper';
 import { IOrderRepository } from './order.repository';
 import { IOrderService } from './order.service';
+import { IStockMovementService } from '../stockMovement/stockMovement.service';
 
 export class OrderService implements IOrderService {
   constructor(
     private readonly _orderRepository: IOrderRepository,
     private readonly _orderMapper: OrderMapper,
     private readonly _lineService: ILineService,
+    private readonly _stockMovementService: IStockMovementService,
   ) {}
 
   async create(orderRequest: OrderRequestDTO): Promise<OrderResponseDTO> {
-    if (this._hasRepeatedProducts(orderRequest)) {
-      throw new HttpError(400, 'Order contains repeated products');
+    try {
+      if (this._hasRepeatedProducts(orderRequest)) {
+        throw new HttpError(400, 'Order contains repeated products');
+      }
+      const order =
+        await this._orderMapper.orderRequestDTOToOrder(orderRequest);
+      for (const line of order.lines) {
+        await this._stockMovementService.createStockMovementForOrderLine(line);
+      }
+      return await this._orderRepository.create(order);
+    } catch (error: any) {
+      console.error('Error creating order:', error);
+      throw new HttpError(
+        error.status || 500,
+        error.message || 'Internal Server Error',
+      );
     }
-    const order =
-      await this._orderMapper.orderRequestDTOToOrder(orderRequest);
-    return await this._orderRepository.create(order);
   }
 
   async getById(id: number): Promise<OrderResponseDTO> {
@@ -42,7 +55,10 @@ export class OrderService implements IOrderService {
     const existingOrder = await this._orderRepository.getById(id);
 
     // Compare and update lines selectively
-    const updatedLines = await this._compareAndUpdateLines(existingOrder, orderRequest.lines);
+    const updatedLines = await this._compareAndUpdateLines(
+      existingOrder,
+      orderRequest.lines,
+    );
 
     // Recalculate totals
     const recalculatedTotals = this._recalculateTotals(updatedLines);
@@ -55,7 +71,8 @@ export class OrderService implements IOrderService {
       lines: updatedLines,
     };
 
-    const updatedOrder = await this._orderMapper.orderRequestDTOToOrder(orderRequest);
+    const updatedOrder =
+      await this._orderMapper.orderRequestDTOToOrder(orderRequest);
     Object.assign(updatedOrder, orderUpdate);
 
     return await this._orderRepository.update(id, updatedOrder);
@@ -63,14 +80,21 @@ export class OrderService implements IOrderService {
 
   private async _compareAndUpdateLines(
     existingOrder: OrderResponseDTO,
-    newLines: Array<{ product: { id: number }; quantity: number; productType?: string }>,
+    newLines: Array<{
+      product: number;
+      quantity: number;
+      productType?: string;
+    }>,
   ): Promise<Line[]> {
     const existingLines = existingOrder.lines;
     const updatedLines: Line[] = [];
-    const newLineMap = new Map<number, { product: { id: number }; quantity: number; productType?: string }>();
+    const newLineMap = new Map<
+      number,
+      { product: number; quantity: number; productType?: string }
+    >();
 
     // Create map of new lines by product ID
-    newLines.forEach(line => newLineMap.set(line.product.id, line));
+    newLines.forEach((line) => newLineMap.set(line.product, line));
 
     // Compare existing lines
     for (const existingLine of existingLines) {
@@ -103,35 +127,51 @@ export class OrderService implements IOrderService {
 
   private async _updateLine(
     lineId: string,
-    newLineData: { product: { id: number }; quantity: number; productType?: string },
+    newLineData: {
+      product: number;
+      quantity: number;
+      productType?: string;
+    },
   ): Promise<Line> {
     // Fetch existing line entity
     const lineEntity = await this._getLineEntityById(lineId);
-    console.log(`[DEBUG] Updating line ${lineId}: current quantity=${lineEntity.quantity}, new quantity=${newLineData.quantity}`);
-    console.log(`[DEBUG] Current unitPrice=${lineEntity.unitPrice}, current totalPrice=${lineEntity.totalPrice}`);
+    console.log(
+      `[DEBUG] Updating line ${lineId}: current quantity=${lineEntity.quantity}, new quantity=${newLineData.quantity}`,
+    );
+    console.log(
+      `[DEBUG] Current unitPrice=${lineEntity.unitPrice}, current totalPrice=${lineEntity.totalPrice}`,
+    );
 
     // Update quantity and recalculate totalPrice
     lineEntity.quantity = Number(newLineData.quantity);
-    lineEntity.totalPrice = Number((lineEntity.unitPrice * newLineData.quantity).toFixed(2));
+    lineEntity.totalPrice = Number(
+      (lineEntity.unitPrice * newLineData.quantity).toFixed(2),
+    );
     lineEntity.updatedAt = new Date();
 
-    console.log(`[DEBUG] Updated line: quantity=${lineEntity.quantity}, totalPrice=${lineEntity.totalPrice}`);
+    console.log(
+      `[DEBUG] Updated line: quantity=${lineEntity.quantity}, totalPrice=${lineEntity.totalPrice}`,
+    );
 
     // Update product if changed
-    if (lineEntity.productId !== newLineData.product.id) {
-      lineEntity.productId = newLineData.product.id;
-      console.log(`[DEBUG] Product changed from ${lineEntity.productId} to ${newLineData.product.id}`);
+    if (lineEntity.productId !== newLineData.product) {
+      lineEntity.productId = newLineData.product;
+      console.log(
+        `[DEBUG] Product changed from ${lineEntity.productId} to ${newLineData.product}`,
+      );
     }
     return lineEntity;
   }
 
-  private async _createNewLine(
-    newLineData: { product: { id: number }; quantity: number; productType?: string },
-  ): Promise<Line> {
+  private async _createNewLine(newLineData: {
+    product: number;
+    quantity: number;
+    productType?: string;
+  }): Promise<Line> {
     // Use orderMapper logic to create line
     // This is a simplified version - in practice, you'd need product repository
     const line = new Line();
-    line.productId = newLineData.product.id;
+    line.productId = newLineData.product;
     line.quantity = Number(newLineData.quantity);
     line.productTypeId = newLineData.productType === 'custom' ? 2 : 1;
     // Note: unitPrice and totalPrice would be set when product is fetched
@@ -159,7 +199,11 @@ export class OrderService implements IOrderService {
     return line;
   }
 
-  private _recalculateTotals(lines: Line[]): { subTotal: number; total: number; taxTotal: number } {
+  private _recalculateTotals(lines: Line[]): {
+    subTotal: number;
+    total: number;
+    taxTotal: number;
+  } {
     let subTotal = 0;
     let total = 0;
 
@@ -177,7 +221,11 @@ export class OrderService implements IOrderService {
     const roundedTotal = Number(total.toFixed(2));
     const roundedTaxTotal = Number(taxTotal.toFixed(2));
 
-    return { subTotal: roundedSubTotal, total: roundedTotal, taxTotal: roundedTaxTotal };
+    return {
+      subTotal: roundedSubTotal,
+      total: roundedTotal,
+      taxTotal: roundedTaxTotal,
+    };
   }
 
   async delete(id: number): Promise<OrderResponseDTO> {
@@ -212,7 +260,7 @@ export class OrderService implements IOrderService {
     if (!lines || lines.length === 0) {
       throw new HttpError(404, `No lines found for order with id ${order.id}`);
     }
-    console.info(newState)
+    console.info(newState);
     // return lines.every((line) => line.state.id === newState);
     return true;
   }
@@ -249,7 +297,7 @@ export class OrderService implements IOrderService {
   }
 
   private _hasRepeatedProducts(order: OrderRequestDTO): boolean {
-    const products = order.lines.map((line) => line.product.id);
+    const products = order.lines.map((line) => line.product);
     const uniqueProducts = new Set(products);
     return uniqueProducts.size !== products.length;
   }
