@@ -24,7 +24,6 @@ export class StockMovementService implements IStockMovementService {
     console.log(line);
     for (const recipe of line.product.recipe.recipeIngredient) {
       const ingredient = recipe.ingredient;
-      const unit = recipe.unit;
       let quantity: number;
       let stockMovementTypeId: number;
 
@@ -50,11 +49,12 @@ export class StockMovementService implements IStockMovementService {
           `Insufficient stock for ingredient ${ingredient.name}`,
         );
       }
+
       await this.createStockMovement(
         new StockMovementRequestDTO(
           ingredient.id,
           quantity,
-          unit.id,
+          recipe.unitId,
           stockMovementTypeId,
         ),
       );

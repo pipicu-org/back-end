@@ -11,6 +11,7 @@ import { IOrderRepository } from './order.repository';
 import { IOrderService } from './order.service';
 import { IStockMovementService } from '../stockMovement/stockMovement.service';
 import { IProductService } from '../product/product.service';
+import { ProductMapper } from '../models/mappers/productMapper';
 
 export class OrderService implements IOrderService {
   constructor(
@@ -18,6 +19,8 @@ export class OrderService implements IOrderService {
     private readonly _orderMapper: OrderMapper,
     private readonly _lineService: ILineService,
     private readonly _stockMovementService: IStockMovementService,
+    private readonly _productService: IProductService,
+    private readonly _productMapper: ProductMapper,
   ) {}
 
   async create(orderRequest: OrderRequestDTO): Promise<OrderResponseDTO> {
@@ -101,26 +104,27 @@ export class OrderService implements IOrderService {
     newLines.forEach((line) => newLineMap.set(line.product, line));
 
     // Compare existing lines
+    console.log('estoy comparando lineas existentes');
     for (const existingLine of existingLines) {
       const newLine = newLineMap.get(Number(existingLine.product.id));
       if (newLine) {
         // Check if quantity changed
-        if (Number(existingLine.quantity) !== newLine.quantity) {
+        console.log({
+          existingLine,
+          newLine,
+        });
+        if (Number(existingLine.quantity) !== Number(newLine.quantity)) {
           // Update line
           const updatedLine = await this._updateLine(existingLine.id, newLine);
           updatedLines.push(updatedLine);
-          console.log(updatedLine.product.recipe.recipeIngredient);
-          await this._stockMovementService.createStockMovementForOrderLine(
-            updatedLine,
-            true,
-            Number(existingLine.quantity),
-          );
         } else {
           // Keep existing line
           const lineEntity = await this._getLineEntityById(existingLine.id);
           updatedLines.push(lineEntity);
         }
         newLineMap.delete(Number(existingLine.product.id));
+      } else {
+        // TODO: Eliminar las lineas viejas
       }
     }
 
@@ -128,6 +132,12 @@ export class OrderService implements IOrderService {
     for (const [, newLine] of newLineMap) {
       const newLineEntity = await this._createNewLine(newLine);
       // Handle stock movement for new line
+      const productFound = await this._productService.getProductById(
+        newLineEntity.productId,
+      );
+      const productEntity =
+        await this._productMapper.responseDTOToEntity(productFound);
+      newLineEntity.product = productEntity;
       await this._stockMovementService.createStockMovementForOrderLine(
         newLineEntity,
         false,
@@ -155,6 +165,7 @@ export class OrderService implements IOrderService {
       `[DEBUG] Current unitPrice=${lineEntity.unitPrice}, current totalPrice=${lineEntity.totalPrice}`,
     );
 
+    const lastQuantity = lineEntity.quantity;
     // Update quantity and recalculate totalPrice
     lineEntity.quantity = Number(newLineData.quantity);
     lineEntity.totalPrice = Number(
@@ -175,6 +186,17 @@ export class OrderService implements IOrderService {
     }
     // Handle stock movement for quantity change
     console.log('handle stock movement for updated line');
+    const productFound = await this._productService.getProductById(
+      lineEntity.productId,
+    );
+    const productEntity =
+      await this._productMapper.responseDTOToEntity(productFound);
+    lineEntity.product = productEntity;
+    await this._stockMovementService.createStockMovementForOrderLine(
+      lineEntity,
+      true,
+      lastQuantity,
+    );
     return lineEntity;
   }
 

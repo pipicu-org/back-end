@@ -210,15 +210,6 @@ export const stockMovementService = new StockMovementService(
   AppDataSource,
 );
 
-export const orderService = new OrderService(
-  orderRepository,
-  orderMapper,
-  lineService,
-  stockMovementService,
-);
-
-// Services
-
 export const recipeIngredientService = new RecipeIngredientService(
   recipeIngredientRepository,
 );
@@ -236,8 +227,6 @@ export const ingredientService = new IngredientService(
 );
 
 // Controllers
-export const orderController = new OrderController(orderService);
-
 export const clientController = new ClientController(clientService);
 
 export const productController = new ProductController(productService);
@@ -253,6 +242,17 @@ export const recipeIngredientController = new RecipeIngredientController(
 export const stockMovementController = new StockMovementController(
   stockMovementService,
 );
+
+export const orderService = new OrderService(
+  orderRepository,
+  orderMapper,
+  lineService,
+  stockMovementService,
+  productService,
+  productMapper,
+);
+
+export const orderController = new OrderController(orderService);
 
 export const purchaseRepository = new PurchaseRepository(
   dbPurchaseRepository,
