@@ -36,9 +36,10 @@ export class StockMovementHandler implements IStockMovementHandler {
 
     const stockMovementRequest = new StockMovementRequestDTO(
       item.ingredientId,
-      item.unitId,
       quantity,
+      item.unitId,
       stockMovementTypeId,
+      item.id,
     );
 
     const stockMovement =

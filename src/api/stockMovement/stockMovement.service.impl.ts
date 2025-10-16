@@ -55,6 +55,7 @@ export class StockMovementService implements IStockMovementService {
       const unit = await queryRunner.manager.findOneBy(Unit, {
         id: requestDTO.unitId,
       });
+
       if (!unit) {
         throw new HttpError(400, `Unit with id ${requestDTO.unitId} not found`);
       }

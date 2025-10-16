@@ -49,9 +49,19 @@ export class OrderMapper {
         id: orderRequest.client,
       });
       const productIds = orderRequest.lines.map((line) => line.product);
-      const products = await this.productRepository.findBy({
-        id: In(productIds),
-      });
+      const products = await this.productRepository
+        .createQueryBuilder('product')
+        .leftJoinAndSelect('product.recipe', 'recipe')
+        .leftJoinAndSelect('recipe.recipeIngredient', 'recipeIngredient')
+        .leftJoinAndSelect('recipeIngredient.ingredient', 'ingredient')
+        .leftJoinAndSelect('recipeIngredient.unit', 'unit')
+        .where({ id: In(productIds) })
+        .getMany();
+      console.log('Fetched products:', products);
+      console.log(
+        'recipeingredients of first product:',
+        products[0]?.recipe?.recipeIngredient[0].ingredient.id,
+      );
       if (!products || products.length === 0) {
         throw new HttpError(404, 'No products found');
       }
