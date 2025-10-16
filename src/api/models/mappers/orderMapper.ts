@@ -57,11 +57,6 @@ export class OrderMapper {
         .leftJoinAndSelect('recipeIngredient.unit', 'unit')
         .where({ id: In(productIds) })
         .getMany();
-      console.log('Fetched products:', products);
-      console.log(
-        'recipeingredients of first product:',
-        products[0]?.recipe?.recipeIngredient[0].ingredient.id,
-      );
       if (!products || products.length === 0) {
         throw new HttpError(404, 'No products found');
       }

@@ -8,7 +8,6 @@ export class OrderController {
   async create(req: Request, res: Response, next: NextFunction) {
     try {
       const orderRequestDTO = req.body as OrderRequestDTO;
-      console.log(orderRequestDTO);
       const order = await this.orderService.create(orderRequestDTO);
       res.status(201).json(order);
     } catch (error: any) {

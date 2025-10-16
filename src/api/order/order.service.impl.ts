@@ -10,6 +10,7 @@ import { OrderMapper } from '../models/mappers/orderMapper';
 import { IOrderRepository } from './order.repository';
 import { IOrderService } from './order.service';
 import { IStockMovementService } from '../stockMovement/stockMovement.service';
+import { IProductService } from '../product/product.service';
 
 export class OrderService implements IOrderService {
   constructor(
@@ -27,7 +28,10 @@ export class OrderService implements IOrderService {
       const order =
         await this._orderMapper.orderRequestDTOToOrder(orderRequest);
       for (const line of order.lines) {
-        await this._stockMovementService.createStockMovementForOrderLine(line);
+        await this._stockMovementService.createStockMovementForOrderLine(
+          line,
+          false,
+        );
       }
       return await this._orderRepository.create(order);
     } catch (error: any) {
@@ -105,20 +109,29 @@ export class OrderService implements IOrderService {
           // Update line
           const updatedLine = await this._updateLine(existingLine.id, newLine);
           updatedLines.push(updatedLine);
+          console.log(updatedLine.product.recipe.recipeIngredient);
+          await this._stockMovementService.createStockMovementForOrderLine(
+            updatedLine,
+            true,
+            Number(existingLine.quantity),
+          );
         } else {
           // Keep existing line
           const lineEntity = await this._getLineEntityById(existingLine.id);
           updatedLines.push(lineEntity);
         }
         newLineMap.delete(Number(existingLine.product.id));
-      } else {
-        // Remove line (will be handled by cascade delete)
       }
     }
 
     // Add new lines
     for (const [, newLine] of newLineMap) {
       const newLineEntity = await this._createNewLine(newLine);
+      // Handle stock movement for new line
+      await this._stockMovementService.createStockMovementForOrderLine(
+        newLineEntity,
+        false,
+      );
       updatedLines.push(newLineEntity);
     }
 
@@ -160,6 +173,8 @@ export class OrderService implements IOrderService {
         `[DEBUG] Product changed from ${lineEntity.productId} to ${newLineData.product}`,
       );
     }
+    // Handle stock movement for quantity change
+    console.log('handle stock movement for updated line');
     return lineEntity;
   }
 
@@ -194,8 +209,9 @@ export class OrderService implements IOrderService {
     const line = new Line();
     line.id = Number(lineResponse.id);
     line.quantity = lineResponse.quantity;
-    line.unitPrice = lineResponse.totalPrice / lineResponse.quantity; // Approximation
+    line.unitPrice = lineResponse.totalPrice / lineResponse.quantity;
     line.totalPrice = lineResponse.totalPrice;
+
     return line;
   }
 
@@ -250,19 +266,6 @@ export class OrderService implements IOrderService {
     limit: number = 10,
   ): Promise<OrderSearchResponseDTO> {
     return await this._orderRepository.getOrdersByState(stateId, page, limit);
-  }
-
-  private async _isOrderAbleToChangeState(
-    order: OrderResponseDTO,
-    newState: number,
-  ): Promise<boolean> {
-    const lines = await this._lineService.getLinesByOrderId(Number(order.id));
-    if (!lines || lines.length === 0) {
-      throw new HttpError(404, `No lines found for order with id ${order.id}`);
-    }
-    console.info(newState);
-    // return lines.every((line) => line.state.id === newState);
-    return true;
   }
 
   async changeStateOrder(

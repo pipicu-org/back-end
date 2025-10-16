@@ -12,5 +12,9 @@ export interface IStockMovementService {
     page: number,
     limit: number,
   ): Promise<StockMovementPaginationDTO>;
-  createStockMovementForOrderLine(line: Line): Promise<void>;
+  createStockMovementForOrderLine(
+    line: Line,
+    isUpdate?: boolean,
+    previousQuantity?: number,
+  ): Promise<void>;
 }

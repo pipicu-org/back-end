@@ -82,6 +82,10 @@ export class LineRepository implements ILineRepository {
         .leftJoinAndSelect('line.order', 'order')
         .leftJoinAndSelect('order.client', 'client')
         .leftJoinAndSelect('line.product', 'product')
+        .leftJoinAndSelect('product.recipe', 'recipe')
+        .leftJoinAndSelect('recipe.recipeIngredient', 'recipeIngredient')
+        .leftJoinAndSelect('recipeIngredient.ingredient', 'ingredient')
+        .leftJoinAndSelect('recipeIngredient.unit', 'unit')
         .where('line.id = :id', { id })
         .getOne();
       if (!line) {

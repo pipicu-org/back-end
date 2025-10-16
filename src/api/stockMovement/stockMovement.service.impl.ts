@@ -16,20 +16,47 @@ export class StockMovementService implements IStockMovementService {
     private readonly _dataSource: DataSource,
   ) {}
 
-  async createStockMovementForOrderLine(line: Line): Promise<void> {
+  async createStockMovementForOrderLine(
+    line: Line,
+    isUpdate: boolean = false,
+    previousQuantity: number = 0,
+  ): Promise<void> {
+    console.log(line);
     for (const recipe of line.product.recipe.recipeIngredient) {
       const ingredient = recipe.ingredient;
       const unit = recipe.unit;
-      const quantityNeeded = recipe.quantity * line.quantity;
+      let quantity: number;
+      let stockMovementTypeId: number;
 
-      if (ingredient.stock < quantityNeeded) {
+      if (isUpdate) {
+        const quantityDifference = Math.abs(
+          recipe.quantity * line.quantity - recipe.quantity * previousQuantity,
+        );
+        if (quantityDifference === 0) continue; // No change
+
+        quantity = quantityDifference;
+        stockMovementTypeId =
+          recipe.quantity * line.quantity > recipe.quantity * previousQuantity
+            ? 2
+            : 1; // Out or Return
+      } else {
+        quantity = recipe.quantity * line.quantity;
+        stockMovementTypeId = 2; // Out
+      }
+
+      if (ingredient.stock < quantity && stockMovementTypeId === 2) {
         throw new HttpError(
           400,
           `Insufficient stock for ingredient ${ingredient.name}`,
         );
       }
-      this.createStockMovement(
-        new StockMovementRequestDTO(ingredient.id, quantityNeeded, unit.id, 2),
+      await this.createStockMovement(
+        new StockMovementRequestDTO(
+          ingredient.id,
+          quantity,
+          unit.id,
+          stockMovementTypeId,
+        ),
       );
     }
   }

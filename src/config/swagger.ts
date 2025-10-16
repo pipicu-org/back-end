@@ -412,10 +412,20 @@ const options = {
         },
         OrderRequest: {
           type: 'object',
-          required: ['client', 'deliveryTime', 'contactMethod', 'paymentMethod', 'lines'],
+          required: [
+            'client',
+            'deliveryTime',
+            'contactMethod',
+            'paymentMethod',
+            'lines',
+          ],
           properties: {
             client: { type: 'number', example: 1 },
-            deliveryTime: { type: 'string', format: 'date-time', example: '2024-01-01T12:00:00Z' },
+            deliveryTime: {
+              type: 'string',
+              format: 'date-time',
+              example: '2024-01-01T12:00:00Z',
+            },
             contactMethod: { type: 'string', example: 'phone' },
             paymentMethod: { type: 'string', example: 'cash' },
             lines: {
@@ -425,7 +435,7 @@ const options = {
                 properties: {
                   product: { type: 'number', example: 1 },
                   quantity: { type: 'number', example: 2 },
-                  personalizations: { type: 'array', items: { type: 'object' }, example: [] },
+                  productType: { type: 'string', example: 'standard' },
                 },
               },
             },
@@ -439,7 +449,11 @@ const options = {
             client: { type: 'string', example: 'Juan Pérez' },
             phoneNumber: { type: 'string', example: '123456789' },
             address: { type: 'string', example: 'Calle Principal 123' },
-            deliveryTime: { type: 'string', format: 'date-time', example: '2024-01-01T12:00:00Z' },
+            deliveryTime: {
+              type: 'string',
+              format: 'date-time',
+              example: '2024-01-01T12:00:00Z',
+            },
             contactMethod: { type: 'string', example: 'phone' },
             paymentMethod: { type: 'string', example: 'cash' },
             total: { type: 'number', example: 25.99 },
