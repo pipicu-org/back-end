@@ -16,6 +16,7 @@ export class OrderResponseDTO {
       id: string;
       name: string;
     };
+    productType: number;
     quantity: number;
     totalPrice: number;
   }>;
@@ -36,6 +37,7 @@ export class OrderResponseDTO {
         id: line.product.id.toString(),
         name: line.product.name,
       },
+      productType: line.productTypeId,
       quantity: line.quantity,
       totalPrice: line.product.price * line.quantity,
     }));
