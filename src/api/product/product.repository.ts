@@ -31,6 +31,10 @@ export interface IProductRepository {
   ): Promise<
     import('../models/DTO/response/customProductResponsePaginatedDTO').CustomProductResponsePaginatedDTO
   >;
+  updateCustomProduct(
+    id: number,
+    customProduct: CustomProduct,
+  ): Promise<ProductResponseDTO>;
 }
 
 export class ProductRepository implements IProductRepository {
@@ -386,6 +390,63 @@ export class ProductRepository implements IProductRepository {
       throw new HttpError(
         error.status || 500,
         error.message || 'Failed to find all custom products',
+      );
+    }
+  }
+
+  /**
+   * Updates a custom product by its ID.
+   * @param id The ID of the custom product to update.
+   * @param customProduct The CustomProduct entity with updated data.
+   * @returns A Promise that resolves to the ProductResponseDTO of the updated custom product.
+   * @throws HttpError if the custom product is not found or if there's an error during update.
+   */
+
+  //TODO: Checkear
+  async updateCustomProduct(
+    id: number,
+    customProduct: CustomProduct,
+  ): Promise<ProductResponseDTO> {
+    try {
+      // First, check if the custom product exists
+      const existingCustomProduct = await this._dbCustomProductRepository
+        .createQueryBuilder('customProduct')
+        .leftJoinAndSelect('customProduct.baseProduct', 'baseProduct')
+        .leftJoinAndSelect('customProduct.recipe', 'recipe')
+        .leftJoinAndSelect('recipe.recipeIngredient', 'recipeIngredient')
+        .where('customProduct.id = :id', { id })
+        .getOne();
+
+      if (!existingCustomProduct) {
+        console.warn(`No custom product found with id ${id} to update`);
+        throw new HttpError(404, `Custom product id ${id} not found`);
+      }
+
+      // Set the ID to ensure we're updating the correct record
+      customProduct.id = id;
+
+      // If the recipe is being updated, remove old recipe ingredients and set the recipe ID
+      if (customProduct.recipe && existingCustomProduct.recipe) {
+        customProduct.recipe.id = existingCustomProduct.recipe.id;
+        // Remove old recipe ingredients to allow cascade save
+        await this._dbCustomProductRepository.manager.remove(
+          existingCustomProduct.recipe.recipeIngredient,
+        );
+      }
+
+      // Save the updated custom product (cascade will handle recipe and ingredients)
+      const updatedCustomProduct =
+        await this._dbCustomProductRepository.save(customProduct);
+
+      // Convert to Product and return as ProductResponseDTO
+      const product =
+        this._productMapper.customProductToProduct(updatedCustomProduct);
+      return this._productMapper.toResponseDTO(product);
+    } catch (error: any) {
+      console.error(`Error updating custom product with id ${id}:`, error);
+      throw new HttpError(
+        error.status || 500,
+        error.message || 'Failed to update custom product',
       );
     }
   }

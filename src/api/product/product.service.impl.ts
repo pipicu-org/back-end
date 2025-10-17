@@ -85,4 +85,22 @@ export class ProductService implements IProductService {
   ): Promise<CustomProductResponsePaginatedDTO> {
     return this._productRepository.getAllCustomProducts(page, limit);
   }
+
+  /**
+   * Updates a custom product by its ID.
+   * @param id The ID of the custom product to update.
+   * @param customProduct The CustomProductRequestDTO containing the updated data.
+   * @returns A Promise that resolves to the ProductResponseDTO of the updated custom product.
+   */
+  async updateProductCustom(
+    id: number,
+    customProduct: CustomProductRequestDTO,
+  ): Promise<ProductResponseDTO> {
+    const customProductEntity =
+      await this._productMapper.customProductRequestDTOToEntity(customProduct);
+    return await this._productRepository.updateCustomProduct(
+      id,
+      customProductEntity,
+    );
+  }
 }

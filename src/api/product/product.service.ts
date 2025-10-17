@@ -50,4 +50,10 @@ export interface IProductService {
   ): Promise<
     import('../models/DTO/response/customProductResponsePaginatedDTO').CustomProductResponsePaginatedDTO
   >;
+  updateProductCustom(
+    id: number,
+    customProduct: import('../models/DTO/request/customProductRequestDTO').CustomProductRequestDTO,
+  ): Promise<
+    import('../models/DTO/response/productResponseDTO').ProductResponseDTO
+  >;
 }
