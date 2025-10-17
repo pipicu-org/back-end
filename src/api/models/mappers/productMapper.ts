@@ -1,13 +1,23 @@
 import { Repository } from 'typeorm';
 import { ProductRequestDTO } from '../DTO/request/productRequestDTO';
+import { CustomProductRequestDTO } from '../DTO/request/customProductRequestDTO';
 import { ProductResponseDTO } from '../DTO/response/productResponseDTO';
 import { ProductSearchResponseDTO } from '../DTO/response/productSearchResponseDTO';
-import { Category, Ingredient, Product, Recipe } from '../entity';
+import {
+  Category,
+  Ingredient,
+  Product,
+  Recipe,
+  CustomProduct,
+} from '../entity';
 import { RecipeIngredient } from '../entity/recipeIngredient';
 import { HttpError } from '../../../errors/httpError';
 
 export interface IProductEntityMapper {
   requestDTOToEntity(requestDTO: ProductRequestDTO): Promise<Product>;
+  customProductRequestDTOToEntity(
+    requestDTO: CustomProductRequestDTO,
+  ): Promise<CustomProduct>;
 }
 
 export interface IProductResponseMapper {
@@ -37,6 +47,7 @@ export class ProductMapper
   constructor(
     private readonly categoryRepository: Repository<Category>,
     private readonly _ingredientRepository: Repository<Ingredient>,
+    private readonly _productRepository: Repository<Product>,
   ) {}
 
   public searchToResponseDTO(
@@ -89,13 +100,6 @@ export class ProductMapper
       recipeIngredient.unitId = ingredientEntity.unitId;
       return recipeIngredient;
     });
-
-    // TODO: La receta no tiene totalPrice
-    // recipeEntity.totalPrice = 0;
-    // for (const recipeIngredient of recipeIngredient) {
-    //   recipeEntity.totalPrice +=
-    //     recipeIngredient.ingredient.price * recipeIngredient.quantity;
-    // }
     recipeEntity.recipeIngredient = recipeIngredient;
     recipeEntity.product = product;
     product.recipe = recipeEntity;
@@ -159,5 +163,87 @@ export class ProductMapper
     }
 
     return product;
+  }
+  public async customProductRequestDTOToEntity(
+    requestDTO: CustomProductRequestDTO,
+  ): Promise<CustomProduct> {
+    const baseProduct = await this._productRepository.findOneBy({
+      id: Number.parseInt(requestDTO.baseProductId),
+    });
+    const customProduct = new CustomProduct();
+    customProduct.baseProductId = Number.parseInt(requestDTO.baseProductId);
+    customProduct.baseProduct = baseProduct!;
+    const ingredients = await this._ingredientRepository.find();
+    const recipeEntity = new Recipe();
+    const recipeIngredient = requestDTO.ingredients.map((ingredient) => {
+      const ingredientEntity = ingredients.find((i) => i.id === ingredient.id);
+      if (!ingredientEntity) {
+        throw new HttpError(
+          404,
+          `Ingredient with id ${ingredient.id} not found`,
+        );
+      }
+      const recipeIngredient = new RecipeIngredient();
+      recipeIngredient.quantity = ingredient.quantity;
+      recipeIngredient.ingredient = ingredientEntity;
+      recipeIngredient.recipe = recipeEntity;
+      recipeIngredient.unitId = ingredientEntity.unitId;
+      return recipeIngredient;
+    });
+
+    recipeEntity.recipeIngredient = recipeIngredient;
+    customProduct.recipe = recipeEntity;
+    return customProduct;
+  }
+  /**
+   * Maps a CustomProduct to a Product entity.
+   * @param customProduct The CustomProduct to map.
+   * @returns The mapped Product.
+   */
+  public customProductToProduct(customProduct: CustomProduct): Product {
+    if (!customProduct) {
+      throw new HttpError(400, 'CustomProduct is required');
+    }
+
+    const product = new Product();
+
+    if (customProduct.baseProduct) {
+      product.name = customProduct.baseProduct.name;
+      product.preTaxPrice = customProduct.baseProduct.preTaxPrice;
+      product.price = customProduct.baseProduct.price;
+      product.categoryId = customProduct.baseProduct.categoryId;
+      product.category = customProduct.baseProduct.category;
+    } else {
+      product.name = 'Custom Product';
+      product.preTaxPrice = 0;
+      product.price = 0;
+      product.categoryId = 0;
+      const defaultCategory = new Category();
+      defaultCategory.id = 0;
+      defaultCategory.name = 'Default';
+      product.category = defaultCategory;
+    }
+
+    product.recipeId = customProduct.recipeId;
+    product.recipe = customProduct.recipe;
+    product.createdAt = customProduct.createdAt;
+    product.updatedAt = customProduct.updatedAt;
+
+    return product;
+  }
+  /**
+   * Maps a CustomProduct to a ProductResponseDTO.
+   * @param customProduct The CustomProduct to map.
+   * @returns The mapped ProductResponseDTO.
+   */
+  public customProductToResponseDTO(
+    customProduct: CustomProduct,
+  ): ProductResponseDTO {
+    if (!customProduct) {
+      throw new HttpError(400, 'CustomProduct is required');
+    }
+
+    const product = this.customProductToProduct(customProduct);
+    return this.toResponseDTO(product);
   }
 }

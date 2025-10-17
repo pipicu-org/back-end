@@ -1,6 +1,7 @@
 import {
   Category,
   Client,
+  CustomProduct,
   Ingredient,
   Line,
   Order,
@@ -60,7 +61,7 @@ import { ProviderController } from '../api/provider/provider.controller';
 import { ProviderMapper } from '../api/models/mappers/providerMapper';
 import { UnitRepository } from '../api/unit/unit.repository';
 import { UnitService } from '../api/unit/unit.service.impl';
-import { UnitController } from '../api/controllers/unit.controller';
+import { UnitController } from '../api/unit/unit.controller';
 import { UnitMapper } from '../api/models/mappers/unitMapper';
 import { StockMovementRepository } from '../api/stockMovement/stockMovement.repository';
 import { StockMovementService } from '../api/stockMovement/stockMovement.service.impl';
@@ -127,6 +128,9 @@ export const dbUnitRepository = AppDataSource.getRepository<Unit>(
 
 export const dbStockMovementRepository =
   AppDataSource.getRepository<StockMovement>('StockMovement').extend({});
+
+export const dbCustomProductRepository =
+  AppDataSource.getRepository<CustomProduct>('CustomProduct').extend({});
 // Mappers
 
 export const clientMapper = new ClientMapper();
@@ -141,6 +145,7 @@ export const orderMapper = new OrderMapper(
 export const productMapper = new ProductMapper(
   dbCategoryRepository,
   dbIngredientRepository,
+  dbProductRepository,
 );
 
 export const ingredientMapper = new IngredientMapper();
@@ -167,6 +172,7 @@ export const orderRepository = new OrderRepository(
 
 export const productRepository = new ProductRepository(
   dbProductRepository,
+  dbCustomProductRepository,
   productMapper,
 );
 

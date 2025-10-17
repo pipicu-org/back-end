@@ -1,4 +1,5 @@
 import { Repository } from 'typeorm';
+import { CustomProduct } from '../models/entity';
 import { Product } from '../models/entity';
 import { ProductMapper } from '../models/mappers/productMapper';
 import { ProductSearchResponseDTO } from '../models/DTO/response/productSearchResponseDTO';
@@ -20,11 +21,22 @@ export interface IProductRepository {
     page: number,
     limit: number,
   ): Promise<ProductSearchResponseDTO>;
+  createCustomProduct(
+    customProduct: CustomProduct,
+  ): Promise<ProductResponseDTO>;
+  getCustomProductById(id: number): Promise<ProductResponseDTO>;
+  getAllCustomProducts(
+    page: number,
+    limit: number,
+  ): Promise<
+    import('../models/DTO/response/customProductResponsePaginatedDTO').CustomProductResponsePaginatedDTO
+  >;
 }
 
 export class ProductRepository implements IProductRepository {
   constructor(
     private readonly _dbProductRepository: Repository<Product>,
+    private readonly _dbCustomProductRepository: Repository<CustomProduct>,
     private readonly _productMapper: ProductMapper,
   ) {}
 
@@ -277,6 +289,103 @@ export class ProductRepository implements IProductRepository {
       throw new HttpError(
         error.status || 500,
         error.message || 'Failed to find products by name',
+      );
+    }
+  }
+
+  async createCustomProduct(
+    customProduct: CustomProduct,
+  ): Promise<ProductResponseDTO> {
+    try {
+      const productCustomCreated =
+        await this._dbCustomProductRepository.save(customProduct);
+      const product =
+        this._productMapper.customProductToProduct(productCustomCreated);
+      return this._productMapper.toResponseDTO(product);
+    } catch (error: any) {
+      console.error('Error creating custom product:', error);
+      throw new HttpError(
+        error.status || 500,
+        error.message || 'Failed to create custom product',
+      );
+    }
+  }
+
+  /**
+   * Retrieves a custom product by its ID.
+   * @param id The ID of the custom product to retrieve.
+   * @returns A Promise that resolves to the ProductResponseDTO of the custom product.
+   * @throws HttpError if the custom product is not found or if there's an error during retrieval.
+   */
+  async getCustomProductById(id: number): Promise<ProductResponseDTO> {
+    try {
+      const customProduct = await this._dbCustomProductRepository
+        .createQueryBuilder('customProduct')
+        .leftJoinAndSelect('customProduct.baseProduct', 'baseProduct')
+        .leftJoinAndSelect('baseProduct.category', 'category')
+        .leftJoinAndSelect('customProduct.recipe', 'recipe')
+        .leftJoinAndSelect('recipe.recipeIngredient', 'recipeIngredient')
+        .leftJoinAndSelect('recipeIngredient.ingredient', 'ingredient')
+        .where('customProduct.id = :id', { id })
+        .getOne();
+
+      if (!customProduct) {
+        console.warn(`No custom product found with id ${id}`);
+        throw new HttpError(404, `Custom product id ${id} not found`);
+      }
+
+      const product = this._productMapper.customProductToProduct(customProduct);
+      return this._productMapper.toResponseDTO(product);
+    } catch (error: any) {
+      console.error(`Error finding custom product with id ${id}:`, error);
+      throw new HttpError(
+        error.status || 500,
+        error.message || 'Failed to find custom product by ID',
+      );
+    }
+  }
+
+  /**
+   * Retrieves all custom products with pagination.
+   * @param page The page number to retrieve (1-based).
+   * @param limit The number of items per page.
+   * @returns A Promise that resolves to the CustomProductResponsePaginatedDTO containing the paginated results.
+   * @throws HttpError if there's an error during retrieval.
+   */
+  async getAllCustomProducts(
+    page: number,
+    limit: number,
+  ): Promise<
+    import('../models/DTO/response/customProductResponsePaginatedDTO').CustomProductResponsePaginatedDTO
+  > {
+    try {
+      const offset = (page - 1) * limit;
+      const [customProducts, total] = await this._dbCustomProductRepository
+        .createQueryBuilder('customProduct')
+        .leftJoinAndSelect('customProduct.baseProduct', 'baseProduct')
+        .leftJoinAndSelect('baseProduct.category', 'category')
+        .leftJoinAndSelect('customProduct.recipe', 'recipe')
+        .leftJoinAndSelect('recipe.recipeIngredient', 'recipeIngredient')
+        .leftJoinAndSelect('recipeIngredient.ingredient', 'ingredient')
+        .orderBy('customProduct.id', 'ASC')
+        .skip(offset)
+        .take(limit)
+        .getManyAndCount();
+
+      const CustomProductResponsePaginatedDTO = (
+        await import('../models/DTO/response/customProductResponsePaginatedDTO')
+      ).CustomProductResponsePaginatedDTO;
+
+      return new CustomProductResponsePaginatedDTO(
+        [customProducts, total],
+        page,
+        limit,
+      );
+    } catch (error: any) {
+      console.error('Error finding all custom products:', error);
+      throw new HttpError(
+        error.status || 500,
+        error.message || 'Failed to find all custom products',
       );
     }
   }
