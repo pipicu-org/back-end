@@ -16,6 +16,7 @@ export interface ILineRepository {
     page: number,
     limit: number,
   ): Promise<LineSearchResponseDTO>;
+  delete(lineId: number): Promise<void>;
 }
 
 export class LineRepository implements ILineRepository {
@@ -136,6 +137,14 @@ export class LineRepository implements ILineRepository {
     } catch (error: any) {
       console.error(`Error fetching lines by state with id ${stateId}:`, error);
       throw new Error('Failed to fetch lines by state');
+    }
+  }
+  async delete(lineId: number): Promise<void> {
+    try {
+      await this._dbLineRepository.delete(lineId);
+    } catch (error: any) {
+      console.error(`Error deleting line with id ${lineId}:`, error);
+      throw new Error('Failed to delete line');
     }
   }
 }

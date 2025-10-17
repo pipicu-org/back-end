@@ -102,7 +102,6 @@ export class OrderService implements IOrderService {
 
     // Create map of new lines by product ID
     newLines.forEach((line) => newLineMap.set(line.product, line));
-
     // Compare existing lines
     console.log('estoy comparando lineas existentes');
     for (const existingLine of existingLines) {
@@ -113,18 +112,30 @@ export class OrderService implements IOrderService {
           existingLine,
           newLine,
         });
-        if (Number(existingLine.quantity) !== Number(newLine.quantity)) {
-          // Update line
-          const updatedLine = await this._updateLine(existingLine.id, newLine);
-          updatedLines.push(updatedLine);
-        } else {
+        if (Number(existingLine.quantity) === Number(newLine.quantity)) {
           // Keep existing line
           const lineEntity = await this._getLineEntityById(existingLine.id);
           updatedLines.push(lineEntity);
+        } else {
+          // Update line
+          const updatedLine = await this._updateLine(existingLine.id, newLine);
+          updatedLines.push(updatedLine);
         }
         newLineMap.delete(Number(existingLine.product.id));
       } else {
-        // TODO: Eliminar las lineas viejas
+        const lineEntity = await this._getLineEntityById(existingLine.id);
+        console.log('[DEBUG] Handle stock movement for removed line');
+        const productFound = await this._productService.getProductById(
+          lineEntity.productId,
+        );
+        const productEntity =
+          await this._productMapper.responseDTOToEntity(productFound);
+        lineEntity.product = productEntity;
+        await this._stockMovementService.createStockMovementForOrderLine(
+          lineEntity,
+          true,
+        );
+        this._lineService.delete(Number(existingLine.id));
       }
     }
 
@@ -185,7 +196,7 @@ export class OrderService implements IOrderService {
       );
     }
     // Handle stock movement for quantity change
-    console.log('handle stock movement for updated line');
+    console.log('[DEBUG] Handle stock movement for updated line');
     const productFound = await this._productService.getProductById(
       lineEntity.productId,
     );
