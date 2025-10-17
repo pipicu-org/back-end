@@ -412,10 +412,20 @@ const options = {
         },
         OrderRequest: {
           type: 'object',
-          required: ['client', 'deliveryTime', 'contactMethod', 'paymentMethod', 'lines'],
+          required: [
+            'client',
+            'deliveryTime',
+            'contactMethod',
+            'paymentMethod',
+            'lines',
+          ],
           properties: {
             client: { type: 'number', example: 1 },
-            deliveryTime: { type: 'string', format: 'date-time', example: '2024-01-01T12:00:00Z' },
+            deliveryTime: {
+              type: 'string',
+              format: 'date-time',
+              example: '2024-01-01T12:00:00Z',
+            },
             contactMethod: { type: 'string', example: 'phone' },
             paymentMethod: { type: 'string', example: 'cash' },
             lines: {
@@ -425,7 +435,7 @@ const options = {
                 properties: {
                   product: { type: 'number', example: 1 },
                   quantity: { type: 'number', example: 2 },
-                  personalizations: { type: 'array', items: { type: 'object' }, example: [] },
+                  productType: { type: 'string', example: 'standard' },
                 },
               },
             },
@@ -439,7 +449,11 @@ const options = {
             client: { type: 'string', example: 'Juan Pérez' },
             phoneNumber: { type: 'string', example: '123456789' },
             address: { type: 'string', example: 'Calle Principal 123' },
-            deliveryTime: { type: 'string', format: 'date-time', example: '2024-01-01T12:00:00Z' },
+            deliveryTime: {
+              type: 'string',
+              format: 'date-time',
+              example: '2024-01-01T12:00:00Z',
+            },
             contactMethod: { type: 'string', example: 'phone' },
             paymentMethod: { type: 'string', example: 'cash' },
             total: { type: 'number', example: 25.99 },
@@ -461,6 +475,93 @@ const options = {
           type: 'object',
           properties: {
             // Define properties for ComandaResponse if needed
+          },
+        },
+        CustomProductRequestDTO: {
+          type: 'object',
+          required: ['baseProductId', 'ingredients'],
+          properties: {
+            baseProductId: { type: 'string', example: '1' },
+            ingredients: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  id: { type: 'number', example: 1 },
+                  quantity: { type: 'number', example: 2 },
+                },
+              },
+            },
+          },
+        },
+        CustomProductResponsePaginatedDTO: {
+          type: 'object',
+          properties: {
+            total: { type: 'number', example: 2 },
+            page: { type: 'number', example: 1 },
+            limit: { type: 'number', example: 10 },
+            totalPages: { type: 'number', example: 1 },
+            data: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  id: { type: 'number', example: 1 },
+                  baseProductId: { type: 'number', example: 1 },
+                  recipeId: { type: 'number', example: 1 },
+                  createdAt: {
+                    type: 'string',
+                    format: 'date-time',
+                    example: '2023-01-01T00:00:00Z',
+                  },
+                  updatedAt: {
+                    type: 'string',
+                    format: 'date-time',
+                    example: '2023-01-01T00:00:00Z',
+                  },
+                  baseProduct: {
+                    type: 'object',
+                    properties: {
+                      id: { type: 'number', example: 1 },
+                      name: { type: 'string', example: 'Pizza Margherita' },
+                      preTaxPrice: { type: 'number', example: 10.99 },
+                      price: { type: 'number', example: 12.99 },
+                      categoryId: { type: 'number', example: 1 },
+                      category: {
+                        type: 'object',
+                        properties: {
+                          id: { type: 'number', example: 1 },
+                          name: { type: 'string', example: 'Pizzas' },
+                        },
+                      },
+                    },
+                  },
+                  recipe: {
+                    type: 'object',
+                    properties: {
+                      id: { type: 'number', example: 1 },
+                      ingredients: {
+                        type: 'array',
+                        items: {
+                          type: 'object',
+                          properties: {
+                            id: { type: 'number', example: 1 },
+                            quantity: { type: 'number', example: 2 },
+                            ingredient: {
+                              type: 'object',
+                              properties: {
+                                id: { type: 'number', example: 1 },
+                                name: { type: 'string', example: 'Tomato' },
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
           },
         },
       },

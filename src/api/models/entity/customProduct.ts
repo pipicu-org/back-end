@@ -1,4 +1,10 @@
-import { Column, Entity, ManyToOne, JoinColumn, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  JoinColumn,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Product } from './product';
 import { Recipe } from './recipe';
 
@@ -24,7 +30,11 @@ export class CustomProduct implements ICustomProduct {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt!: Date;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
   updatedAt!: Date;
 
   // Relación muchos-a-uno con Product (baseProduct)
@@ -33,7 +43,7 @@ export class CustomProduct implements ICustomProduct {
   baseProduct!: Product;
 
   // Relación muchos-a-uno con Recipe
-  @ManyToOne(() => Recipe, { nullable: false })
+  @ManyToOne(() => Recipe, { nullable: false, cascade: true })
   @JoinColumn({ name: 'recipeId' })
   recipe!: Recipe;
 }

@@ -51,22 +51,23 @@ export const orderRouter = (controller = orderController): Router => {
    *                   type: object
    *                   properties:
    *                     product:
-   *                       type: object
-   *                       properties:
-   *                         id:
-   *                           type: integer
-   *                           example: 1
+   *                       type: integer
+   *                       example: 1
    *                     quantity:
    *                       type: number
    *                       example: 2
+   *                     productType:
+   *                       type: string
+   *                       example: "standard"
    *           example:
    *             client: 1
    *             deliveryTime: "2024-01-01T12:00:00Z"
    *             contactMethod: "phone"
    *             paymentMethod: "cash"
    *             lines:
-   *               - product: { id: 1 }
+   *               - product: 1
    *                 quantity: 2
+   *                 productType: "standard"
    *     responses:
    *       201:
    *         description: Order created successfully
@@ -275,22 +276,23 @@ export const orderRouter = (controller = orderController): Router => {
    *                   type: object
    *                   properties:
    *                     product:
-   *                       type: object
-   *                       properties:
-   *                         id:
-   *                           type: integer
-   *                           example: 1
+   *                       type: integer
+   *                       example: 1
    *                     quantity:
    *                       type: number
    *                       example: 2
+   *                     productType:
+   *                       type: string
+   *                       example: "standard"
    *           example:
    *             client: 1
    *             deliveryTime: "2024-01-01T12:00:00Z"
    *             contactMethod: "phone"
    *             paymentMethod: "cash"
    *             lines:
-   *               - product: { id: 1 }
+   *               - product: 1
    *                 quantity: 2
+   *                 productType: "standard"
    *     responses:
    *       200:
    *         description: Order updated successfully

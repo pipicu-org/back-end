@@ -17,7 +17,7 @@ export class StockMovementRequestDTO implements IStockMovementRequestDTO {
   @IsNotEmpty({ message: 'Quantity is required' })
   @IsNumber({}, { message: 'Quantity must be a number' })
   @Min(0, { message: 'Quantity must be at least 0' })
-  @Transform(({ value }) => parseFloat(value))
+  @Transform(({ value }) => Number.parseFloat(value))
   quantity!: number;
 
   @IsNotEmpty({ message: 'Unit ID is required' })
@@ -31,4 +31,18 @@ export class StockMovementRequestDTO implements IStockMovementRequestDTO {
   @IsOptional()
   @IsNumber({}, { message: 'Purchase Item ID must be a number' })
   purchaseItemId?: number | null;
+
+  constructor(
+    ingredientId: number,
+    quantity: number,
+    unitId: number,
+    stockMovementTypeId: number,
+    purchaseItemId?: number | null,
+  ) {
+    this.ingredientId = ingredientId;
+    this.quantity = quantity;
+    this.unitId = unitId;
+    this.stockMovementTypeId = stockMovementTypeId;
+    this.purchaseItemId = purchaseItemId ?? null;
+  }
 }

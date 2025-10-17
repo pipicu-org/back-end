@@ -5,7 +5,7 @@ import { StockMovementPaginationDTO } from '../models/DTO/response/stockMovement
 import { StockMovementMapper } from '../models/mappers/stockMovementMapper';
 import { IStockMovementRepository } from './stockMovement.repository';
 import { IStockMovementService } from './stockMovement.service';
-import { Ingredient, StockMovement, Unit } from '../models/entity';
+import { Ingredient, Line, StockMovement, Unit } from '../models/entity';
 import { HttpError } from '../../errors/httpError';
 import logger from '../../config/logger';
 
@@ -15,6 +15,50 @@ export class StockMovementService implements IStockMovementService {
     private readonly _stockMovementMapper: StockMovementMapper,
     private readonly _dataSource: DataSource,
   ) {}
+
+  async createStockMovementForOrderLine(
+    line: Line,
+    isUpdate: boolean = false,
+    previousQuantity: number = 0,
+  ): Promise<void> {
+    for (const recipe of line.product.recipe.recipeIngredient) {
+      const ingredient = recipe.ingredient;
+      let quantity: number;
+      let stockMovementTypeId: number;
+
+      if (isUpdate) {
+        const quantityDifference = Math.abs(
+          recipe.quantity * line.quantity - recipe.quantity * previousQuantity,
+        );
+        if (quantityDifference === 0) continue; // No change
+
+        quantity = quantityDifference;
+        stockMovementTypeId =
+          recipe.quantity * line.quantity > recipe.quantity * previousQuantity
+            ? 2
+            : 1; // Out or Return
+      } else {
+        quantity = recipe.quantity * line.quantity;
+        stockMovementTypeId = 2; // Out
+      }
+
+      if (ingredient.stock < quantity && stockMovementTypeId === 2) {
+        throw new HttpError(
+          400,
+          `Insufficient stock for ingredient ${ingredient.name}`,
+        );
+      }
+
+      await this.createStockMovement(
+        new StockMovementRequestDTO(
+          ingredient.id,
+          quantity,
+          recipe.unitId,
+          stockMovementTypeId,
+        ),
+      );
+    }
+  }
 
   async createStockMovement(
     requestDTO: StockMovementRequestDTO,
@@ -37,6 +81,7 @@ export class StockMovementService implements IStockMovementService {
       const unit = await queryRunner.manager.findOneBy(Unit, {
         id: requestDTO.unitId,
       });
+
       if (!unit) {
         throw new HttpError(400, `Unit with id ${requestDTO.unitId} not found`);
       }
