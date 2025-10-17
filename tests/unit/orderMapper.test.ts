@@ -15,8 +15,17 @@ const mockStateRepository = {
   findOneBy: jest.fn(),
 };
 
-const mockIngredientRepository = {
+const mockCustomProductRepository = {
   findOneBy: jest.fn(),
+  createQueryBuilder: jest.fn(() => ({
+    leftJoinAndSelect: jest.fn().mockReturnThis(),
+    where: jest.fn().mockReturnThis(),
+    getMany: jest.fn().mockResolvedValue([]),
+  })),
+};
+
+const mockProductMapper = {
+  customProductToProduct: jest.fn(),
 };
 
 describe('OrderMapper', () => {
@@ -28,7 +37,8 @@ describe('OrderMapper', () => {
       mockClientRepository as any,
       mockProductRepository as any,
       mockStateRepository as any,
-      mockIngredientRepository as any,
+      mockCustomProductRepository as any,
+      mockProductMapper as any,
     );
   });
 
@@ -58,27 +68,34 @@ describe('OrderMapper', () => {
 
   describe('ordersToOrderSearchResponseDTO', () => {
     it('should create search response DTO', () => {
-      const orders: Order[] = [{
-        id: 1,
-        clientId: 1,
-        deliveryTime: new Date(),
-        contactMethod: 'phone',
-        paymentMethod: 'cash',
-        stateId: 1,
-        subTotal: 8,
-        total: 10,
-        taxTotal: 2,
-        createdAt: new Date(),
-        client: { name: 'Client' } as any,
-        state: { name: 'Pending' } as any,
-        lines: []
-      } as Order];
+      const orders: Order[] = [
+        {
+          id: 1,
+          clientId: 1,
+          deliveryTime: new Date(),
+          contactMethod: 'phone',
+          paymentMethod: 'cash',
+          stateId: 1,
+          subTotal: 8,
+          total: 10,
+          taxTotal: 2,
+          createdAt: new Date(),
+          client: { name: 'Client' } as any,
+          state: { name: 'Pending' } as any,
+          lines: [],
+        } as Order,
+      ];
       const search = 'Client';
       const page = 1;
       const limit = 10;
       const total = 1;
 
-      const result = orderMapper.ordersToOrderSearchResponseDTO([orders, total], search, page, limit);
+      const result = orderMapper.ordersToOrderSearchResponseDTO(
+        [orders, total],
+        search,
+        page,
+        limit,
+      );
 
       expect(result).toBeInstanceOf(OrderSearchResponseDTO);
       expect(result.search).toBe(search);
