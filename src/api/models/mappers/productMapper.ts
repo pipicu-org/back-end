@@ -206,23 +206,12 @@ export class ProductMapper
     }
 
     const product = new Product();
-
-    if (customProduct.baseProduct) {
-      product.name = customProduct.baseProduct.name;
-      product.preTaxPrice = customProduct.baseProduct.preTaxPrice;
-      product.price = customProduct.baseProduct.price;
-      product.categoryId = customProduct.baseProduct.categoryId;
-      product.category = customProduct.baseProduct.category;
-    } else {
-      product.name = 'Custom Product';
-      product.preTaxPrice = 0;
-      product.price = 0;
-      product.categoryId = 0;
-      const defaultCategory = new Category();
-      defaultCategory.id = 0;
-      defaultCategory.name = 'Default';
-      product.category = defaultCategory;
-    }
+    product.id = customProduct.id;
+    product.name = customProduct.baseProduct.name;
+    product.preTaxPrice = customProduct.baseProduct.preTaxPrice;
+    product.price = customProduct.baseProduct.price;
+    product.categoryId = customProduct.baseProduct.categoryId;
+    product.category = customProduct.baseProduct.category;
 
     product.recipeId = customProduct.recipeId;
     product.recipe = customProduct.recipe;

@@ -21,7 +21,6 @@ export class StockMovementService implements IStockMovementService {
     isUpdate: boolean = false,
     previousQuantity: number = 0,
   ): Promise<void> {
-    console.log(line);
     for (const recipe of line.product.recipe.recipeIngredient) {
       const ingredient = recipe.ingredient;
       let quantity: number;

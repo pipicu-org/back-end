@@ -135,17 +135,17 @@ export const dbCustomProductRepository =
 
 export const clientMapper = new ClientMapper();
 
-export const orderMapper = new OrderMapper(
-  dbClientRepository,
-  dbProductRepository,
-  dbStateRepository,
-  dbIngredientRepository,
-);
-
 export const productMapper = new ProductMapper(
   dbCategoryRepository,
   dbIngredientRepository,
   dbProductRepository,
+);
+export const orderMapper = new OrderMapper(
+  dbClientRepository,
+  dbProductRepository,
+  dbStateRepository,
+  dbCustomProductRepository,
+  productMapper,
 );
 
 export const ingredientMapper = new IngredientMapper();
