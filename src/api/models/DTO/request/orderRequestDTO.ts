@@ -9,10 +9,17 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
-class OrderLineDTO {
+class ProductDTO {
   @IsNotEmpty({ message: 'Product ID is required' })
   @IsNumber({}, { message: 'Product ID must be a number' })
-  product!: number;
+  id!: number;
+}
+
+class OrderLineDTO {
+  @IsNotEmpty({ message: 'Product is required' })
+  @ValidateNested()
+  @Type(() => ProductDTO)
+  product!: ProductDTO;
 
   @IsNotEmpty({ message: 'Quantity is required' })
   @IsNumber({}, { message: 'Quantity must be a number' })
@@ -52,7 +59,7 @@ export class OrderRequestDTO {
     this.contactMethod = order.contactMethod;
     this.paymentMethod = order.paymentMethod;
     this.lines = order.lines.map((line) => ({
-      product: line.product.id,
+      product: { id: line.product.id },
       quantity: line.quantity,
       productType: line.productTypeId === 2 ? 'custom' : 'standard',
     }));

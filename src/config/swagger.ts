@@ -433,7 +433,12 @@ const options = {
               items: {
                 type: 'object',
                 properties: {
-                  product: { type: 'number', example: 1 },
+                  product: {
+                    type: 'object',
+                    properties: {
+                      id: { type: 'number', example: 1 },
+                    },
+                  },
                   quantity: { type: 'number', example: 2 },
                   productType: { type: 'string', example: 'standard' },
                 },

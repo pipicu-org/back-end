@@ -88,7 +88,7 @@ export class OrderService implements IOrderService {
   private async _compareAndUpdateLines(
     existingOrder: OrderResponseDTO,
     newLines: Array<{
-      product: number;
+      product: { id: number };
       quantity: number;
       productType?: string;
     }>,
@@ -97,11 +97,11 @@ export class OrderService implements IOrderService {
     const updatedLines: Line[] = [];
     const newLineMap = new Map<
       number,
-      { product: number; quantity: number; productType?: string }
+      { product: { id: number }; quantity: number; productType?: string }
     >();
 
     // Create map of new lines by product ID
-    newLines.forEach((line) => newLineMap.set(line.product, line));
+    newLines.forEach((line) => newLineMap.set(line.product.id, line));
     // Compare existing lines
     console.log('estoy comparando lineas existentes');
     for (const existingLine of existingLines) {
@@ -118,7 +118,13 @@ export class OrderService implements IOrderService {
           updatedLines.push(lineEntity);
         } else {
           // Update line
-          const updatedLine = await this._updateLine(existingLine.id, newLine);
+          const updatedLine = await this._updateLine(existingLine.id, {
+            product: {
+              id: newLine.product.id,
+            },
+            quantity: newLine.quantity,
+            productType: newLine.productType,
+          });
           updatedLines.push(updatedLine);
         }
         newLineMap.delete(Number(existingLine.product.id));
@@ -141,7 +147,13 @@ export class OrderService implements IOrderService {
 
     // Add new lines
     for (const [, newLine] of newLineMap) {
-      const newLineEntity = await this._createNewLine(newLine);
+      const newLineEntity = await this._createNewLine({
+        product: {
+          id: newLine.product.id,
+        },
+        quantity: newLine.quantity,
+        productType: newLine.productType,
+      });
       // Handle stock movement for new line
       const productFound = await this._productService.getProductById(
         newLineEntity.productId,
@@ -162,7 +174,7 @@ export class OrderService implements IOrderService {
   private async _updateLine(
     lineId: string,
     newLineData: {
-      product: number;
+      product: { id: number };
       quantity: number;
       productType?: string;
     },
@@ -189,10 +201,10 @@ export class OrderService implements IOrderService {
     );
 
     // Update product if changed
-    if (lineEntity.productId !== newLineData.product) {
-      lineEntity.productId = newLineData.product;
+    if (lineEntity.productId !== newLineData.product.id) {
+      lineEntity.productId = newLineData.product.id;
       console.log(
-        `[DEBUG] Product changed from ${lineEntity.productId} to ${newLineData.product}`,
+        `[DEBUG] Product changed from ${lineEntity.productId} to ${newLineData.product.id}`,
       );
     }
     // Handle stock movement for quantity change
@@ -212,14 +224,14 @@ export class OrderService implements IOrderService {
   }
 
   private async _createNewLine(newLineData: {
-    product: number;
+    product: { id: number };
     quantity: number;
     productType?: string;
   }): Promise<Line> {
     // Use orderMapper logic to create line
     // This is a simplified version - in practice, you'd need product repository
     const line = new Line();
-    line.productId = newLineData.product;
+    line.productId = newLineData.product.id;
     line.quantity = Number(newLineData.quantity);
     line.productTypeId = newLineData.productType === 'custom' ? 2 : 1;
     // Note: unitPrice and totalPrice would be set when product is fetched
@@ -327,7 +339,7 @@ export class OrderService implements IOrderService {
   }
 
   private _hasRepeatedProducts(order: OrderRequestDTO): boolean {
-    const products = order.lines.map((line) => line.product);
+    const products = order.lines.map((line) => line.product.id);
     const uniqueProducts = new Set(products);
     return uniqueProducts.size !== products.length;
   }

@@ -51,8 +51,11 @@ export const orderRouter = (controller = orderController): Router => {
    *                   type: object
    *                   properties:
    *                     product:
-   *                       type: integer
-   *                       example: 1
+   *                       type: object
+   *                       properties:
+   *                         id:
+   *                           type: integer
+   *                           example: 1
    *                     quantity:
    *                       type: number
    *                       example: 2
@@ -65,7 +68,7 @@ export const orderRouter = (controller = orderController): Router => {
    *             contactMethod: "phone"
    *             paymentMethod: "cash"
    *             lines:
-   *               - product: 1
+   *               - product: { id: 1 }
    *                 quantity: 2
    *                 productType: "standard"
    *     responses:
@@ -276,8 +279,11 @@ export const orderRouter = (controller = orderController): Router => {
    *                   type: object
    *                   properties:
    *                     product:
-   *                       type: integer
-   *                       example: 1
+   *                       type: object
+   *                       properties:
+   *                         id:
+   *                           type: integer
+   *                           example: 1
    *                     quantity:
    *                       type: number
    *                       example: 2
@@ -290,7 +296,7 @@ export const orderRouter = (controller = orderController): Router => {
    *             contactMethod: "phone"
    *             paymentMethod: "cash"
    *             lines:
-   *               - product: 1
+   *               - product: { id: 1 }
    *                 quantity: 2
    *                 productType: "standard"
    *     responses:

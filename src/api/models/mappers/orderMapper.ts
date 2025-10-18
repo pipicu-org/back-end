@@ -50,12 +50,15 @@ export class OrderMapper {
       const client = await this._clientRepository.findOneBy({
         id: orderRequest.client,
       });
+      console.log(orderRequest.lines);
       const productIds = orderRequest.lines
         .filter((line) => line.productType === 'standard')
-        .map((line) => line.product);
+        .map((line) => line.product.id);
+      console.log('Product IDs:', productIds);
       const customProductsIds = orderRequest.lines
         .filter((line) => line.productType === 'custom')
-        .map((line) => line.product);
+        .map((line) => line.product.id);
+      console.log('Custom Product IDs:', customProductsIds);
       const products = await this._productRepository
         .createQueryBuilder('product')
         .leftJoinAndSelect('product.recipe', 'recipe')
@@ -73,11 +76,7 @@ export class OrderMapper {
         .leftJoinAndSelect('recipeIngredient.unit', 'unit')
         .where({ id: In(customProductsIds) })
         .getMany();
-      if (
-        !products ||
-        (products.length === 0 && !customProducts) ||
-        customProducts.length === 0
-      ) {
+      if (products.length === 0 && customProducts.length === 0) {
         throw new HttpError(404, 'No products found');
       }
       if (!client) {
@@ -95,15 +94,15 @@ export class OrderMapper {
       for (const line of orderRequest.lines) {
         const product =
           line.productType === 'standard'
-            ? products.find((p) => String(p.id) === String(line.product))
+            ? products.find((p) => String(p.id) === String(line.product.id))
             : (() => {
                 const customProductEntity = customProducts.find(
-                  (cp) => String(cp.id) === String(line.product),
+                  (cp) => String(cp.id) === String(line.product.id),
                 );
                 if (!customProductEntity) {
                   throw new HttpError(
                     404,
-                    `Product with id ${line.product} not found`,
+                    `Product with id ${line.product.id} not found`,
                   );
                 }
                 return this._productMapper.customProductToProduct(
@@ -111,12 +110,15 @@ export class OrderMapper {
                 );
               })();
         if (!product) {
-          throw new HttpError(404, `Product with id ${line.product} not found`);
+          throw new HttpError(
+            404,
+            `Product with id ${line.product.id} not found`,
+          );
         }
         if (line.quantity <= 0) {
           throw new HttpError(
             400,
-            `Quantity for product id ${line.product} must be greater than 0`,
+            `Quantity for product id ${line.product.id} must be greater than 0`,
           );
         }
         order.total += product.price * line.quantity;
@@ -140,15 +142,15 @@ export class OrderMapper {
           const entityLine = new Line();
           const product =
             line.productType === 'standard'
-              ? products.find((p) => String(p.id) === String(line.product))
+              ? products.find((p) => String(p.id) === String(line.product.id))
               : (() => {
                   const customProductEntity = customProducts.find(
-                    (cp) => String(cp.id) === String(line.product),
+                    (cp) => String(cp.id) === String(line.product.id),
                   );
                   if (!customProductEntity) {
                     throw new HttpError(
                       404,
-                      `Product with id ${line.product} not found`,
+                      `Product with id ${line.product.id} not found`,
                     );
                   }
                   return this._productMapper.customProductToProduct(
@@ -158,7 +160,7 @@ export class OrderMapper {
           if (!product) {
             throw new HttpError(
               404,
-              `Product with id ${line.product} not found`,
+              `Product with id ${line.product.id} not found`,
             );
           }
           entityLine.productId = product.id;
