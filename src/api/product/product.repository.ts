@@ -1,5 +1,4 @@
 import { Repository } from 'typeorm';
-import { CustomProduct } from '../models/entity';
 import { Product } from '../models/entity';
 import { ProductMapper } from '../models/mappers/productMapper';
 import { ProductSearchResponseDTO } from '../models/DTO/response/productSearchResponseDTO';
@@ -21,26 +20,17 @@ export interface IProductRepository {
     page: number,
     limit: number,
   ): Promise<ProductSearchResponseDTO>;
-  createCustomProduct(
-    customProduct: CustomProduct,
-  ): Promise<ProductResponseDTO>;
-  getCustomProductById(id: number): Promise<ProductResponseDTO>;
   getAllCustomProducts(
     page: number,
     limit: number,
   ): Promise<
     import('../models/DTO/response/customProductResponsePaginatedDTO').CustomProductResponsePaginatedDTO
   >;
-  updateCustomProduct(
-    id: number,
-    customProduct: CustomProduct,
-  ): Promise<ProductResponseDTO>;
 }
 
 export class ProductRepository implements IProductRepository {
   constructor(
     private readonly _dbProductRepository: Repository<Product>,
-    private readonly _dbCustomProductRepository: Repository<CustomProduct>,
     private readonly _productMapper: ProductMapper,
   ) {}
 
@@ -296,58 +286,6 @@ export class ProductRepository implements IProductRepository {
     }
   }
 
-  async createCustomProduct(
-    customProduct: CustomProduct,
-  ): Promise<ProductResponseDTO> {
-    try {
-      const productCustomCreated =
-        await this._dbCustomProductRepository.save(customProduct);
-      const product =
-        this._productMapper.customProductToProduct(productCustomCreated);
-      return this._productMapper.toResponseDTO(product);
-    } catch (error: any) {
-      console.error('Error creating custom product:', error);
-      throw new HttpError(
-        error.status || 500,
-        error.message || 'Failed to create custom product',
-      );
-    }
-  }
-
-  /**
-   * Retrieves a custom product by its ID.
-   * @param id The ID of the custom product to retrieve.
-   * @returns A Promise that resolves to the ProductResponseDTO of the custom product.
-   * @throws HttpError if the custom product is not found or if there's an error during retrieval.
-   */
-  async getCustomProductById(id: number): Promise<ProductResponseDTO> {
-    try {
-      const customProduct = await this._dbCustomProductRepository
-        .createQueryBuilder('customProduct')
-        .leftJoinAndSelect('customProduct.baseProduct', 'baseProduct')
-        .leftJoinAndSelect('baseProduct.category', 'category')
-        .leftJoinAndSelect('customProduct.recipe', 'recipe')
-        .leftJoinAndSelect('recipe.recipeIngredient', 'recipeIngredient')
-        .leftJoinAndSelect('recipeIngredient.ingredient', 'ingredient')
-        .where('customProduct.id = :id', { id })
-        .getOne();
-
-      if (!customProduct) {
-        console.warn(`No custom product found with id ${id}`);
-        throw new HttpError(404, `Custom product id ${id} not found`);
-      }
-
-      const product = this._productMapper.customProductToProduct(customProduct);
-      return this._productMapper.toResponseDTO(product);
-    } catch (error: any) {
-      console.error(`Error finding custom product with id ${id}:`, error);
-      throw new HttpError(
-        error.status || 500,
-        error.message || 'Failed to find custom product by ID',
-      );
-    }
-  }
-
   /**
    * Retrieves all custom products with pagination.
    * @param page The page number to retrieve (1-based).
@@ -363,14 +301,16 @@ export class ProductRepository implements IProductRepository {
   > {
     try {
       const offset = (page - 1) * limit;
-      const [customProducts, total] = await this._dbCustomProductRepository
-        .createQueryBuilder('customProduct')
-        .leftJoinAndSelect('customProduct.baseProduct', 'baseProduct')
-        .leftJoinAndSelect('baseProduct.category', 'category')
-        .leftJoinAndSelect('customProduct.recipe', 'recipe')
+      const [products, total] = await this._dbProductRepository
+        .createQueryBuilder('product')
+        .leftJoinAndSelect('product.productType', 'productType')
+        .leftJoinAndSelect('product.parentProduct', 'parentProduct')
+        .leftJoinAndSelect('parentProduct.category', 'category')
+        .leftJoinAndSelect('product.recipe', 'recipe')
         .leftJoinAndSelect('recipe.recipeIngredient', 'recipeIngredient')
         .leftJoinAndSelect('recipeIngredient.ingredient', 'ingredient')
-        .orderBy('customProduct.id', 'ASC')
+        .where('product.productTypeId = :customTypeId', { customTypeId: 2 })
+        .orderBy('product.id', 'ASC')
         .skip(offset)
         .take(limit)
         .getManyAndCount();
@@ -378,6 +318,27 @@ export class ProductRepository implements IProductRepository {
       const CustomProductResponsePaginatedDTO = (
         await import('../models/DTO/response/customProductResponsePaginatedDTO')
       ).CustomProductResponsePaginatedDTO;
+
+      // Transform products to match CustomProduct structure
+      const customProducts = products.map((product) => ({
+        id: product.id,
+        baseProductId: product.parentProductId || 0,
+        recipeId: product.recipeId || 0,
+        createdAt: product.createdAt,
+        updatedAt: product.updatedAt,
+        baseProduct: product.parentProduct || {
+          id: 0,
+          name: '',
+          preTaxPrice: 0,
+          price: 0,
+          categoryId: 0,
+          category: { id: 0, name: '' },
+        },
+        recipe: product.recipe || {
+          id: 0,
+          recipeIngredient: [],
+        },
+      }));
 
       return new CustomProductResponsePaginatedDTO(
         [customProducts, total],
@@ -389,63 +350,6 @@ export class ProductRepository implements IProductRepository {
       throw new HttpError(
         error.status || 500,
         error.message || 'Failed to find all custom products',
-      );
-    }
-  }
-
-  /**
-   * Updates a custom product by its ID.
-   * @param id The ID of the custom product to update.
-   * @param customProduct The CustomProduct entity with updated data.
-   * @returns A Promise that resolves to the ProductResponseDTO of the updated custom product.
-   * @throws HttpError if the custom product is not found or if there's an error during update.
-   */
-
-  //TODO: Checkear
-  async updateCustomProduct(
-    id: number,
-    customProduct: CustomProduct,
-  ): Promise<ProductResponseDTO> {
-    try {
-      // First, check if the custom product exists
-      const existingCustomProduct = await this._dbCustomProductRepository
-        .createQueryBuilder('customProduct')
-        .leftJoinAndSelect('customProduct.baseProduct', 'baseProduct')
-        .leftJoinAndSelect('customProduct.recipe', 'recipe')
-        .leftJoinAndSelect('recipe.recipeIngredient', 'recipeIngredient')
-        .where('customProduct.id = :id', { id })
-        .getOne();
-
-      if (!existingCustomProduct) {
-        console.warn(`No custom product found with id ${id} to update`);
-        throw new HttpError(404, `Custom product id ${id} not found`);
-      }
-
-      // Set the ID to ensure we're updating the correct record
-      customProduct.id = id;
-
-      // If the recipe is being updated, remove old recipe ingredients and set the recipe ID
-      if (customProduct.recipe && existingCustomProduct.recipe) {
-        customProduct.recipe.id = existingCustomProduct.recipe.id;
-        // Remove old recipe ingredients to allow cascade save
-        await this._dbCustomProductRepository.manager.remove(
-          existingCustomProduct.recipe.recipeIngredient,
-        );
-      }
-
-      // Save the updated custom product (cascade will handle recipe and ingredients)
-      const updatedCustomProduct =
-        await this._dbCustomProductRepository.save(customProduct);
-
-      // Convert to Product and return as ProductResponseDTO
-      const product =
-        this._productMapper.customProductToProduct(updatedCustomProduct);
-      return this._productMapper.toResponseDTO(product);
-    } catch (error: any) {
-      console.error(`Error updating custom product with id ${id}:`, error);
-      throw new HttpError(
-        error.status || 500,
-        error.message || 'Failed to update custom product',
       );
     }
   }

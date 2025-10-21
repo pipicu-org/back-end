@@ -11,7 +11,7 @@ import { IsNotEmpty } from 'class-validator';
 import { Category } from './category';
 import { Recipe } from './recipe';
 import { Line } from './line';
-import { CustomProduct } from './customProduct';
+import { ProductType } from './productType';
 
 interface IProduct {
   id: number;
@@ -20,6 +20,8 @@ interface IProduct {
   price: number;
   recipeId: number | null;
   categoryId: number;
+  productTypeId: number;
+  parentProductId: number | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -45,6 +47,12 @@ export class Product implements IProduct {
   @Column({ type: 'int', nullable: false })
   categoryId!: number;
 
+  @Column({ type: 'int', nullable: false, default: 0 })
+  productTypeId!: number;
+
+  @Column({ type: 'int', nullable: true })
+  parentProductId!: number | null;
+
   maxPrepareable!: number;
 
   cost!: number;
@@ -52,7 +60,11 @@ export class Product implements IProduct {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt!: Date;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
   updatedAt!: Date;
 
   // Relación muchos-a-uno con Category
@@ -76,7 +88,19 @@ export class Product implements IProduct {
   @OneToMany(() => Line, (line) => line.product, {})
   lines!: Line[];
 
-  // Relación uno-a-muchos con CustomProduct
-  @OneToMany(() => CustomProduct, (customProduct) => customProduct.baseProduct, {})
-  customProducts!: CustomProduct[];
+  @ManyToOne(() => ProductType, (productType) => productType.products, {
+    nullable: false,
+    eager: true,
+  })
+  @JoinColumn({ name: 'productTypeId' })
+  productType!: ProductType;
+
+  @ManyToOne(() => Product, (product) => product.productChildrens, {
+    nullable: true,
+  })
+  @JoinColumn({ name: 'parentProductId' })
+  parentProduct!: Product;
+
+  @OneToMany(() => Product, (product) => product.parentProduct)
+  productChildrens!: Product[];
 }

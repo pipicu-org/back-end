@@ -18,12 +18,14 @@ export class ProductTypeSeed implements ISeed<ProductType> {
       name: 'normal',
       createdAt: new Date(),
       updatedAt: new Date(),
+      products: [],
     },
     {
       id: 2,
       name: 'custom',
       createdAt: new Date(),
       updatedAt: new Date(),
+      products: [],
     },
   ];
 

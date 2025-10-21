@@ -15,17 +15,8 @@ const mockStateRepository = {
   findOneBy: jest.fn(),
 };
 
-const mockCustomProductRepository = {
-  findOneBy: jest.fn(),
-  createQueryBuilder: jest.fn(() => ({
-    leftJoinAndSelect: jest.fn().mockReturnThis(),
-    where: jest.fn().mockReturnThis(),
-    getMany: jest.fn().mockResolvedValue([]),
-  })),
-};
-
 const mockProductMapper = {
-  customProductToProduct: jest.fn(),
+  toResponseDTO: jest.fn(),
 };
 
 describe('OrderMapper', () => {
@@ -37,7 +28,6 @@ describe('OrderMapper', () => {
       mockClientRepository as any,
       mockProductRepository as any,
       mockStateRepository as any,
-      mockCustomProductRepository as any,
       mockProductMapper as any,
     );
   });

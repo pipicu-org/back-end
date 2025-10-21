@@ -88,11 +88,14 @@ const options = {
         },
         ProductRequestDTO: {
           type: 'object',
-          required: ['category', 'name', 'price', 'ingredients'],
+          description:
+            'Request body for creating a product. Optional fields productTypeId and parentProductId enable custom product creation, defaulting to null if not provided.',
+          required: ['category', 'name', 'preTaxPrice', 'price', 'ingredients'],
           properties: {
             category: { type: 'number', example: 1 },
             name: { type: 'string', example: 'Pizza Margherita' },
-            price: { type: 'number', example: 10.99 },
+            preTaxPrice: { type: 'number', example: 10.99 },
+            price: { type: 'number', example: 12.99 },
             ingredients: {
               type: 'array',
               items: {
@@ -102,6 +105,20 @@ const options = {
                   quantity: { type: 'number', example: 2 },
                 },
               },
+            },
+            productTypeId: {
+              type: 'number',
+              nullable: true,
+              example: 1,
+              description:
+                'Optional field for custom product type, enabling custom product creation. Defaults to 1.',
+            },
+            parentProductId: {
+              type: 'number',
+              nullable: true,
+              example: null,
+              description:
+                'Optional field for parent product in custom products, enabling custom product creation. Defaults to null.',
             },
           },
         },
@@ -340,6 +357,8 @@ const options = {
         },
         ProductRequest: {
           type: 'object',
+          description:
+            'Request body for creating a product. Optional fields productTypeId and parentProductId enable custom product creation, defaulting to null if not provided.',
           required: ['category', 'name', 'preTaxPrice', 'price', 'ingredients'],
           properties: {
             category: { type: 'number', example: 1 },
@@ -355,6 +374,20 @@ const options = {
                   quantity: { type: 'number', example: 2 },
                 },
               },
+            },
+            productTypeId: {
+              type: 'number',
+              nullable: true,
+              example: 1,
+              description:
+                'Optional field for custom product type, enabling custom product creation. Defaults to 1.',
+            },
+            parentProductId: {
+              type: 'number',
+              nullable: true,
+              example: null,
+              description:
+                'Optional field for parent product in custom products, enabling custom product creation. Defaults to null.',
             },
           },
         },
@@ -440,7 +473,6 @@ const options = {
                     },
                   },
                   quantity: { type: 'number', example: 2 },
-                  productType: { type: 'string', example: 'standard' },
                 },
               },
             },

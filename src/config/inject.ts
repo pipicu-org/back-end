@@ -1,11 +1,11 @@
 import {
   Category,
   Client,
-  CustomProduct,
   Ingredient,
   Line,
   Order,
   Product,
+  ProductType,
   Provider,
   Purchase,
   PurchaseItem,
@@ -129,8 +129,9 @@ export const dbUnitRepository = AppDataSource.getRepository<Unit>(
 export const dbStockMovementRepository =
   AppDataSource.getRepository<StockMovement>('StockMovement').extend({});
 
-export const dbCustomProductRepository =
-  AppDataSource.getRepository<CustomProduct>('CustomProduct').extend({});
+export const dbProductTypeRepository = AppDataSource.getRepository<ProductType>(
+  'ProductType',
+).extend({});
 // Mappers
 
 export const clientMapper = new ClientMapper();
@@ -139,12 +140,12 @@ export const productMapper = new ProductMapper(
   dbCategoryRepository,
   dbIngredientRepository,
   dbProductRepository,
+  dbProductTypeRepository,
 );
 export const orderMapper = new OrderMapper(
   dbClientRepository,
   dbProductRepository,
   dbStateRepository,
-  dbCustomProductRepository,
   productMapper,
 );
 
@@ -172,7 +173,6 @@ export const orderRepository = new OrderRepository(
 
 export const productRepository = new ProductRepository(
   dbProductRepository,
-  dbCustomProductRepository,
   productMapper,
 );
 

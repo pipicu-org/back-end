@@ -34,26 +34,10 @@ export interface IProductService {
   ): Promise<
     import('../models/DTO/response/productSearchResponseDTO').ProductSearchResponseDTO
   >;
-  createCustomProduct(
-    customProduct: import('../models/DTO/request/customProductRequestDTO').CustomProductRequestDTO,
-  ): Promise<
-    import('../models/DTO/response/productResponseDTO').ProductResponseDTO
-  >;
-  getCustomProductById(
-    id: number,
-  ): Promise<
-    import('../models/DTO/response/productResponseDTO').ProductResponseDTO
-  >;
   getAllCustomProducts(
     page: number,
     limit: number,
   ): Promise<
     import('../models/DTO/response/customProductResponsePaginatedDTO').CustomProductResponsePaginatedDTO
-  >;
-  updateProductCustom(
-    id: number,
-    customProduct: import('../models/DTO/request/customProductRequestDTO').CustomProductRequestDTO,
-  ): Promise<
-    import('../models/DTO/response/productResponseDTO').ProductResponseDTO
   >;
 }

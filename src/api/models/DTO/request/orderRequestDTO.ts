@@ -5,7 +5,6 @@ import {
   IsNumber,
   IsArray,
   ValidateNested,
-  IsOptional,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -24,10 +23,6 @@ class OrderLineDTO {
   @IsNotEmpty({ message: 'Quantity is required' })
   @IsNumber({}, { message: 'Quantity must be a number' })
   quantity!: number;
-
-  @IsOptional()
-  @IsString({ message: 'Product type must be a string' })
-  productType?: string;
 }
 
 export class OrderRequestDTO {
@@ -61,7 +56,6 @@ export class OrderRequestDTO {
     this.lines = order.lines.map((line) => ({
       product: { id: line.product.id },
       quantity: line.quantity,
-      productType: line.productTypeId === 2 ? 'custom' : 'standard',
     }));
   }
 }

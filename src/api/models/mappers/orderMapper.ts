@@ -1,5 +1,5 @@
 import { In, Repository } from 'typeorm';
-import { Client, CustomProduct, Line, Order, Product, State } from '../entity';
+import { Client, Line, Order, Product, State } from '../entity';
 import { OrderSearchResponseDTO } from '../DTO/response/orderSearchResponseDTO';
 import { OrderResponseDTO } from '../DTO/response/orderResponseDTO';
 import { OrderRequestDTO } from '../DTO/request/orderRequestDTO';
@@ -13,7 +13,6 @@ export class OrderMapper {
     private readonly _clientRepository: Repository<Client>,
     private readonly _productRepository: Repository<Product>,
     private readonly _stateRepository: Repository<State>,
-    private readonly _customProductRepository: Repository<CustomProduct>,
     private readonly _productMapper: ProductMapper,
   ) {}
 
@@ -51,32 +50,18 @@ export class OrderMapper {
         id: orderRequest.client,
       });
       console.log(orderRequest.lines);
-      const productIds = orderRequest.lines
-        .filter((line) => line.productType === 'standard')
-        .map((line) => line.product.id);
+      const productIds = orderRequest.lines.map((line) => line.product.id);
       console.log('Product IDs:', productIds);
-      const customProductsIds = orderRequest.lines
-        .filter((line) => line.productType === 'custom')
-        .map((line) => line.product.id);
-      console.log('Custom Product IDs:', customProductsIds);
       const products = await this._productRepository
         .createQueryBuilder('product')
         .leftJoinAndSelect('product.recipe', 'recipe')
         .leftJoinAndSelect('recipe.recipeIngredient', 'recipeIngredient')
         .leftJoinAndSelect('recipeIngredient.ingredient', 'ingredient')
         .leftJoinAndSelect('recipeIngredient.unit', 'unit')
+        .leftJoinAndSelect('product.productType', 'productType')
         .where({ id: In(productIds) })
         .getMany();
-      const customProducts = await this._customProductRepository
-        .createQueryBuilder('customProduct')
-        .leftJoinAndSelect('customProduct.baseProduct', 'baseProduct')
-        .leftJoinAndSelect('customProduct.recipe', 'recipe')
-        .leftJoinAndSelect('recipe.recipeIngredient', 'recipeIngredient')
-        .leftJoinAndSelect('recipeIngredient.ingredient', 'ingredient')
-        .leftJoinAndSelect('recipeIngredient.unit', 'unit')
-        .where({ id: In(customProductsIds) })
-        .getMany();
-      if (products.length === 0 && customProducts.length === 0) {
+      if (products.length === 0) {
         throw new HttpError(404, 'No products found');
       }
       if (!client) {
@@ -92,23 +77,9 @@ export class OrderMapper {
       order.total = 0;
       order.subTotal = 0;
       for (const line of orderRequest.lines) {
-        const product =
-          line.productType === 'standard'
-            ? products.find((p) => String(p.id) === String(line.product.id))
-            : (() => {
-                const customProductEntity = customProducts.find(
-                  (cp) => String(cp.id) === String(line.product.id),
-                );
-                if (!customProductEntity) {
-                  throw new HttpError(
-                    404,
-                    `Product with id ${line.product.id} not found`,
-                  );
-                }
-                return this._productMapper.customProductToProduct(
-                  customProductEntity,
-                );
-              })();
+        const product = products.find(
+          (p) => String(p.id) === String(line.product.id),
+        );
         if (!product) {
           throw new HttpError(
             404,
@@ -140,23 +111,9 @@ export class OrderMapper {
       order.lines = await Promise.all(
         orderRequest.lines.map(async (line) => {
           const entityLine = new Line();
-          const product =
-            line.productType === 'standard'
-              ? products.find((p) => String(p.id) === String(line.product.id))
-              : (() => {
-                  const customProductEntity = customProducts.find(
-                    (cp) => String(cp.id) === String(line.product.id),
-                  );
-                  if (!customProductEntity) {
-                    throw new HttpError(
-                      404,
-                      `Product with id ${line.product.id} not found`,
-                    );
-                  }
-                  return this._productMapper.customProductToProduct(
-                    customProductEntity,
-                  );
-                })();
+          const product = products.find(
+            (p) => String(p.id) === String(line.product.id),
+          );
           if (!product) {
             throw new HttpError(
               404,
@@ -171,7 +128,6 @@ export class OrderMapper {
           entityLine.totalPrice = product.price * line.quantity;
           entityLine.createdAt = new Date();
           entityLine.order = order;
-          entityLine.productTypeId = line.productType === 'custom' ? 2 : 1;
           return entityLine;
         }),
       );

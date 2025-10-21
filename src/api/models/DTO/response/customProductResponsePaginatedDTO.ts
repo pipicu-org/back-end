@@ -1,4 +1,4 @@
-import { CustomProduct } from '../../entity';
+import { Product } from '../../entity';
 
 export class CustomProductResponsePaginatedDTO {
   total: number;
@@ -35,43 +35,50 @@ export class CustomProductResponsePaginatedDTO {
     };
   }>;
 
-  constructor(
-    findAndCount: [CustomProduct[], number],
-    page: number,
-    limit: number,
-  ) {
+  constructor(findAndCount: [any[], number], page: number, limit: number) {
     this.total = findAndCount[1];
     this.page = page;
     this.limit = limit;
     this.totalPages = Math.ceil(this.total / limit);
-    this.data = findAndCount[0].map((customProduct) => ({
-      id: customProduct.id,
-      baseProductId: customProduct.baseProductId,
-      recipeId: customProduct.recipeId,
-      createdAt: customProduct.createdAt,
-      updatedAt: customProduct.updatedAt,
-      baseProduct: {
-        id: customProduct.baseProduct.id,
-        name: customProduct.baseProduct.name,
-        preTaxPrice: customProduct.baseProduct.preTaxPrice,
-        price: customProduct.baseProduct.price,
-        categoryId: customProduct.baseProduct.categoryId,
-        category: {
-          id: customProduct.baseProduct.category.id,
-          name: customProduct.baseProduct.category.name,
-        },
-      },
-      recipe: {
-        id: customProduct.recipe.id,
-        ingredients: customProduct.recipe.recipeIngredient.map((ri) => ({
-          id: ri.id,
-          quantity: ri.quantity,
-          ingredient: {
-            id: ri.ingredient.id,
-            name: ri.ingredient.name,
+    this.data = findAndCount[0].map((product: Product) => ({
+      id: product.id,
+      baseProductId: product.parentProductId || 0,
+      recipeId: product.recipeId || 0,
+      createdAt: product.createdAt,
+      updatedAt: product.updatedAt,
+      baseProduct: product.parentProduct
+        ? {
+            id: product.parentProduct.id,
+            name: product.parentProduct.name,
+            preTaxPrice: product.parentProduct.preTaxPrice,
+            price: product.parentProduct.price,
+            categoryId: product.parentProduct.categoryId,
+            category: {
+              id: product.parentProduct.category.id,
+              name: product.parentProduct.category.name,
+            },
+          }
+        : {
+            id: 0,
+            name: '',
+            preTaxPrice: 0,
+            price: 0,
+            categoryId: 0,
+            category: { id: 0, name: '' },
           },
-        })),
-      },
+      recipe: product.recipe
+        ? {
+            id: product.recipe.id,
+            ingredients: product.recipe.recipeIngredient.map((ri: any) => ({
+              id: ri.id,
+              quantity: ri.quantity,
+              ingredient: {
+                id: ri.ingredient.id,
+                name: ri.ingredient.name,
+              },
+            })),
+          }
+        : { id: 0, ingredients: [] },
     }));
   }
 }

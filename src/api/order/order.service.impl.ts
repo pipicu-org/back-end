@@ -64,7 +64,10 @@ export class OrderService implements IOrderService {
     // Compare and update lines selectively
     const updatedLines = await this._compareAndUpdateLines(
       existingOrder,
-      orderRequest.lines,
+      orderRequest.lines.map((line) => ({
+        product: line.product,
+        quantity: line.quantity,
+      })),
     );
 
     // Recalculate totals
@@ -90,7 +93,6 @@ export class OrderService implements IOrderService {
     newLines: Array<{
       product: { id: number };
       quantity: number;
-      productType?: string;
     }>,
   ): Promise<Line[]> {
     const existingLines = existingOrder.lines;
@@ -101,7 +103,12 @@ export class OrderService implements IOrderService {
     >();
 
     // Create map of new lines by product ID
-    newLines.forEach((line) => newLineMap.set(line.product.id, line));
+    newLines.forEach((line) =>
+      newLineMap.set(line.product.id, {
+        product: line.product,
+        quantity: line.quantity,
+      }),
+    );
     // Compare existing lines
     console.log('estoy comparando lineas existentes');
     for (const existingLine of existingLines) {
@@ -123,7 +130,6 @@ export class OrderService implements IOrderService {
               id: newLine.product.id,
             },
             quantity: newLine.quantity,
-            productType: newLine.productType,
           });
           updatedLines.push(updatedLine);
         }
@@ -152,7 +158,6 @@ export class OrderService implements IOrderService {
           id: newLine.product.id,
         },
         quantity: newLine.quantity,
-        productType: newLine.productType,
       });
       // Handle stock movement for new line
       const productFound = await this._productService.getProductById(
@@ -176,7 +181,6 @@ export class OrderService implements IOrderService {
     newLineData: {
       product: { id: number };
       quantity: number;
-      productType?: string;
     },
   ): Promise<Line> {
     // Fetch existing line entity
@@ -233,7 +237,6 @@ export class OrderService implements IOrderService {
     const line = new Line();
     line.productId = newLineData.product.id;
     line.quantity = Number(newLineData.quantity);
-    line.productTypeId = newLineData.productType === 'custom' ? 2 : 1;
     // Note: unitPrice and totalPrice would be set when product is fetched
     // For now, set defaults
     line.unitPrice = 0; // Would be fetched from product

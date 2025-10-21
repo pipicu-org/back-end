@@ -70,189 +70,6 @@ export const productRouter = (controller = productController): Router => {
 
   /**
    * @swagger
-   * /api/products/custom-product:
-   *   post:
-   *     summary: Create a custom product
-   *     tags: [Products]
-   *     requestBody:
-   *       required: true
-   *       content:
-   *         application/json:
-   *           schema:
-   *             $ref: '#/components/schemas/CustomProductRequestDTO'
-   *           example:
-   *             baseProductId: "1"
-   *             ingredients:
-   *               - id: 1
-   *                 quantity: 2
-   *               - id: 2
-   *                 quantity: 1
-   *     responses:
-   *       201:
-   *         description: Custom product created successfully
-   *         content:
-   *           application/json:
-   *             schema:
-   *               $ref: '#/components/schemas/ProductResponse'
-   *             example:
-   *               id: 1
-   *               name: "Custom Pizza Margherita"
-   *               preTaxPrice: 10.99
-   *               price: 12.99
-   *               recipeId: 1
-   *               categoryId: 1
-   *               createdAt: "2023-01-01T00:00:00Z"
-   *               updatedAt: "2023-01-01T00:00:00Z"
-   *               category:
-   *                 id: 1
-   *                 name: "Pizzas"
-   *               recipe:
-   *                 id: 1
-   *                 ingredients:
-   *                   - id: 1
-   *                     quantity: 2
-   *                     ingredient:
-   *                       id: 1
-   *                       name: "Tomato"
-   *                   - id: 2
-   *                     quantity: 1
-   *                     ingredient:
-   *                       id: 2
-   *                       name: "Cheese"
-   *       400:
-   *         $ref: '#/components/responses/ValidationError'
-   *       500:
-   *         $ref: '#/components/responses/ErrorResponse'
-   */
-  router.post(`${PATH}/custom-product`, (req, res, next) =>
-    controller.createCustomProduct(req, res, next),
-  );
-
-  /**
-   * @swagger
-   * /api/products/custom-product/{id}:
-   *   get:
-   *     summary: Get custom product by ID
-   *     tags: [Products]
-   *     parameters:
-   *       - in: path
-   *         name: id
-   *         required: true
-   *         schema:
-   *           type: integer
-   *         description: Custom product ID
-   *     responses:
-   *       200:
-   *         description: Custom product retrieved successfully
-   *         content:
-   *           application/json:
-   *             schema:
-   *               $ref: '#/components/schemas/ProductResponse'
-   *             example:
-   *               id: 1
-   *               name: "Custom Pizza Margherita"
-   *               preTaxPrice: 10.99
-   *               price: 12.99
-   *               recipeId: 1
-   *               categoryId: 1
-   *               createdAt: "2023-01-01T00:00:00Z"
-   *               updatedAt: "2023-01-01T00:00:00Z"
-   *               category:
-   *                 id: 1
-   *                 name: "Pizzas"
-   *               recipe:
-   *                 id: 1
-   *                 ingredients:
-   *                   - id: 1
-   *                     quantity: 2
-   *                     ingredient:
-   *                       id: 1
-   *                       name: "Tomato"
-   *                   - id: 2
-   *                     quantity: 1
-   *                     ingredient:
-   *                       id: 2
-   *                       name: "Cheese"
-   *       404:
-   *         $ref: '#/components/responses/NotFoundError'
-   *       500:
-   *         $ref: '#/components/responses/ErrorResponse'
-   */
-  router.get(`${PATH}/custom-product/:id`, (req, res, next) =>
-    controller.getCustomProductById(req, res, next),
-  );
-
-  /**
-   * @swagger
-   * /api/products/custom-product/{id}:
-   *   put:
-   *     summary: Update a custom product
-   *     tags: [Products]
-   *     parameters:
-   *       - in: path
-   *         name: id
-   *         required: true
-   *         schema:
-   *           type: integer
-   *         description: Custom product ID
-   *     requestBody:
-   *       required: true
-   *       content:
-   *         application/json:
-   *           schema:
-   *             $ref: '#/components/schemas/CustomProductRequestDTO'
-   *           example:
-   *             baseProductId: "1"
-   *             ingredients:
-   *               - id: 1
-   *                 quantity: 3
-   *               - id: 2
-   *                 quantity: 2
-   *     responses:
-   *       200:
-   *         description: Custom product updated successfully
-   *         content:
-   *           application/json:
-   *             schema:
-   *               $ref: '#/components/schemas/ProductResponse'
-   *             example:
-   *               id: 1
-   *               name: "Custom Pizza Margherita"
-   *               preTaxPrice: 10.99
-   *               price: 12.99
-   *               recipeId: 1
-   *               categoryId: 1
-   *               createdAt: "2023-01-01T00:00:00Z"
-   *               updatedAt: "2023-01-01T00:00:00Z"
-   *               category:
-   *                 id: 1
-   *                 name: "Pizzas"
-   *               recipe:
-   *                 id: 1
-   *                 ingredients:
-   *                   - id: 1
-   *                     quantity: 3
-   *                     ingredient:
-   *                       id: 1
-   *                       name: "Tomato"
-   *                   - id: 2
-   *                     quantity: 2
-   *                     ingredient:
-   *                       id: 2
-   *                       name: "Cheese"
-   *       404:
-   *         $ref: '#/components/responses/NotFoundError'
-   *       400:
-   *         $ref: '#/components/responses/ValidationError'
-   *       500:
-   *         $ref: '#/components/responses/ErrorResponse'
-   */
-  router.put(`${PATH}/custom-product/:id`, (req, res, next) =>
-    controller.updateProductCustom(req, res, next),
-  );
-
-  /**
-   * @swagger
    * /api/products/custom-products:
    *   get:
    *     summary: Get all custom products with pagination
@@ -409,6 +226,8 @@ export const productRouter = (controller = productController): Router => {
    *             ingredients:
    *               - id: 1
    *                 quantity: 2
+   *             productTypeId: 1
+   *             parentProductId: null
    *     responses:
    *       201:
    *         description: Product created successfully
@@ -467,6 +286,8 @@ export const productRouter = (controller = productController): Router => {
    *             ingredients:
    *               - id: 1
    *                 quantity: 3
+   *             productTypeId: 1
+   *             parentProductId: null
    *     responses:
    *       200:
    *         description: Product updated successfully

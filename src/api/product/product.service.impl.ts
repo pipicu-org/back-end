@@ -1,4 +1,3 @@
-import { CustomProductRequestDTO } from '../models/DTO/request/customProductRequestDTO';
 import { ProductRequestDTO } from '../models/DTO/request/productRequestDTO';
 import { ProductResponseDTO } from '../models/DTO/response/productResponseDTO';
 import { CustomProductResponsePaginatedDTO } from '../models/DTO/response/customProductResponsePaginatedDTO';
@@ -54,25 +53,6 @@ export class ProductService implements IProductService {
     );
   }
 
-  async createCustomProduct(
-    customProduct: CustomProductRequestDTO,
-  ): Promise<ProductResponseDTO> {
-    const customProductEntity =
-      await this._productMapper.customProductRequestDTOToEntity(customProduct);
-    return await this._productRepository.createCustomProduct(
-      customProductEntity,
-    );
-  }
-
-  /**
-   * Retrieves a custom product by its ID.
-   * @param id The ID of the custom product to retrieve.
-   * @returns A Promise that resolves to the ProductResponseDTO of the custom product.
-   */
-  async getCustomProductById(id: number): Promise<ProductResponseDTO> {
-    return this._productRepository.getCustomProductById(id);
-  }
-
   /**
    * Retrieves all custom products with pagination.
    * @param page The page number to retrieve (1-based).
@@ -84,23 +64,5 @@ export class ProductService implements IProductService {
     limit: number,
   ): Promise<CustomProductResponsePaginatedDTO> {
     return this._productRepository.getAllCustomProducts(page, limit);
-  }
-
-  /**
-   * Updates a custom product by its ID.
-   * @param id The ID of the custom product to update.
-   * @param customProduct The CustomProductRequestDTO containing the updated data.
-   * @returns A Promise that resolves to the ProductResponseDTO of the updated custom product.
-   */
-  async updateProductCustom(
-    id: number,
-    customProduct: CustomProductRequestDTO,
-  ): Promise<ProductResponseDTO> {
-    const customProductEntity =
-      await this._productMapper.customProductRequestDTOToEntity(customProduct);
-    return await this._productRepository.updateCustomProduct(
-      id,
-      customProductEntity,
-    );
   }
 }
