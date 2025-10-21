@@ -130,7 +130,7 @@ export class OrderService implements IOrderService {
         newLineMap.delete(Number(existingLine.product.id));
       } else {
         const lineEntity = await this._getLineEntityById(existingLine.id);
-        console.log('[DEBUG] Handle stock movement for removed line');
+        console.info('[DEBUG] Handle stock movement for removed line');
         const productFound = await this._productService.getProductById(
           lineEntity.productId,
         );
@@ -179,10 +179,10 @@ export class OrderService implements IOrderService {
   ): Promise<Line> {
     // Fetch existing line entity
     const lineEntity = await this._getLineEntityById(lineId);
-    console.log(
+    console.info(
       `[DEBUG] Updating line ${lineId}: current quantity=${lineEntity.quantity}, new quantity=${newLineData.quantity}`,
     );
-    console.log(
+    console.info(
       `[DEBUG] Current unitPrice=${lineEntity.unitPrice}, current totalPrice=${lineEntity.totalPrice}`,
     );
 
@@ -194,19 +194,19 @@ export class OrderService implements IOrderService {
     );
     lineEntity.updatedAt = new Date();
 
-    console.log(
+    console.info(
       `[DEBUG] Updated line: quantity=${lineEntity.quantity}, totalPrice=${lineEntity.totalPrice}`,
     );
 
     // Update product if changed
     if (lineEntity.productId !== newLineData.product.id) {
       lineEntity.productId = newLineData.product.id;
-      console.log(
+      console.info(
         `[DEBUG] Product changed from ${lineEntity.productId} to ${newLineData.product.id}`,
       );
     }
     // Handle stock movement for quantity change
-    console.log('[DEBUG] Handle stock movement for updated line');
+    console.info('[DEBUG] Handle stock movement for updated line');
     const productFound = await this._productService.getProductById(
       lineEntity.productId,
     );
