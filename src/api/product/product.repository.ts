@@ -155,7 +155,6 @@ export class ProductRepository implements IProductRepository {
         existingProduct.recipe.recipeIngredient,
       );
       const updatedProduct = await this._dbProductRepository.save(product);
-      console.log('Updated product:', updatedProduct);
       return this._productMapper.toResponseDTO(updatedProduct);
     } catch (error: any) {
       console.error(`Error updating product with id ${id}:`, error);

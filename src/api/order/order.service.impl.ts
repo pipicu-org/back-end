@@ -110,15 +110,9 @@ export class OrderService implements IOrderService {
       }),
     );
     // Compare existing lines
-    console.log('estoy comparando lineas existentes');
     for (const existingLine of existingLines) {
       const newLine = newLineMap.get(Number(existingLine.product.id));
       if (newLine) {
-        // Check if quantity changed
-        console.log({
-          existingLine,
-          newLine,
-        });
         if (Number(existingLine.quantity) === Number(newLine.quantity)) {
           // Keep existing line
           const lineEntity = await this._getLineEntityById(existingLine.id);

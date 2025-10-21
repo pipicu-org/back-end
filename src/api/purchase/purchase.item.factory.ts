@@ -38,7 +38,6 @@ export class PurchaseItemFactory implements IPurchaseItemFactory {
     item.unitQuantity = itemDto.quantity * unit.factor;
     item.purchase = purchase;
     item.purchaseId = purchase.id;
-    console.log('Created Item: (purchaseItemFactory line 39)', item);
     return item;
   }
 }

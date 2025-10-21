@@ -49,9 +49,7 @@ export class OrderMapper {
       const client = await this._clientRepository.findOneBy({
         id: orderRequest.client,
       });
-      console.log(orderRequest.lines);
       const productIds = orderRequest.lines.map((line) => line.product.id);
-      console.log('Product IDs:', productIds);
       const products = await this._productRepository
         .createQueryBuilder('product')
         .leftJoinAndSelect('product.recipe', 'recipe')
