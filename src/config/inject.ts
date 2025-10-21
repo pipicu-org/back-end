@@ -66,6 +66,9 @@ import { UnitMapper } from '../api/models/mappers/unitMapper';
 import { StockMovementRepository } from '../api/stockMovement/stockMovement.repository';
 import { StockMovementService } from '../api/stockMovement/stockMovement.service.impl';
 import { StockMovementController } from '../api/stockMovement/stockMovement.controller';
+import { MetricsRepository } from '../api/metrics/metrics.repository';
+import { MetricsServiceImpl } from '../api/metrics/metrics.service.impl';
+import { MetricsController } from '../api/metrics/metrics.controller';
 import { StockMovementMapper } from '../api/models/mappers/stockMovementMapper';
 
 // Tables
@@ -320,3 +323,9 @@ export const unitService = new UnitService(
 );
 
 export const unitController = new UnitController(unitService);
+
+export const metricsRepository = new MetricsRepository();
+
+export const metricsService = new MetricsServiceImpl(metricsRepository);
+
+export const metricsController = new MetricsController(metricsService);
