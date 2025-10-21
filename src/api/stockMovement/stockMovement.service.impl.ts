@@ -42,13 +42,6 @@ export class StockMovementService implements IStockMovementService {
         stockMovementTypeId = 2; // Out
       }
 
-      if (ingredient.stock < quantity && stockMovementTypeId === 2) {
-        throw new HttpError(
-          400,
-          `Insufficient stock for ingredient ${ingredient.name}`,
-        );
-      }
-
       await this.createStockMovement(
         new StockMovementRequestDTO(
           ingredient.id,
@@ -91,12 +84,6 @@ export class StockMovementService implements IStockMovementService {
         ingredient.stock += requestDTO.quantity;
       } else if (requestDTO.stockMovementTypeId === 2) {
         // 'Out'
-        if (ingredient.stock < requestDTO.quantity) {
-          throw new HttpError(
-            400,
-            `Insufficient stock for ingredient ${ingredient.name}`,
-          );
-        }
         ingredient.stock -= requestDTO.quantity;
       } else {
         throw new HttpError(
