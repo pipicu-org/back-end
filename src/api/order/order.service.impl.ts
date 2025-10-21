@@ -185,7 +185,7 @@ export class OrderService implements IOrderService {
     console.info(
       `[DEBUG] Current unitPrice=${lineEntity.unitPrice}, current totalPrice=${lineEntity.totalPrice}`,
     );
-
+    console.log('Resolvi el problema');
     const lastQuantity = lineEntity.quantity;
     // Update quantity and recalculate totalPrice
     lineEntity.quantity = Number(newLineData.quantity);
@@ -210,6 +210,7 @@ export class OrderService implements IOrderService {
     const productFound = await this._productService.getProductById(
       lineEntity.productId,
     );
+
     const productEntity =
       await this._productMapper.responseDTOToEntity(productFound);
     lineEntity.product = productEntity;
