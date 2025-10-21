@@ -30,7 +30,7 @@ export class ProductService implements IProductService {
         await this._productMapper.requestDTOToEntity(product);
       return await this._productRepository.create(productEntity);
     } catch (error: any) {
-      throw new Error(`Failed to create product: ${error.message}`);
+      throw new Error(`${error.message}`);
     }
   }
 

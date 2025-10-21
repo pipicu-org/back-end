@@ -1,5 +1,8 @@
 import { ProductService } from '../../src/api/product/product.service.impl';
-import { mockProductRequestDTO, mockProductResponseDTO } from '../fixtures/product.fixture';
+import {
+  mockProductRequestDTO,
+  mockProductResponseDTO,
+} from '../fixtures/product.fixture';
 
 const mockProductRepository = {
   create: jest.fn(),
@@ -27,7 +30,10 @@ describe('ProductService', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    productService = new ProductService(mockProductRepository as any, mockProductMapper as any);
+    productService = new ProductService(
+      mockProductRepository as any,
+      mockProductMapper as any,
+    );
   });
 
   describe('createProduct', () => {
@@ -38,17 +44,21 @@ describe('ProductService', () => {
 
       const result = await productService.createProduct(mockProductRequestDTO);
 
-      expect(mockProductMapper.requestDTOToEntity).toHaveBeenCalledWith(mockProductRequestDTO);
+      expect(mockProductMapper.requestDTOToEntity).toHaveBeenCalledWith(
+        mockProductRequestDTO,
+      );
       expect(mockProductRepository.create).toHaveBeenCalledWith(mockEntity);
       expect(result).toEqual(mockProductResponseDTO);
     });
 
     it('should propagate error on creation failure', async () => {
-      const error = new Error('Database error');
+      const error = new Error(`Failed to create product: Database error`);
       mockProductMapper.requestDTOToEntity.mockResolvedValue({});
       mockProductRepository.create.mockRejectedValue(error);
 
-      await expect(productService.createProduct(mockProductRequestDTO)).rejects.toThrow(error);
+      await expect(
+        productService.createProduct(mockProductRequestDTO),
+      ).rejects.toThrow(error);
     });
   });
 
