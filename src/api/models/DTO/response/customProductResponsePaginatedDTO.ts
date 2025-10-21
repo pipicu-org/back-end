@@ -8,7 +8,6 @@ export class CustomProductResponsePaginatedDTO {
   data: Array<{
     id: number;
     baseProductId: number;
-    recipeId: number;
     createdAt: Date;
     updatedAt: Date;
     baseProduct: {
@@ -35,7 +34,7 @@ export class CustomProductResponsePaginatedDTO {
     };
   }>;
 
-  constructor(findAndCount: [any[], number], page: number, limit: number) {
+  constructor(findAndCount: [Product[], number], page: number, limit: number) {
     this.total = findAndCount[1];
     this.page = page;
     this.limit = limit;
@@ -43,7 +42,19 @@ export class CustomProductResponsePaginatedDTO {
     this.data = findAndCount[0].map((product: Product) => ({
       id: product.id,
       baseProductId: product.parentProductId || 0,
-      recipeId: product.recipeId || 0,
+      recipe: product.recipe
+        ? {
+            id: product.recipe.id,
+            ingredients: product.recipe.recipeIngredient.map((ri: any) => ({
+              id: ri.id,
+              quantity: ri.quantity,
+              ingredient: {
+                id: ri.ingredient.id,
+                name: ri.ingredient.name,
+              },
+            })),
+          }
+        : { id: 0, ingredients: [] },
       createdAt: product.createdAt,
       updatedAt: product.updatedAt,
       baseProduct: product.parentProduct
@@ -66,19 +77,6 @@ export class CustomProductResponsePaginatedDTO {
             categoryId: 0,
             category: { id: 0, name: '' },
           },
-      recipe: product.recipe
-        ? {
-            id: product.recipe.id,
-            ingredients: product.recipe.recipeIngredient.map((ri: any) => ({
-              id: ri.id,
-              quantity: ri.quantity,
-              ingredient: {
-                id: ri.ingredient.id,
-                name: ri.ingredient.name,
-              },
-            })),
-          }
-        : { id: 0, ingredients: [] },
     }));
   }
 }

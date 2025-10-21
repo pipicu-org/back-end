@@ -319,29 +319,8 @@ export class ProductRepository implements IProductRepository {
         await import('../models/DTO/response/customProductResponsePaginatedDTO')
       ).CustomProductResponsePaginatedDTO;
 
-      // Transform products to match CustomProduct structure
-      const customProducts = products.map((product) => ({
-        id: product.id,
-        baseProductId: product.parentProductId || 0,
-        recipeId: product.recipeId || 0,
-        createdAt: product.createdAt,
-        updatedAt: product.updatedAt,
-        baseProduct: product.parentProduct || {
-          id: 0,
-          name: '',
-          preTaxPrice: 0,
-          price: 0,
-          categoryId: 0,
-          category: { id: 0, name: '' },
-        },
-        recipe: product.recipe || {
-          id: 0,
-          recipeIngredient: [],
-        },
-      }));
-
       return new CustomProductResponsePaginatedDTO(
-        [customProducts, total],
+        [products, total],
         page,
         limit,
       );
