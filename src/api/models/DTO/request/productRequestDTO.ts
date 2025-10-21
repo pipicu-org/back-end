@@ -24,7 +24,7 @@ export class ProductRequestDTO {
     this.preTaxPrice = preTaxPrice;
     this.price = price;
     this.ingredients = ingredients;
-    this.productTypeId = productTypeId;
+    this.productTypeId = productTypeId || 1;
     this.parentProductId = parentProductId;
   }
 }

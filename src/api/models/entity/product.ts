@@ -47,10 +47,10 @@ export class Product implements IProduct {
   @Column({ type: 'int', nullable: false })
   categoryId!: number;
 
-  @Column({ type: 'int', nullable: false, default: 0 })
+  @Column({ type: 'int', nullable: false, default: 1 })
   productTypeId!: number;
 
-  @Column({ type: 'int', nullable: true })
+  @Column({ type: 'int', nullable: true, default: null })
   parentProductId!: number | null;
 
   maxPrepareable!: number;

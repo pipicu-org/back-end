@@ -25,8 +25,13 @@ export class ProductService implements IProductService {
   }
 
   async createProduct(product: ProductRequestDTO): Promise<ProductResponseDTO> {
-    const productEntity = await this._productMapper.requestDTOToEntity(product);
-    return await this._productRepository.create(productEntity);
+    try {
+      const productEntity =
+        await this._productMapper.requestDTOToEntity(product);
+      return await this._productRepository.create(productEntity);
+    } catch (error: any) {
+      throw new Error(`Failed to create product: ${error.message}`);
+    }
   }
 
   async updateProduct(

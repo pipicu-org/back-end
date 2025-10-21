@@ -15,6 +15,10 @@ const mockProductRepository = {
   findOneBy: jest.fn(),
 };
 
+const mockProductTypeRepository = {
+  findOneBy: jest.fn(),
+};
+
 describe('ProductMapper', () => {
   let productMapper: ProductMapper;
 
@@ -24,6 +28,7 @@ describe('ProductMapper', () => {
       mockCategoryRepository as any,
       mockIngredientRepository as any,
       mockProductRepository as any,
+      mockProductTypeRepository as any,
     );
   });
 
