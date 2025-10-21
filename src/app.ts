@@ -14,7 +14,9 @@ import { purchaseRouter } from './api/purchase/purchase.router';
 import { providerRouter } from './api/provider/provider.router';
 import { unitRouter } from './api/unit/unit.router';
 import { stockMovementRouter } from './api/stockMovement/stockMovement.router';
+import { metricsRouter } from './api/metrics/metrics.router';
 import { swaggerUi, specs } from './config/swagger';
+import { metricsController } from './config/inject';
 
 const app = express();
 
@@ -40,6 +42,7 @@ app.use('/api', purchaseRouter());
 app.use('/api', providerRouter());
 app.use('/api', unitRouter());
 app.use('/api', stockMovementRouter());
+app.use('/api', metricsRouter(metricsController));
 
 // Global error handler (should be after routes)
 app.use(errorHandler);
