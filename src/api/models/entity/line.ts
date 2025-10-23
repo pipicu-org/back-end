@@ -1,4 +1,10 @@
-import { Column, Entity, ManyToOne, JoinColumn, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  JoinColumn,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Min } from 'class-validator';
 import { Order } from './order';
 import { Product } from './product';
@@ -28,7 +34,7 @@ export class Line implements ILine {
   @Column({ type: 'int', nullable: false })
   productId!: number;
 
-  @Column({ type: 'int', nullable: false })
+  @Column({ type: 'int', nullable: false, default: 1 })
   productTypeId!: number;
 
   @Column({ type: 'int', nullable: false })
@@ -49,7 +55,11 @@ export class Line implements ILine {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt!: Date;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
   updatedAt!: Date;
 
   // Relación muchos-a-uno con Product
