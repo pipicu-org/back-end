@@ -7,6 +7,7 @@ RUN npm run build
 
 FROM node:20-bookworm-slim as run
 # puto el que lee
+# puto el que lee2
 WORKDIR /app
 COPY --from=build . .
 
