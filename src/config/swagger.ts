@@ -82,8 +82,16 @@ const options = {
             name: { type: 'string', example: 'Juan Pérez' },
             phoneNumber: { type: 'string', example: '123456789' },
             address: { type: 'string', example: 'Calle Principal 123' },
-            facebookusername: { type: 'string', example: 'juanperez' },
-            instagramusername: { type: 'string', example: 'juanperez_ig' },
+            facebookusername: {
+              type: 'string',
+              nullable: true,
+              example: 'juanperez',
+            },
+            instagramusername: {
+              type: 'string',
+              nullable: true,
+              example: 'juanperez_ig',
+            },
           },
         },
         ProductRequestDTO: {
@@ -216,7 +224,13 @@ const options = {
           type: 'object',
           properties: {
             id: { type: 'number', example: 1 },
-            providerId: { type: 'number', example: 1 },
+            provider: {
+              type: 'object',
+              properties: {
+                id: { type: 'number', example: 1 },
+                name: { type: 'string', example: 'ABC Supplies' },
+              },
+            },
             createdAt: {
               type: 'string',
               format: 'date-time',
@@ -343,6 +357,7 @@ const options = {
             name: { type: 'string', example: 'Tomato' },
             unitId: { type: 'number', example: 1 },
             lossFactor: { type: 'number', example: 0.1 },
+            stock: { type: 'number', example: 100.0 },
             createdAt: {
               type: 'string',
               format: 'date-time',
@@ -399,6 +414,7 @@ const options = {
             preTaxPrice: { type: 'number', example: 10.99 },
             price: { type: 'number', example: 12.99 },
             recipeId: { type: 'number', nullable: true, example: 1 },
+            productTypeId: { type: 'number', example: 1 },
             categoryId: { type: 'number', example: 1 },
             createdAt: {
               type: 'string',
@@ -422,6 +438,7 @@ const options = {
               nullable: true,
               properties: {
                 id: { type: 'number', example: 1 },
+                cost: { type: 'number', nullable: true, example: 5.5 },
                 ingredients: {
                   type: 'array',
                   items: {
@@ -434,6 +451,7 @@ const options = {
                         properties: {
                           id: { type: 'number', example: 1 },
                           name: { type: 'string', example: 'Tomato' },
+                          stock: { type: 'number', example: 100.0 },
                         },
                       },
                     },
@@ -525,7 +543,7 @@ const options = {
           type: 'object',
           required: ['baseProductId', 'ingredients'],
           properties: {
-            baseProductId: { type: 'string', example: '1' },
+            baseProductId: { type: 'number', example: 1 },
             ingredients: {
               type: 'array',
               items: {
@@ -551,8 +569,7 @@ const options = {
                 type: 'object',
                 properties: {
                   id: { type: 'number', example: 1 },
-                  baseProductId: { type: 'number', example: 1 },
-                  recipeId: { type: 'number', example: 1 },
+                  baseProductId: { type: 'number', nullable: true, example: 1 },
                   createdAt: {
                     type: 'string',
                     format: 'date-time',
@@ -565,6 +582,7 @@ const options = {
                   },
                   baseProduct: {
                     type: 'object',
+                    nullable: true,
                     properties: {
                       id: { type: 'number', example: 1 },
                       name: { type: 'string', example: 'Pizza Margherita' },
@@ -582,6 +600,7 @@ const options = {
                   },
                   recipe: {
                     type: 'object',
+                    nullable: true,
                     properties: {
                       id: { type: 'number', example: 1 },
                       ingredients: {
@@ -608,15 +627,41 @@ const options = {
             },
           },
         },
+        StockMovementRequest: {
+          type: 'object',
+          required: [
+            'ingredientId',
+            'quantity',
+            'unitId',
+            'stockMovementTypeId',
+          ],
+          properties: {
+            ingredientId: { type: 'number', example: 1 },
+            quantity: { type: 'number', example: 10.5 },
+            unitId: { type: 'number', example: 1 },
+            stockMovementTypeId: { type: 'number', example: 1 },
+            purchaseItemId: { type: 'number', nullable: true, example: null },
+          },
+        },
         StockMovementResponse: {
           type: 'object',
           properties: {
             id: { type: 'number', example: 1 },
-            ingredientId: { type: 'number', example: 1 },
-            ingredientName: { type: 'string', example: 'Tomato' },
+            ingredient: {
+              type: 'object',
+              properties: {
+                id: { type: 'number', example: 1 },
+                name: { type: 'string', example: 'Tomato' },
+              },
+            },
             quantity: { type: 'number', example: 10.5 },
-            unitId: { type: 'number', example: 1 },
-            unitName: { type: 'string', example: 'Kilogram' },
+            unit: {
+              type: 'object',
+              properties: {
+                id: { type: 'number', example: 1 },
+                name: { type: 'string', example: 'Kilogram' },
+              },
+            },
             stockMovementTypeId: { type: 'number', example: 1 },
             purchaseItemId: { type: 'number', nullable: true, example: null },
             createdAt: {
@@ -643,11 +688,21 @@ const options = {
                 type: 'object',
                 properties: {
                   id: { type: 'number', example: 1 },
-                  ingredientId: { type: 'number', example: 1 },
-                  ingredientName: { type: 'string', example: 'Tomato' },
+                  ingredient: {
+                    type: 'object',
+                    properties: {
+                      id: { type: 'number', example: 1 },
+                      name: { type: 'string', example: 'Tomato' },
+                    },
+                  },
                   quantity: { type: 'number', example: 10.5 },
-                  unitId: { type: 'number', example: 1 },
-                  unitName: { type: 'string', example: 'Kilogram' },
+                  unit: {
+                    type: 'object',
+                    properties: {
+                      id: { type: 'number', example: 1 },
+                      name: { type: 'string', example: 'Kilogram' },
+                    },
+                  },
                   stockMovementTypeId: { type: 'number', example: 1 },
                   purchaseItemId: {
                     type: 'number',
@@ -656,12 +711,10 @@ const options = {
                   },
                   createdAt: {
                     type: 'string',
-                    format: 'date-time',
                     example: '2023-01-01T00:00:00Z',
                   },
                   updatedAt: {
                     type: 'string',
-                    format: 'date-time',
                     example: '2023-01-01T00:00:00Z',
                   },
                 },
