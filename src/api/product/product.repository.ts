@@ -20,6 +20,12 @@ export interface IProductRepository {
     page: number,
     limit: number,
   ): Promise<ProductSearchResponseDTO>;
+  getAllCustomProducts(
+    page: number,
+    limit: number,
+  ): Promise<
+    import('../models/DTO/response/customProductResponsePaginatedDTO').CustomProductResponsePaginatedDTO
+  >;
 }
 
 export class ProductRepository implements IProductRepository {
@@ -61,7 +67,10 @@ export class ProductRepository implements IProductRepository {
     `;
   }
 
-  private getProductsQuery(filter: string): { dataQuery: string; countQuery: string } {
+  private getProductsQuery(filter: string): {
+    dataQuery: string;
+    countQuery: string;
+  } {
     const cte = this.getCteQuery();
     const dataQuery = `${cte}
       SELECT p.id, p.name, p."preTaxPrice", p.price, p."createdAt", p."updatedAt", p."recipeId", p."categoryId",
@@ -189,10 +198,11 @@ export class ProductRepository implements IProductRepository {
   ): Promise<ProductSearchResponseDTO> {
     try {
       const offset = (page - 1) * limit;
-      const { dataQuery, countQuery } = this.getProductsQuery(`p."categoryId" = $1`);
+      const { dataQuery, countQuery } =
+        this.getProductsQuery(`p."categoryId" = $1`);
       const [dataResult, countResult] = await Promise.all([
         this._dbProductRepository.query(dataQuery, [categoryId, limit, offset]),
-        this._dbProductRepository.query(countQuery, [categoryId])
+        this._dbProductRepository.query(countQuery, [categoryId]),
       ]);
       const total = parseInt(countResult[0].total);
       // Map to Product-like objects
@@ -207,7 +217,7 @@ export class ProductRepository implements IProductRepository {
         categoryId: row.categoryId,
         category: { name: row.categoryName },
         maxPrepareable: parseFloat(row.maxPrepareable),
-        cost: parseFloat(row.cost)
+        cost: parseFloat(row.cost),
       }));
       const findAndCount: [any[], number] = [products, total];
       return this._productMapper.searchToResponseDTO(
@@ -235,10 +245,15 @@ export class ProductRepository implements IProductRepository {
   ): Promise<ProductSearchResponseDTO> {
     try {
       const offset = (page - 1) * limit;
-      const { dataQuery, countQuery } = this.getProductsQuery(`p.name ILIKE $1`);
+      const { dataQuery, countQuery } =
+        this.getProductsQuery(`p.name ILIKE $1`);
       const [dataResult, countResult] = await Promise.all([
-        this._dbProductRepository.query(dataQuery, [`%${name}%`, limit, offset]),
-        this._dbProductRepository.query(countQuery, [`%${name}%`])
+        this._dbProductRepository.query(dataQuery, [
+          `%${name}%`,
+          limit,
+          offset,
+        ]),
+        this._dbProductRepository.query(countQuery, [`%${name}%`]),
       ]);
       const total = parseInt(countResult[0].total);
       const products = dataResult.map((row: any) => ({
@@ -252,7 +267,7 @@ export class ProductRepository implements IProductRepository {
         categoryId: row.categoryId,
         category: { name: row.categoryName },
         maxPrepareable: parseFloat(row.maxPrepareable),
-        cost: parseFloat(row.cost)
+        cost: parseFloat(row.cost),
       }));
       const findAndCount: [any[], number] = [products, total];
       return this._productMapper.searchToResponseDTO(
@@ -266,6 +281,53 @@ export class ProductRepository implements IProductRepository {
       throw new HttpError(
         error.status || 500,
         error.message || 'Failed to find products by name',
+      );
+    }
+  }
+
+  /**
+   * Retrieves all custom products with pagination.
+   * @param page The page number to retrieve (1-based).
+   * @param limit The number of items per page.
+   * @returns A Promise that resolves to the CustomProductResponsePaginatedDTO containing the paginated results.
+   * @throws HttpError if there's an error during retrieval.
+   */
+  async getAllCustomProducts(
+    page: number,
+    limit: number,
+  ): Promise<
+    import('../models/DTO/response/customProductResponsePaginatedDTO').CustomProductResponsePaginatedDTO
+  > {
+    try {
+      const offset = (page - 1) * limit;
+      const [products, total] = await this._dbProductRepository
+        .createQueryBuilder('product')
+        .leftJoinAndSelect('product.productType', 'productType')
+        .leftJoinAndSelect('product.parentProduct', 'parentProduct')
+        .leftJoinAndSelect('parentProduct.category', 'category')
+        .leftJoinAndSelect('product.recipe', 'recipe')
+        .leftJoinAndSelect('recipe.recipeIngredient', 'recipeIngredient')
+        .leftJoinAndSelect('recipeIngredient.ingredient', 'ingredient')
+        .where('product.productTypeId = :customTypeId', { customTypeId: 2 })
+        .orderBy('product.id', 'ASC')
+        .skip(offset)
+        .take(limit)
+        .getManyAndCount();
+
+      const CustomProductResponsePaginatedDTO = (
+        await import('../models/DTO/response/customProductResponsePaginatedDTO')
+      ).CustomProductResponsePaginatedDTO;
+
+      return new CustomProductResponsePaginatedDTO(
+        [products, total],
+        page,
+        limit,
+      );
+    } catch (error: any) {
+      console.error('Error finding all custom products:', error);
+      throw new HttpError(
+        error.status || 500,
+        error.message || 'Failed to find all custom products',
       );
     }
   }

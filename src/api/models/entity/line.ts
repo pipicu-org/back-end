@@ -8,13 +8,11 @@ import {
 import { Min } from 'class-validator';
 import { Order } from './order';
 import { Product } from './product';
-import { ProductType } from './productType';
 
 interface ILine {
   id: number;
   note: string;
   productId: number;
-  productTypeId: number;
   orderId: number;
   unitPrice: number;
   quantity: number;
@@ -33,9 +31,6 @@ export class Line implements ILine {
 
   @Column({ type: 'int', nullable: false })
   productId!: number;
-
-  @Column({ type: 'int', nullable: false, default: 1 })
-  productTypeId!: number;
 
   @Column({ type: 'int', nullable: false })
   orderId!: number;
@@ -68,11 +63,6 @@ export class Line implements ILine {
   })
   @JoinColumn({ name: 'productId' })
   product!: Product;
-
-  // Relación muchos-a-uno con ProductType
-  @ManyToOne(() => ProductType, { nullable: false })
-  @JoinColumn({ name: 'productTypeId' })
-  productType!: ProductType;
 
   // Relación muchos-a-uno con Order
   @ManyToOne(() => Order, (order) => order.lines, {

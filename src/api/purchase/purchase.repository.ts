@@ -130,10 +130,6 @@ export class PurchaseRepository implements IPurchaseRepository {
       for (const item of purchase.purchaseItems) {
         item.purchase = purchase;
         item.purchaseId = purchase.id;
-        console.log(
-          'Item in create method (purchase.repository line 166)',
-          item,
-        );
       }
 
       const savedPurchase = await queryRunner.manager.save(purchase);

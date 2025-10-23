@@ -1,18 +1,19 @@
 import { In, Repository } from 'typeorm';
-import { Client, Ingredient, Line, Order, Product, State } from '../entity';
+import { Client, Line, Order, Product, State } from '../entity';
 import { OrderSearchResponseDTO } from '../DTO/response/orderSearchResponseDTO';
 import { OrderResponseDTO } from '../DTO/response/orderResponseDTO';
 import { OrderRequestDTO } from '../DTO/request/orderRequestDTO';
 import { ComandaResponseDTO } from '../DTO/response/comandaResponseDTO';
 import { PreparationResponseDTO } from '../DTO/response/preparationResponseDTO';
 import { HttpError } from '../../../errors/httpError';
+import { ProductMapper } from './productMapper';
 
 export class OrderMapper {
   constructor(
-    private readonly clientRepository: Repository<Client>,
-    private readonly productRepository: Repository<Product>,
-    private readonly stateRepository: Repository<State>,
-    private readonly ingredientRepository: Repository<Ingredient>,
+    private readonly _clientRepository: Repository<Client>,
+    private readonly _productRepository: Repository<Product>,
+    private readonly _stateRepository: Repository<State>,
+    private readonly _productMapper: ProductMapper,
   ) {}
 
   public ordersToOrderSearchResponseDTO(
@@ -45,14 +46,20 @@ export class OrderMapper {
   ): Promise<Order> {
     try {
       const order = new Order();
-      const client = await this.clientRepository.findOneBy({
+      const client = await this._clientRepository.findOneBy({
         id: orderRequest.client,
       });
       const productIds = orderRequest.lines.map((line) => line.product.id);
-      const products = await this.productRepository.findBy({
-        id: In(productIds),
-      });
-      if (!products || products.length === 0) {
+      const products = await this._productRepository
+        .createQueryBuilder('product')
+        .leftJoinAndSelect('product.recipe', 'recipe')
+        .leftJoinAndSelect('recipe.recipeIngredient', 'recipeIngredient')
+        .leftJoinAndSelect('recipeIngredient.ingredient', 'ingredient')
+        .leftJoinAndSelect('recipeIngredient.unit', 'unit')
+        .leftJoinAndSelect('product.productType', 'productType')
+        .where({ id: In(productIds) })
+        .getMany();
+      if (products.length === 0) {
         throw new HttpError(404, 'No products found');
       }
       if (!client) {
@@ -72,7 +79,10 @@ export class OrderMapper {
           (p) => String(p.id) === String(line.product.id),
         );
         if (!product) {
-          throw new HttpError(404, `Product with id ${line.product.id} not found`);
+          throw new HttpError(
+            404,
+            `Product with id ${line.product.id} not found`,
+          );
         }
         if (line.quantity <= 0) {
           throw new HttpError(
@@ -88,7 +98,7 @@ export class OrderMapper {
       order.contactMethod = orderRequest.contactMethod;
       order.taxTotal = Number((order.total - order.subTotal).toFixed(2));
       order.paymentMethod = orderRequest.paymentMethod;
-      const state = await this.stateRepository.findOneBy({
+      const state = await this._stateRepository.findOneBy({
         id: 1,
       });
       if (!state) {
@@ -108,14 +118,14 @@ export class OrderMapper {
               `Product with id ${line.product.id} not found`,
             );
           }
-          // TODO: Implementar la nueva estructura de CustomProducts
+          entityLine.productId = product.id;
           entityLine.product = product;
+          entityLine.product.recipe = product.recipe;
           entityLine.unitPrice = product.price;
           entityLine.quantity = line.quantity;
           entityLine.totalPrice = product.price * line.quantity;
           entityLine.createdAt = new Date();
           entityLine.order = order;
-          entityLine.productTypeId = line.productType === 'custom' ? 2 : 1;
           return entityLine;
         }),
       );

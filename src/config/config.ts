@@ -12,8 +12,8 @@ interface Config {
     password: string;
     database: string;
   };
-  dbSynchronization: boolean,
-  dbSeed: boolean
+  dbSynchronization: boolean;
+  dbSeed: boolean;
 }
 
 const config: Config = {
@@ -27,7 +27,7 @@ const config: Config = {
     database: process.env.POSTGRES_DB ?? 'pipicucu',
   },
   dbSynchronization: !!process.env.DB_SYNCHRONIZATION,
-  dbSeed: !!process.env.DB_SEED
+  dbSeed: !!process.env.DB_SEED,
 };
 
 export default config;

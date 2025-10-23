@@ -51,4 +51,13 @@ export class LineService implements ILineService {
       throw new Error('Failed to fetch lines by state');
     }
   }
+
+  async delete(lineId: number): Promise<void> {
+    try {
+      await this._lineRepository.delete(lineId);
+    } catch (error: any) {
+      console.error(`Error deleting line with id ${lineId}:`, error);
+      throw new Error('Failed to delete line');
+    }
+  }
 }

@@ -67,7 +67,6 @@ export class CreatePurchaseStrategy extends BasePurchaseStrategy {
       await this._stockHandler.handleStockMovementForPurchaseItem(item);
       purchaseItems.push(item);
     }
-    console.log('Created Items: (purchase.strategy line 86)', purchaseItems);
     purchase.purchaseItems = purchaseItems;
 
     return await this._repository.create(purchase);
@@ -121,11 +120,6 @@ export class UpdatePurchaseStrategy extends BasePurchaseStrategy {
       updatedItems.push(newItem);
     }
     purchaseEntity.purchaseItems = updatedItems;
-    console.log('Updated Items: (purchase.strategy line 115)', updatedItems);
-    console.log(
-      'Purchase to Update: (purchase.strategy line 116)',
-      purchaseEntity,
-    );
     const result = await this._repository.update(id, purchaseEntity);
     if (!result) {
       throw new Error(`Purchase with id ${id} not found`);

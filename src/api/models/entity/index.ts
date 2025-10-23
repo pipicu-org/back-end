@@ -1,6 +1,5 @@
 export * from './category';
 export * from './client';
-export * from './customProduct';
 export * from './ingredient';
 export * from './line';
 export * from './order';

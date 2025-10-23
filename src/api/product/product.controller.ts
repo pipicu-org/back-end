@@ -7,7 +7,7 @@ export class ProductController {
   async searchProducts(req: Request, res: Response, next: NextFunction) {
     try {
       const search = req.query.search;
-      const parsedSearch = !search ? '' : search as string;
+      const parsedSearch = !search ? '' : (search as string);
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
       const findAndCount = await this._productService.getByName(
@@ -88,6 +88,26 @@ export class ProductController {
       const limit = Number(req.query.limit) || 10;
       const products = await this._productService.getProductsByCategoryId(
         categoryId,
+        page,
+        limit,
+      );
+      res.status(200).json(products);
+    } catch (error: any) {
+      next(error);
+    }
+  }
+
+  /**
+   * Retrieves all custom products with pagination.
+   * @param req Express request object containing pagination query parameters.
+   * @param res Express response object.
+   * @param next Express next function for error handling.
+   */
+  async getAllCustomProducts(req: Request, res: Response, next: NextFunction) {
+    try {
+      const page = Number(req.params.page) || 1;
+      const limit = Number(req.params.limit) || 10;
+      const products = await this._productService.getAllCustomProducts(
         page,
         limit,
       );

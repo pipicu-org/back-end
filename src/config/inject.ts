@@ -5,6 +5,7 @@ import {
   Line,
   Order,
   Product,
+  ProductType,
   Provider,
   Purchase,
   PurchaseItem,
@@ -60,7 +61,7 @@ import { ProviderController } from '../api/provider/provider.controller';
 import { ProviderMapper } from '../api/models/mappers/providerMapper';
 import { UnitRepository } from '../api/unit/unit.repository';
 import { UnitService } from '../api/unit/unit.service.impl';
-import { UnitController } from '../api/controllers/unit.controller';
+import { UnitController } from '../api/unit/unit.controller';
 import { UnitMapper } from '../api/models/mappers/unitMapper';
 import { StockMovementRepository } from '../api/stockMovement/stockMovement.repository';
 import { StockMovementService } from '../api/stockMovement/stockMovement.service.impl';
@@ -130,20 +131,25 @@ export const dbUnitRepository = AppDataSource.getRepository<Unit>(
 
 export const dbStockMovementRepository =
   AppDataSource.getRepository<StockMovement>('StockMovement').extend({});
+
+export const dbProductTypeRepository = AppDataSource.getRepository<ProductType>(
+  'ProductType',
+).extend({});
 // Mappers
 
 export const clientMapper = new ClientMapper();
 
+export const productMapper = new ProductMapper(
+  dbCategoryRepository,
+  dbIngredientRepository,
+  dbProductRepository,
+  dbProductTypeRepository,
+);
 export const orderMapper = new OrderMapper(
   dbClientRepository,
   dbProductRepository,
   dbStateRepository,
-  dbIngredientRepository,
-);
-
-export const productMapper = new ProductMapper(
-  dbCategoryRepository,
-  dbIngredientRepository,
+  productMapper,
 );
 
 export const ingredientMapper = new IngredientMapper();
@@ -202,13 +208,16 @@ export const lineRepository = new LineRepository(
 );
 export const lineService = new LineService(lineRepository);
 
-export const orderService = new OrderService(
-  orderRepository,
-  orderMapper,
-  lineService,
+export const stockMovementRepository = new StockMovementRepository(
+  dbStockMovementRepository,
+  stockMovementMapper,
 );
 
-// Services
+export const stockMovementService = new StockMovementService(
+  stockMovementRepository,
+  stockMovementMapper,
+  AppDataSource,
+);
 
 export const recipeIngredientService = new RecipeIngredientService(
   recipeIngredientRepository,
@@ -227,8 +236,6 @@ export const ingredientService = new IngredientService(
 );
 
 // Controllers
-export const orderController = new OrderController(orderService);
-
 export const clientController = new ClientController(clientService);
 
 export const productController = new ProductController(productService);
@@ -241,20 +248,20 @@ export const recipeIngredientController = new RecipeIngredientController(
   recipeIngredientService,
 );
 
-export const stockMovementRepository = new StockMovementRepository(
-  dbStockMovementRepository,
-  stockMovementMapper,
-);
-
-export const stockMovementService = new StockMovementService(
-  stockMovementRepository,
-  stockMovementMapper,
-  AppDataSource,
-);
-
 export const stockMovementController = new StockMovementController(
   stockMovementService,
 );
+
+export const orderService = new OrderService(
+  orderRepository,
+  orderMapper,
+  lineService,
+  stockMovementService,
+  productService,
+  productMapper,
+);
+
+export const orderController = new OrderController(orderService);
 
 export const purchaseRepository = new PurchaseRepository(
   dbPurchaseRepository,

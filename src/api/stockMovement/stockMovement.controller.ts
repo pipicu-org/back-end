@@ -3,7 +3,6 @@ import { IStockMovementService } from './stockMovement.service';
 import { StockMovementRequestDTO } from '../models/DTO/request/stockMovementRequestDTO';
 import { StockMovementMapper } from '../models/mappers/stockMovementMapper';
 import { validate } from 'class-validator';
-import { plainToClass } from 'class-transformer';
 
 const stockMovementMapper = new StockMovementMapper();
 
@@ -12,9 +11,12 @@ export class StockMovementController {
 
   async create(req: Request, res: Response, next: NextFunction) {
     try {
-      const stockMovementRequestDTO = plainToClass(
-        StockMovementRequestDTO,
-        req.body,
+      const stockMovementRequestDTO = new StockMovementRequestDTO(
+        req.body.ingredientId,
+        req.body.quantity,
+        req.body.unitId,
+        req.body.stockMovementTypeId,
+        req.body.purchaseItemId,
       );
       const errors = await validate(stockMovementRequestDTO);
       if (errors.length > 0) {
@@ -36,7 +38,7 @@ export class StockMovementController {
   async getById(req: Request, res: Response, next: NextFunction) {
     try {
       const id = Number(req.params.id);
-      if (isNaN(id)) {
+      if (Number.isNaN(id)) {
         throw new Error('Invalid stock movement ID');
       }
       const stockMovement =
@@ -53,8 +55,8 @@ export class StockMovementController {
 
   async getAll(req: Request, res: Response, next: NextFunction) {
     try {
-      const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 10;
+      const page = Number.parseInt(req.query.page as string) || 1;
+      const limit = Number.parseInt(req.query.limit as string) || 10;
       if (page < 1 || limit < 1) {
         res.status(400).json({ message: 'Invalid page or limit' });
         return;

@@ -1,6 +1,9 @@
 import { ClientService } from '../../src/api/client/client.service.impl';
-import { ClientMapper } from '../../src/api/models/mappers/clientMapper';
-import { mockClientRequestDTO, mockClientEntity, mockClientResponseDTO } from '../fixtures/client.fixture';
+import {
+  mockClientRequestDTO,
+  mockClientEntity,
+  mockClientResponseDTO,
+} from '../fixtures/client.fixture';
 
 const mockClientRepository = {
   create: jest.fn(),
@@ -28,28 +31,41 @@ describe('ClientService', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    clientService = new ClientService(mockClientRepository as any, mockClientMapper as any);
+    clientService = new ClientService(
+      mockClientRepository as any,
+      mockClientMapper as any,
+    );
   });
 
   describe('createClient', () => {
     it('should create a client successfully', async () => {
-      mockClientMapper.createClientFromRequestDTO.mockReturnValue(mockClientEntity);
+      mockClientMapper.createClientFromRequestDTO.mockReturnValue(
+        mockClientEntity,
+      );
       mockClientRepository.create.mockResolvedValue(mockClientResponseDTO);
 
       const result = await clientService.createClient(mockClientRequestDTO);
 
-      expect(mockClientMapper.createClientFromRequestDTO).toHaveBeenCalledWith(mockClientRequestDTO);
-      expect(mockClientRepository.create).toHaveBeenCalledWith(mockClientEntity);
+      expect(mockClientMapper.createClientFromRequestDTO).toHaveBeenCalledWith(
+        mockClientRequestDTO,
+      );
+      expect(mockClientRepository.create).toHaveBeenCalledWith(
+        mockClientEntity,
+      );
       expect(result).toEqual(mockClientResponseDTO);
     });
 
     it('should propagate error on creation failure', async () => {
       const error = new Error('Database error');
 
-      mockClientMapper.createClientFromRequestDTO.mockReturnValue(mockClientEntity);
+      mockClientMapper.createClientFromRequestDTO.mockReturnValue(
+        mockClientEntity,
+      );
       mockClientRepository.create.mockRejectedValue(error);
 
-      await expect(clientService.createClient(mockClientRequestDTO)).rejects.toThrow(error);
+      await expect(
+        clientService.createClient(mockClientRequestDTO),
+      ).rejects.toThrow(error);
     });
   });
 
