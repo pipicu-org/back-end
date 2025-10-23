@@ -1,11 +1,11 @@
-FROM node:23-alpine3.22 as build
+FROM node:20-bookworm-slim as build
 COPY package.json package-lock.json ./
 RUN npm ci && npm cache clean --force
 COPY . .
 USER root
 RUN npm run build
 
-FROM node:24-alpine3.22 as run
+FROM node:20-bookworm-slim as run
 
 WORKDIR /app
 COPY --from=build . .
