@@ -28,7 +28,7 @@ export class PurchaseMapper {
     }
     const purchase = new Purchase();
     purchase.id = dto.id;
-    purchase.providerId = dto.providerId;
+    purchase.providerId = dto.provider.id;
     purchase.createdAt = dto.createdAt;
     purchase.updatedAt = dto.updatedAt;
     purchase.purchaseItems = dto.purchaseItems.map((itemDto) => {

@@ -131,6 +131,7 @@ export class OrderService implements IOrderService {
       } else {
         const lineEntity = await this._getLineEntityById(existingLine.id);
         console.info('[DEBUG] Handle stock movement for removed line');
+        console.log(lineEntity);
         const productFound = await this._productService.getProductById(
           lineEntity.productId,
         );
@@ -253,6 +254,8 @@ export class OrderService implements IOrderService {
     line.quantity = lineResponse.quantity;
     line.unitPrice = lineResponse.totalPrice / lineResponse.quantity;
     line.totalPrice = lineResponse.totalPrice;
+    line.productId = lineResponse.product.id;
+    line.orderId = lineResponse.order.id;
 
     return line;
   }

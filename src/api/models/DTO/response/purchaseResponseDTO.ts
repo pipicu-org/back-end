@@ -2,8 +2,10 @@ import { Purchase } from '../../entity/purchase';
 
 export interface IPurchaseResponseDTO {
   id: number;
-  providerId: number;
-  providerName: string;
+  provider: {
+    id: number;
+    name: string;
+  };
   createdAt: Date;
   updatedAt: Date;
   purchaseItems: IPurchaseItemResponseDTO[];
@@ -23,16 +25,20 @@ export interface IPurchaseItemResponseDTO {
 
 export class PurchaseResponseDTO implements IPurchaseResponseDTO {
   id: number;
-  providerId: number;
-  providerName: string;
+  provider: {
+    id: number;
+    name: string;
+  };
   createdAt: Date;
   updatedAt: Date;
   purchaseItems: IPurchaseItemResponseDTO[];
 
   constructor(purchase: Purchase) {
     this.id = purchase.id;
-    this.providerId = purchase.providerId;
-    this.providerName = purchase.provider.name;
+    this.provider = {
+      id: purchase.provider.id,
+      name: purchase.provider.name,
+    };
     this.createdAt = purchase.createdAt;
     this.updatedAt = purchase.updatedAt;
     this.purchaseItems = purchase.purchaseItems.map((item) => ({
