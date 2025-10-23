@@ -65,7 +65,8 @@ export class PurchaseRepository implements IPurchaseRepository {
     try {
       let queryBuilder = this._dbPurchaseRepository
         .createQueryBuilder('purchase')
-        .leftJoinAndSelect('purchase.purchaseItems', 'purchaseItem');
+        .leftJoinAndSelect('purchase.purchaseItems', 'purchaseItem')
+        .leftJoinAndSelect('purchase.provider', 'provider');
 
       if (sortField === 'date') {
         queryBuilder = queryBuilder.orderBy('purchase.createdAt', sortOrder);
@@ -102,6 +103,7 @@ export class PurchaseRepository implements IPurchaseRepository {
       const purchase = await this._dbPurchaseRepository
         .createQueryBuilder('purchase')
         .leftJoinAndSelect('purchase.purchaseItems', 'purchaseItem')
+        .leftJoinAndSelect('purchase.provider', 'provider')
         .where('purchase.id = :id', { id })
         .getOne();
       if (purchase) {
@@ -132,8 +134,17 @@ export class PurchaseRepository implements IPurchaseRepository {
         item.purchaseId = purchase.id;
       }
 
-      const savedPurchase = await queryRunner.manager.save(purchase);
+      await queryRunner.manager.save(purchase);
       await queryRunner.commitTransaction();
+      const savedPurchase = await this._dbPurchaseRepository
+        .createQueryBuilder('purchase')
+        .leftJoinAndSelect('purchase.purchaseItems', 'purchaseItem')
+        .leftJoinAndSelect('purchase.provider', 'provider')
+        .where('purchase.id = :id', { id: purchase.id })
+        .getOne();
+      if (!savedPurchase) {
+        throw new HttpError(500, 'Failed to retrieve saved purchase');
+      }
       return this._purchaseMapper.toResponseDTO(savedPurchase);
     } catch (error: any) {
       await queryRunner.rollbackTransaction();
@@ -163,6 +174,7 @@ export class PurchaseRepository implements IPurchaseRepository {
       const updatedPurchase = await this._dbPurchaseRepository
         .createQueryBuilder('purchase')
         .leftJoinAndSelect('purchase.purchaseItems', 'purchaseItem')
+        .leftJoinAndSelect('purchase.provider', 'provider')
         .where('purchase.id = :id', { id })
         .getOne();
       if (updatedPurchase) {
@@ -189,6 +201,7 @@ export class PurchaseRepository implements IPurchaseRepository {
       const purchase = await this._dbPurchaseRepository
         .createQueryBuilder('purchase')
         .leftJoinAndSelect('purchase.purchaseItems', 'purchaseItem')
+        .leftJoinAndSelect('purchase.provider', 'provider')
         .where('purchase.id = :id', { id })
         .getOne();
       if (purchase) {

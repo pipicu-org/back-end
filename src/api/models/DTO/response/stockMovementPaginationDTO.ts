@@ -5,8 +5,10 @@ export class StockMovementPaginationDTO {
   data: Array<{
     id: number;
     ingredientId: number;
+    ingredientName: string;
     quantity: number;
     unitId: number;
+    unitName: string;
     stockMovementTypeId: number;
     purchaseItemId: number | null;
     createdAt: string;
@@ -21,7 +23,9 @@ export class StockMovementPaginationDTO {
       id: number;
       ingredientId: number;
       quantity: number;
+      ingredientName: string;
       unitId: number;
+      unitName: string;
       stockMovementTypeId: number;
       purchaseItemId: number | null;
       createdAt: string;

@@ -500,7 +500,14 @@ const options = {
                 type: 'object',
                 properties: {
                   id: { type: 'string', example: '1' },
-                  product: { type: 'string', example: 'Pizza Margherita' },
+                  product: {
+                    type: 'object',
+                    properties: {
+                      id: { type: 'string', example: '1' },
+                      name: { type: 'string', example: 'Pizza Margherita' },
+                      productTypeId: { type: 'number', example: 1 },
+                    },
+                  },
                   quantity: { type: 'number', example: 2 },
                   totalPrice: { type: 'number', example: 25.98 },
                 },
@@ -595,6 +602,67 @@ const options = {
                         },
                       },
                     },
+                  },
+                },
+              },
+            },
+          },
+        },
+        StockMovementResponse: {
+          type: 'object',
+          properties: {
+            id: { type: 'number', example: 1 },
+            ingredientId: { type: 'number', example: 1 },
+            ingredientName: { type: 'string', example: 'Tomato' },
+            quantity: { type: 'number', example: 10.5 },
+            unitId: { type: 'number', example: 1 },
+            unitName: { type: 'string', example: 'Kilogram' },
+            stockMovementTypeId: { type: 'number', example: 1 },
+            purchaseItemId: { type: 'number', nullable: true, example: null },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+              example: '2023-01-01T00:00:00Z',
+            },
+            updatedAt: {
+              type: 'string',
+              format: 'date-time',
+              example: '2023-01-01T00:00:00Z',
+            },
+          },
+        },
+        StockMovementPagination: {
+          type: 'object',
+          properties: {
+            total: { type: 'number', example: 50 },
+            page: { type: 'number', example: 1 },
+            limit: { type: 'number', example: 10 },
+            data: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  id: { type: 'number', example: 1 },
+                  ingredientId: { type: 'number', example: 1 },
+                  ingredientName: { type: 'string', example: 'Tomato' },
+                  quantity: { type: 'number', example: 10.5 },
+                  unitId: { type: 'number', example: 1 },
+                  unitName: { type: 'string', example: 'Kilogram' },
+                  stockMovementTypeId: { type: 'number', example: 1 },
+                  purchaseItemId: {
+                    type: 'number',
+                    nullable: true,
+                    example: null,
+                  },
+                  createdAt: {
+                    type: 'string',
+                    format: 'date-time',
+                    example: '2023-01-01T00:00:00Z',
+                  },
+                  updatedAt: {
+                    type: 'string',
+                    format: 'date-time',
+                    example: '2023-01-01T00:00:00Z',
                   },
                 },
               },

@@ -29,8 +29,6 @@ export class PurchaseService implements IPurchaseService {
     purchaseDto: CreatePurchaseDto,
   ): Promise<PurchaseResponseDTO> {
     try {
-      // Strategy Pattern: Delegates to specific strategy for creation
-      // Open-Closed: New strategies can be added without modifying this method
       return await this._createStrategy.execute(purchaseDto);
     } catch (error: any) {
       logger.error('Error creating purchase with items', {

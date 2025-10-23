@@ -73,8 +73,10 @@ export class StockMovementMapper
       resultsAndCount[0].map((stockMovement) => ({
         id: stockMovement.id,
         ingredientId: stockMovement.ingredientId,
+        ingredientName: stockMovement.ingredient?.name || '',
         quantity: stockMovement.quantity,
         unitId: stockMovement.unitId,
+        unitName: stockMovement.unit?.name || '',
         stockMovementTypeId: stockMovement.stockMovementTypeId,
         purchaseItemId: stockMovement.purchaseItemId,
         createdAt: stockMovement.createdAt.toISOString(),

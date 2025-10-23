@@ -3,6 +3,7 @@ import { Purchase } from '../../entity/purchase';
 export interface IPurchaseResponseDTO {
   id: number;
   providerId: number;
+  providerName: string;
   createdAt: Date;
   updatedAt: Date;
   purchaseItems: IPurchaseItemResponseDTO[];
@@ -23,6 +24,7 @@ export interface IPurchaseItemResponseDTO {
 export class PurchaseResponseDTO implements IPurchaseResponseDTO {
   id: number;
   providerId: number;
+  providerName: string;
   createdAt: Date;
   updatedAt: Date;
   purchaseItems: IPurchaseItemResponseDTO[];
@@ -30,6 +32,7 @@ export class PurchaseResponseDTO implements IPurchaseResponseDTO {
   constructor(purchase: Purchase) {
     this.id = purchase.id;
     this.providerId = purchase.providerId;
+    this.providerName = purchase.provider.name;
     this.createdAt = purchase.createdAt;
     this.updatedAt = purchase.updatedAt;
     this.purchaseItems = purchase.purchaseItems.map((item) => ({
