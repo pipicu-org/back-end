@@ -79,6 +79,7 @@ export class ProductRepository implements IProductRepository {
       INNER JOIN prepareable_recipes_table prt ON prt.id = p."recipeId"
       INNER JOIN "Category" c ON p."categoryId" = c.id
       WHERE ${filter}
+      AND p."productTypeId" = 1
       ORDER BY p.id
       LIMIT $2 OFFSET $3
     `;

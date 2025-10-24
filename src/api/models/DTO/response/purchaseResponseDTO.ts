@@ -2,7 +2,10 @@ import { Purchase } from '../../entity/purchase';
 
 export interface IPurchaseResponseDTO {
   id: number;
-  providerId: number;
+  provider: {
+    id: number;
+    name: string;
+  };
   createdAt: Date;
   updatedAt: Date;
   purchaseItems: IPurchaseItemResponseDTO[];
@@ -11,7 +14,10 @@ export interface IPurchaseResponseDTO {
 export interface IPurchaseItemResponseDTO {
   id: number;
   purchaseId: number;
-  ingredientId: number;
+  ingredient: {
+    id: number;
+    name: string;
+  };
   cost: number;
   quantity: number;
   unitId: number;
@@ -22,20 +28,29 @@ export interface IPurchaseItemResponseDTO {
 
 export class PurchaseResponseDTO implements IPurchaseResponseDTO {
   id: number;
-  providerId: number;
+  provider: {
+    id: number;
+    name: string;
+  };
   createdAt: Date;
   updatedAt: Date;
   purchaseItems: IPurchaseItemResponseDTO[];
 
   constructor(purchase: Purchase) {
     this.id = purchase.id;
-    this.providerId = purchase.providerId;
+    this.provider = {
+      id: purchase.provider.id,
+      name: purchase.provider.name,
+    };
     this.createdAt = purchase.createdAt;
     this.updatedAt = purchase.updatedAt;
     this.purchaseItems = purchase.purchaseItems.map((item) => ({
       id: item.id,
       purchaseId: item.purchaseId,
-      ingredientId: item.ingredientId,
+      ingredient: {
+        id: item.ingredient.id,
+        name: item.ingredient.name,
+      },
       cost: item.cost,
       quantity: item.quantity,
       unitId: item.unitId,

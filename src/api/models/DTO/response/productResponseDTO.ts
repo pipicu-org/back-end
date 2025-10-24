@@ -6,6 +6,7 @@ export class ProductResponseDTO {
   preTaxPrice: number;
   price: number;
   recipeId: number | null;
+  productTypeId: number;
   categoryId: number;
   createdAt: Date;
   updatedAt: Date;
@@ -35,6 +36,7 @@ export class ProductResponseDTO {
     this.preTaxPrice = product.preTaxPrice;
     this.price = product.price;
     this.recipeId = product.recipeId;
+    this.productTypeId = product.productTypeId;
     this.categoryId = product.categoryId;
     this.createdAt = product.createdAt;
     this.updatedAt = product.updatedAt;

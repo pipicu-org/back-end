@@ -18,6 +18,7 @@ export const mockProductResponseDTO: ProductResponseDTO = {
   preTaxPrice: 8.99,
   price: 10.99,
   recipeId: 1,
+  productTypeId: 1,
   categoryId: 1,
   createdAt: new Date(),
   updatedAt: new Date(),

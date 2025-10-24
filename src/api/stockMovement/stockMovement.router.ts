@@ -37,6 +37,23 @@ export const stockMovementRouter = (
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/StockMovementPagination'
+   *             example:
+   *               total: 50
+   *               page: 1
+   *               limit: 10
+   *               data:
+   *                 - id: 1
+   *                   ingredient:
+   *                     id: 1
+   *                     name: "Tomato"
+   *                   quantity: 10.5
+   *                   unit:
+   *                     id: 1
+   *                     name: "kg"
+   *                   stockMovementTypeId: 1
+   *                   purchaseItemId: null
+   *                   createdAt: "2023-01-01T00:00:00Z"
+   *                   updatedAt: "2023-01-01T00:00:00Z"
    *       400:
    *         $ref: '#/components/responses/ValidationError'
    *       500:
@@ -64,6 +81,19 @@ export const stockMovementRouter = (
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/StockMovementResponse'
+   *             example:
+   *               id: 1
+   *               ingredient:
+   *                 id: 1
+   *                 name: "Tomato"
+   *               quantity: 10.5
+   *               unit:
+   *                 id: 1
+   *                 name: "Kilogram"
+   *               stockMovementTypeId: 1
+   *               purchaseItemId: null
+   *               createdAt: "2023-01-01T00:00:00Z"
+   *               updatedAt: "2023-01-01T00:00:00Z"
    *       404:
    *         $ref: '#/components/responses/NotFoundError'
    *       500:
