@@ -34,7 +34,7 @@ export class PurchaseMapper {
     purchase.purchaseItems = dto.purchaseItems.map((itemDto) => {
       const item = new PurchaseItem();
       item.id = itemDto.id;
-      item.ingredientId = itemDto.ingredientId;
+      item.ingredientId = itemDto.ingredient.id;
       item.cost = itemDto.cost;
       item.quantity = itemDto.quantity;
       item.unitId = itemDto.unitId;

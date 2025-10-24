@@ -203,7 +203,13 @@ const options = {
           properties: {
             id: { type: 'number', example: 1 },
             purchaseId: { type: 'number', example: 1 },
-            ingredientId: { type: 'number', example: 1 },
+            ingredient: {
+              type: 'object',
+              properties: {
+                id: { type: 'number', example: 1 },
+                name: { type: 'string', example: 'Tomato' },
+              },
+            },
             cost: { type: 'number', example: 10.5 },
             quantity: { type: 'number', example: 100.0 },
             unitId: { type: 'number', example: 1 },

@@ -66,7 +66,8 @@ export class PurchaseRepository implements IPurchaseRepository {
       let queryBuilder = this._dbPurchaseRepository
         .createQueryBuilder('purchase')
         .leftJoinAndSelect('purchase.purchaseItems', 'purchaseItem')
-        .leftJoinAndSelect('purchase.provider', 'provider');
+        .leftJoinAndSelect('purchase.provider', 'provider')
+        .leftJoinAndSelect('purchaseItem.ingredient', 'ingredient');
 
       if (sortField === 'date') {
         queryBuilder = queryBuilder.orderBy('purchase.createdAt', sortOrder);
@@ -104,6 +105,7 @@ export class PurchaseRepository implements IPurchaseRepository {
         .createQueryBuilder('purchase')
         .leftJoinAndSelect('purchase.purchaseItems', 'purchaseItem')
         .leftJoinAndSelect('purchase.provider', 'provider')
+        .leftJoinAndSelect('purchaseItem.ingredient', 'ingredient')
         .where('purchase.id = :id', { id })
         .getOne();
       if (purchase) {
@@ -140,6 +142,7 @@ export class PurchaseRepository implements IPurchaseRepository {
         .createQueryBuilder('purchase')
         .leftJoinAndSelect('purchase.purchaseItems', 'purchaseItem')
         .leftJoinAndSelect('purchase.provider', 'provider')
+        .leftJoinAndSelect('purchaseItem.ingredient', 'ingredient')
         .where('purchase.id = :id', { id: purchase.id })
         .getOne();
       if (!savedPurchase) {
@@ -175,6 +178,7 @@ export class PurchaseRepository implements IPurchaseRepository {
         .createQueryBuilder('purchase')
         .leftJoinAndSelect('purchase.purchaseItems', 'purchaseItem')
         .leftJoinAndSelect('purchase.provider', 'provider')
+        .leftJoinAndSelect('purchaseItem.ingredient', 'ingredient')
         .where('purchase.id = :id', { id })
         .getOne();
       if (updatedPurchase) {
@@ -202,6 +206,7 @@ export class PurchaseRepository implements IPurchaseRepository {
         .createQueryBuilder('purchase')
         .leftJoinAndSelect('purchase.purchaseItems', 'purchaseItem')
         .leftJoinAndSelect('purchase.provider', 'provider')
+        .leftJoinAndSelect('purchaseItem.ingredient', 'ingredient')
         .where('purchase.id = :id', { id })
         .getOne();
       if (purchase) {

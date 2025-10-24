@@ -14,7 +14,10 @@ export interface IPurchaseResponseDTO {
 export interface IPurchaseItemResponseDTO {
   id: number;
   purchaseId: number;
-  ingredientId: number;
+  ingredient: {
+    id: number;
+    name: string;
+  };
   cost: number;
   quantity: number;
   unitId: number;
@@ -44,7 +47,10 @@ export class PurchaseResponseDTO implements IPurchaseResponseDTO {
     this.purchaseItems = purchase.purchaseItems.map((item) => ({
       id: item.id,
       purchaseId: item.purchaseId,
-      ingredientId: item.ingredientId,
+      ingredient: {
+        id: item.ingredient.id,
+        name: item.ingredient.name,
+      },
       cost: item.cost,
       quantity: item.quantity,
       unitId: item.unitId,
