@@ -54,7 +54,7 @@ export class StockMovementMapper
     entity.ingredientId = stockMovement.ingredient.id;
     entity.quantity = stockMovement.quantity;
     entity.unitId = stockMovement.unit.id;
-    entity.stockMovementTypeId = stockMovement.stockMovementTypeId;
+    entity.stockMovementTypeId = stockMovement.stockMovementType.id;
     entity.purchaseItemId = stockMovement.purchaseItemId;
     entity.createdAt = stockMovement.createdAt;
     entity.updatedAt = stockMovement.updatedAt;
@@ -81,7 +81,10 @@ export class StockMovementMapper
           id: stockMovement.unitId,
           name: stockMovement.unit?.name || '',
         },
-        stockMovementTypeId: stockMovement.stockMovementTypeId,
+        stockMovementType: {
+          id: stockMovement.stockMovementTypeId,
+          name: stockMovement.stockMovementType?.name || '',
+        },
         purchaseItemId: stockMovement.purchaseItemId,
         createdAt: stockMovement.createdAt.toISOString(),
         updatedAt: stockMovement.updatedAt.toISOString(),

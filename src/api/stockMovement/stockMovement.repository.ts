@@ -1,37 +1,31 @@
 import { Repository } from 'typeorm';
 import { StockMovement } from '../models/entity';
-import { StockMovementMapper } from '../models/mappers/stockMovementMapper';
-import { StockMovementResponseDTO } from '../models/DTO/response/stockMovementResponseDTO';
-import { StockMovementPaginationDTO } from '../models/DTO/response/stockMovementPaginationDTO';
 import { HttpError } from '../../errors/httpError';
 
 export interface IStockMovementRepository {
-  findById(id: number): Promise<StockMovementResponseDTO | void>;
-  create(
-    stockMovement: StockMovement,
-  ): Promise<StockMovementResponseDTO | void>;
+  findById(id: number): Promise<StockMovement | void>;
+  create(stockMovement: StockMovement): Promise<StockMovement | void>;
   findAllPaginated(
     page: number,
     limit: number,
-  ): Promise<StockMovementPaginationDTO>;
+  ): Promise<[StockMovement[], number]>;
 }
 
 export class StockMovementRepository implements IStockMovementRepository {
   constructor(
     private readonly _dbStockMovementRepository: Repository<StockMovement>,
-    private readonly _stockMovementMapper: StockMovementMapper,
   ) {}
 
-  async findById(id: number): Promise<StockMovementResponseDTO | void> {
+  async findById(id: number): Promise<StockMovement | void> {
     try {
       const stockMovement = await this._dbStockMovementRepository.findOne({
         where: { id },
-        relations: ['ingredient', 'unit'],
+        relations: ['ingredient', 'unit', 'stockMovementType'],
       });
       if (!stockMovement) {
         throw new HttpError(404, `StockMovement with id ${id} not found`);
       }
-      return this._stockMovementMapper.toResponseDTO(stockMovement);
+      return stockMovement;
     } catch (error: any) {
       console.error(`Error fetching stockMovement with id ${id}:`, error);
       throw new HttpError(
@@ -41,13 +35,26 @@ export class StockMovementRepository implements IStockMovementRepository {
     }
   }
 
-  async create(
-    stockMovement: StockMovement,
-  ): Promise<StockMovementResponseDTO | void> {
+  async create(stockMovement: StockMovement): Promise<StockMovement | void> {
     try {
-      const createdStockMovement =
-        await this._dbStockMovementRepository.save(stockMovement);
-      return this._stockMovementMapper.toResponseDTO(createdStockMovement);
+      await this._dbStockMovementRepository.save(stockMovement);
+      const createdStockMovement = await this._dbStockMovementRepository
+        .createQueryBuilder('stockMovement')
+        .leftJoinAndSelect('stockMovement.ingredient', 'ingredient')
+        .leftJoinAndSelect('stockMovement.unit', 'unit')
+        .leftJoinAndSelect(
+          'stockMovement.stockMovementType',
+          'stockMovementType',
+        )
+        .where('stockMovement.id = :id', { id: stockMovement.id })
+        .getOne();
+      if (!createdStockMovement) {
+        throw new HttpError(
+          500,
+          'Failed to retrieve created stock movement after saving',
+        );
+      }
+      return createdStockMovement;
     } catch (error: any) {
       console.error('Error creating stockMovement:', error);
       throw new HttpError(
@@ -60,20 +67,20 @@ export class StockMovementRepository implements IStockMovementRepository {
   async findAllPaginated(
     page: number,
     limit: number,
-  ): Promise<StockMovementPaginationDTO> {
+  ): Promise<[StockMovement[], number]> {
     try {
-      const stockMovements = await this._dbStockMovementRepository
+      const [stockMovements, total] = await this._dbStockMovementRepository
         .createQueryBuilder('stockMovement')
         .leftJoinAndSelect('stockMovement.ingredient', 'ingredient')
         .leftJoinAndSelect('stockMovement.unit', 'unit')
+        .leftJoinAndSelect(
+          'stockMovement.stockMovementType',
+          'stockMovementType',
+        )
         .skip((page - 1) * limit)
         .take(limit)
         .getManyAndCount();
-      return this._stockMovementMapper.toPaginationDTO(
-        stockMovements,
-        page,
-        limit,
-      );
+      return [stockMovements, total];
     } catch (error: any) {
       console.error('Error fetching paginated stockMovements:', error);
       throw new HttpError(

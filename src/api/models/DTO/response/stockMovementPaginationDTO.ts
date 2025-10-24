@@ -13,7 +13,10 @@ export class StockMovementPaginationDTO {
       id: number;
       name: string;
     };
-    stockMovementTypeId: number;
+    stockMovementType: {
+      id: number;
+      name: string;
+    };
     purchaseItemId: number | null;
     createdAt: string;
     updatedAt: string;
@@ -34,7 +37,10 @@ export class StockMovementPaginationDTO {
         id: number;
         name: string;
       };
-      stockMovementTypeId: number;
+      stockMovementType: {
+        id: number;
+        name: string;
+      };
       purchaseItemId: number | null;
       createdAt: string;
       updatedAt: string;

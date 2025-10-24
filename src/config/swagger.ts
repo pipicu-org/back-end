@@ -668,7 +668,13 @@ const options = {
                 name: { type: 'string', example: 'Kilogram' },
               },
             },
-            stockMovementTypeId: { type: 'number', example: 1 },
+            stockMovementType: {
+              type: 'object',
+              properties: {
+                id: { type: 'number', example: 1 },
+                name: { type: 'string', example: 'Ingreso' },
+              },
+            },
             purchaseItemId: { type: 'number', nullable: true, example: null },
             createdAt: {
               type: 'string',
@@ -709,7 +715,13 @@ const options = {
                       name: { type: 'string', example: 'Kilogram' },
                     },
                   },
-                  stockMovementTypeId: { type: 'number', example: 1 },
+                  stockMovementType: {
+                    type: 'object',
+                    properties: {
+                      id: { type: 'number', example: 1 },
+                      name: { type: 'string', example: 'Ingreso' },
+                    },
+                  },
                   purchaseItemId: {
                     type: 'number',
                     nullable: true,
