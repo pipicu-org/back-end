@@ -214,6 +214,29 @@ export const lineRepository = new LineRepository(
   lineMapper,
 );
 
+export const stockMovementRepository = new StockMovementRepository(
+  dbStockMovementRepository,
+);
+export const unitRepository = new UnitRepository(dbUnitRepository, unitMapper);
+
+export const unitService = new UnitService(
+  unitRepository,
+  unitMapper,
+  AppDataSource,
+);
+
+export const ingredientService = new IngredientService(
+  ingredientRepository,
+  ingredientMapper,
+);
+
+export const stockMovementService = new StockMovementService(
+  stockMovementRepository,
+  stockMovementMapper,
+  unitService,
+  ingredientService,
+);
+
 // Services
 
 // Services
@@ -230,19 +253,6 @@ export const clientService = new ClientService(clientRepository, clientMapper);
 export const productService = new ProductService(
   productRepository,
   productMapper,
-);
-
-export const unitService = new UnitService(unitRepository);
-
-export const ingredientService = new IngredientService(
-  ingredientRepository,
-  ingredientMapper,
-);
-export const stockMovementService = new StockMovementService(
-  stockMovementRepository,
-  stockMovementMapper,
-  unitService,
-  ingredientService,
 );
 
 export const orderService = new OrderService(
