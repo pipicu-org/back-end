@@ -48,8 +48,13 @@ export class OrderMapper {
         id: orderRequest.client,
       });
       const productIds = orderRequest.lines.map((line) => line.product.id);
-      const products = await this.productRepository.findBy({
-        id: In(productIds),
+      const products = await this._productRepository.find({
+        where: { id: In(productIds) },
+        relations: [
+          'recipe',
+          'recipe.recipeIngredient',
+          'recipe.recipeIngredient.ingredient',
+        ],
       });
       if (!products || products.length === 0) {
         throw new HttpError(404, 'No products found');
@@ -119,7 +124,19 @@ export class OrderMapper {
           entityLine.subTotal = product.preTaxPrice * line.quantity; // Calculate subTotal using pre-tax price
           entityLine.createdAt = new Date();
           entityLine.order = order;
-          entityLine.productTypeId = line.productType === 'custom' ? 2 : 1;
+          // Calculate cost based on recipe ingredients
+          if (product.recipe && product.recipe.recipeIngredient) {
+            let totalCost = 0;
+            for (const recipeIngredient of product.recipe.recipeIngredient) {
+              const ingredientCost = recipeIngredient.ingredient?.cost || 0;
+              totalCost += ingredientCost * recipeIngredient.quantity;
+            }
+            console.log(totalCost);
+            entityLine.cost = Number(
+              (entityLine.quantity * totalCost).toFixed(2),
+            );
+          }
+
           return entityLine;
         }),
       );
@@ -165,17 +182,19 @@ export class OrderMapper {
           id: line.productId,
           name: line.productName,
         },
-        recipe: line.recipe ? line.recipe.map((recipeItem: any) => ({
-          ingredient: {
-            id: recipeItem.ingredientId,
-            name: recipeItem.ingredientName,
-          },
-          unit: {
-            id: recipeItem.unitId,
-            name: recipeItem.unitName,
-          },
-          quantity: recipeItem.quantity,
-        })) : [],
+        recipe: line.recipe
+          ? line.recipe.map((recipeItem: any) => ({
+              ingredient: {
+                id: recipeItem.ingredientId,
+                name: recipeItem.ingredientName,
+              },
+              unit: {
+                id: recipeItem.unitId,
+                name: recipeItem.unitName,
+              },
+              quantity: recipeItem.quantity,
+            }))
+          : [],
       })),
     }));
 
