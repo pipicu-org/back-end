@@ -207,27 +207,7 @@ export const lineRepository = new LineRepository(
   dbTransitionTypeRepository,
   lineMapper,
 );
-
-export const stockMovementRepository = new StockMovementRepository(
-  dbStockMovementRepository,
-);
-export const unitRepository = new UnitRepository(dbUnitRepository, unitMapper);
-
-export const unitService = new UnitService(unitRepository);
-
-export const ingredientService = new IngredientService(
-  ingredientRepository,
-  ingredientMapper,
-);
-
-export const stockMovementService = new StockMovementService(
-  stockMovementRepository,
-  stockMovementMapper,
-  unitService,
-  ingredientService,
-);
-
-// Services
+export const lineService = new LineService(lineRepository);
 
 // Services
 
@@ -240,6 +220,20 @@ export const clientService = new ClientService(clientRepository, clientMapper);
 export const productService = new ProductService(
   productRepository,
   productMapper,
+);
+
+export const orderService = new OrderService(
+  orderRepository,
+  orderMapper,
+  lineService,
+  productService,
+);
+
+export const orderService = new OrderService(
+  orderRepository,
+  orderMapper,
+  lineService,
+  productService,
 );
 
 export const orderService = new OrderService(

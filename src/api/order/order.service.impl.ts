@@ -1,6 +1,7 @@
 import { HttpError } from '../../errors/httpError';
 import { ILineService } from '../line/line.service';
 import { IProductService } from '../product/product.service';
+import { IProductService } from '../product/product.service';
 import { Line } from '../models/entity/line';
 import { OrderRequestDTO } from '../models/DTO/request/orderRequestDTO';
 import { ComandaResponseDTO } from '../models/DTO/response/comandaResponseDTO';
@@ -18,7 +19,6 @@ export class OrderService implements IOrderService {
     private readonly _orderMapper: OrderMapper,
     private readonly _lineService: ILineService,
     private readonly _productService: IProductService,
-    private readonly _stockMovementService: IStockMovementService,
   ) {}
 
   async create(orderRequest: OrderRequestDTO): Promise<OrderResponseDTO> {
@@ -111,7 +111,11 @@ export class OrderService implements IOrderService {
 
   private async _compareAndUpdateLines(
     existingOrder: OrderResponseDTO,
-    newLines: Array<{ product: { id: number }; quantity: number }>,
+    newLines: Array<{
+      product: { id: number };
+      quantity: number;
+      productType?: string;
+    }>,
     orderId: number,
   ): Promise<{ updatedLines: Line[]; deletedLines: Line[] }> {
     const existingLines = existingOrder.lines;
@@ -164,9 +168,11 @@ export class OrderService implements IOrderService {
     // Add new lines
     for (const [, newLine] of newLineMap) {
       const newLineEntity = await this._createNewLine(newLine, orderId);
+      const newLineEntity = await this._createNewLine(newLine, orderId);
       updatedLines.push(newLineEntity);
     }
 
+    return { updatedLines, deletedLines };
     return { updatedLines, deletedLines };
   }
 
@@ -189,6 +195,7 @@ export class OrderService implements IOrderService {
     );
 
     // Update quantity and recalculate totalPrice and subTotal
+    // Update quantity and recalculate totalPrice and subTotal
     lineEntity.quantity = Number(newLineData.quantity);
     lineEntity.totalPrice = Number(
       (lineEntity.unitPrice * newLineData.quantity).toFixed(2),
@@ -209,6 +216,7 @@ export class OrderService implements IOrderService {
 
     lineEntity.updatedAt = new Date();
 
+    // Update product if changed and recalculate cost
     // Update product if changed and recalculate cost
     if (lineEntity.productId !== newLineData.product.id) {
       lineEntity.productId = newLineData.product.id;
@@ -285,7 +293,7 @@ export class OrderService implements IOrderService {
     const line = new Line();
     line.productId = newLineData.product.id;
     line.quantity = Number(newLineData.quantity);
-    line.product.productTypeId = newLineData.productType === 'custom' ? 2 : 1;
+    line.productTypeId = newLineData.productType === 'custom' ? 2 : 1;
     line.orderId = orderId; // Set the orderId
 
     // Fetch product to get unitPrice
@@ -358,6 +366,8 @@ export class OrderService implements IOrderService {
     let total = 0;
 
     for (const line of lines) {
+      // Use the subTotal column from the line entity
+      const lineSubTotal = Number(line.subTotal);
       // Use the subTotal column from the line entity
       const lineSubTotal = Number(line.subTotal);
       const lineTotal = Number(line.totalPrice);
