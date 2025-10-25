@@ -224,17 +224,101 @@ export class OrderRepository implements IOrderRepository {
     limit: number = 10,
   ): Promise<ComandaResponseDTO> {
     try {
-      const orders = await this._dbOrderRepository
-        .createQueryBuilder('order')
-        .leftJoinAndSelect('order.client', 'client')
-        .leftJoinAndSelect('order.state', 'state')
-        .leftJoinAndSelect('order.lines', 'line')
-        .leftJoinAndSelect('line.product', 'product')
-        .leftJoinAndSelect('product.productType', 'productType')
-        .where('state.id = :stateId', { stateId: 1 })
-        .orderBy('order.createdAt', 'ASC')
-        .getManyAndCount();
-      return this._orderMapper.ordersToComandaResponseDTO(orders);
+      const offset = (page - 1) * limit;
+      const query = `
+        WITH recipe_cte AS (
+          SELECT
+            r.id AS "recipeId",
+            json_agg(
+              json_build_object(
+                'ingredientId', i.id,
+                'ingredientName', i.name,
+                'unitId', u.id,
+                'unitName', u.name,
+                'quantity', ri.quantity
+              )
+            ) AS recipe
+          FROM "Recipe" r
+          INNER JOIN "RecipeIngredient" ri ON ri."recipeId" = r.id
+          INNER JOIN "Ingredient" i ON i.id = ri."ingredientId"
+          INNER JOIN "Unit" u ON u.id = ri."unitId"
+          GROUP BY r.id
+        ),
+        line_cte AS (
+          select
+            l.id AS "lineId",
+            l."orderId" as "orderId",
+            l.quantity,
+            p.id AS "productId",
+            p.name AS "productName",
+            p."recipeId",
+            r.recipe
+          FROM "Line" l
+          INNER JOIN "Product" p ON p.id = l."productId"
+          LEFT JOIN recipe_cte r ON r."recipeId" = p."recipeId"
+        ),
+        order_cte AS (
+          SELECT
+            o.id AS "orderId",
+            c.id AS "clientId",
+            o."stateId",
+            c.name AS "clientName",
+            json_agg(
+              json_build_object(
+                'lineId', l."lineId",
+                'quantity', l.quantity,
+                'productId', l."productId",
+                'productName', l."productName",
+                'recipe', l.recipe
+              )
+            ) AS lines
+          FROM "Order" o
+          INNER JOIN "Client" c ON c.id = o."clientId"
+          INNER JOIN line_cte l ON l."orderId" = o.id
+          INNER JOIN "Line" ln ON ln."orderId" = o.id AND ln."productId" = l."productId"
+          GROUP BY o.id, c.id, c.name
+        )
+        SELECT * FROM order_cte as octe
+        WHERE octe."stateId" = 2
+        LIMIT $1 OFFSET $2
+      `;
+      const rawData = await this._dbOrderRepository.query(query, [
+        limit,
+        offset,
+      ]);
+
+      // Get total count for pagination
+      const countQuery = `
+        WITH recipe_cte AS (
+          SELECT r.id AS "recipeId"
+          FROM "Recipe" r
+          GROUP BY r.id
+        ),
+        line_cte AS (
+          select l.id AS "lineId", l."orderId" as "orderId", p.id AS "productId"
+          FROM "Line" l
+          INNER JOIN "Product" p ON p.id = l."productId"
+          LEFT JOIN recipe_cte r ON r."recipeId" = p."recipeId"
+        ),
+        order_cte AS (
+          SELECT o.id AS "orderId", o."stateId"
+          FROM "Order" o
+          INNER JOIN "Client" c ON c.id = o."clientId"
+          INNER JOIN line_cte l ON l."orderId" = o.id
+          GROUP BY o.id, c.id, c.name
+        )
+        SELECT COUNT(*) as total FROM order_cte as octe
+        WHERE octe."stateId" = 2
+      `;
+      const countResult = await this._dbOrderRepository.query(countQuery);
+      const total = parseInt(countResult[0].total, 10);
+
+      return this._orderMapper.ordersToComandaResponseDTO(
+        rawData,
+        total,
+        page,
+        limit,
+      );
     } catch (error: any) {
       console.error('Error fetching comanda: ', error);
       throw new HttpError(
