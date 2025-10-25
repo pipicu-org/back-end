@@ -202,12 +202,6 @@ export const lineRepository = new LineRepository(
 );
 export const lineService = new LineService(lineRepository);
 
-export const orderService = new OrderService(
-  orderRepository,
-  orderMapper,
-  lineService,
-);
-
 // Services
 
 export const recipeIngredientService = new RecipeIngredientService(
@@ -219,6 +213,13 @@ export const clientService = new ClientService(clientRepository, clientMapper);
 export const productService = new ProductService(
   productRepository,
   productMapper,
+);
+
+export const orderService = new OrderService(
+  orderRepository,
+  orderMapper,
+  lineService,
+  productService
 );
 
 export const ingredientService = new IngredientService(

@@ -24,6 +24,7 @@ export class ProductResponseDTO {
         id: number;
         name: string;
         stock: number;
+        cost?: number;
         // price: number;
       };
     }>;
@@ -53,6 +54,7 @@ export class ProductResponseDTO {
             id: ingredientsList.ingredient.id,
             name: ingredientsList.ingredient.name,
             stock: ingredientsList.ingredient.stock,
+            cost: ingredientsList.ingredient.cost,
           },
         })),
       };
