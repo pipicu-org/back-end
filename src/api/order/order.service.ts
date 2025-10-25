@@ -2,7 +2,7 @@ import { OrderRequestDTO } from '../models/DTO/request/orderRequestDTO';
 import { ComandaResponseDTO } from '../models/DTO/response/comandaResponseDTO';
 import { OrderResponseDTO } from '../models/DTO/response/orderResponseDTO';
 import { OrderSearchResponseDTO } from '../models/DTO/response/orderSearchResponseDTO';
-import { PreparationResponseDTO } from '../models/DTO/response/preparationResponseDTO';
+import { KitchenOrderResponseDTO } from '../models/DTO/response/kitchenOrderResponseDTO';
 
 export interface IOrderService {
   create(order: OrderRequestDTO): Promise<OrderResponseDTO>;
@@ -13,5 +13,5 @@ export interface IOrderService {
   getOrdersByState(stateId: number, page?: number, limit?: number): Promise<OrderSearchResponseDTO>;
   changeStateOrder(orderId: number, stateId: number): Promise<OrderResponseDTO>;
   getComanda(page: number, limit: number): Promise<ComandaResponseDTO>;
-  getKitchenOrders(page: number, limit: number): Promise<PreparationResponseDTO>;
+  getKitchenOrders(page: number, limit: number, productId?: number): Promise<KitchenOrderResponseDTO>;
 }
