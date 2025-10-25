@@ -122,9 +122,11 @@ export class OrderController {
     try {
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
+      const productId = req.query.productId ? Number(req.query.productId) : undefined;
       const kitchenOrders = await this.orderService.getKitchenOrders(
         page,
         limit,
+        productId,
       );
       res.status(200).json(kitchenOrders);
     } catch (error: any) {
