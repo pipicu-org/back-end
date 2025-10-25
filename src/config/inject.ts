@@ -185,6 +185,8 @@ export const clientRepository = new ClientRepository(
 
 export const unitRepository = new UnitRepository(dbUnitRepository, unitMapper);
 
+export const unitRepository = new UnitRepository(dbUnitRepository, unitMapper);
+
 export const categoryRepository = new CategoryRepository(dbCategoryRepository);
 
 export const categoryService = new CategoryService(categoryRepository);
@@ -196,7 +198,9 @@ export const ingredientRepository = new IngredientRepository(
   ingredientMapper,
 );
 
-export const unitRepository = new UnitRepository(dbUnitRepository, unitMapper);
+export const stockMovementRepository = new StockMovementRepository(
+  dbStockMovementRepository,
+);
 
 export const recipeIngredientRepository = new RecipeIngredientRepository(
   dbRecipeIngredientRepository,
@@ -208,10 +212,6 @@ export const lineRepository = new LineRepository(
   dbTransitionRepository,
   dbTransitionTypeRepository,
   lineMapper,
-);
-
-export const stockMovementRepository = new StockMovementRepository(
-  dbStockMovementRepository,
 );
 
 // Services
@@ -232,13 +232,25 @@ export const productService = new ProductService(
   productMapper,
 );
 
+export const unitService = new UnitService(unitRepository);
+
+export const ingredientService = new IngredientService(
+  ingredientRepository,
+  ingredientMapper,
+);
+export const stockMovementService = new StockMovementService(
+  stockMovementRepository,
+  stockMovementMapper,
+  unitService,
+  ingredientService,
+);
+
 export const orderService = new OrderService(
   orderRepository,
   orderMapper,
   lineService,
   productService,
   stockMovementService,
-  productMapper,
 );
 
 // Controllers
