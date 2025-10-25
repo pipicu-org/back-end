@@ -232,18 +232,13 @@ export const productService = new ProductService(
   productMapper,
 );
 
-export const ingredientService = new IngredientService(
-  ingredientRepository,
-  ingredientMapper,
-);
-
-export const unitService = new UnitService(unitRepository);
-
-export const stockMovementService = new StockMovementService(
-  stockMovementRepository,
-  stockMovementMapper,
-  unitService,
-  ingredientService,
+export const orderService = new OrderService(
+  orderRepository,
+  orderMapper,
+  lineService,
+  productService,
+  stockMovementService,
+  productMapper,
 );
 
 // Controllers
@@ -260,14 +255,6 @@ export const recipeIngredientController = new RecipeIngredientController(
 );
 
 export const stockMovementController = new StockMovementController(
-  stockMovementService,
-);
-
-export const orderService = new OrderService(
-  orderRepository,
-  orderMapper,
-  lineService,
-  productService,
   stockMovementService,
 );
 

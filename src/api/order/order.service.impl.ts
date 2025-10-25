@@ -117,6 +117,7 @@ export class OrderService implements IOrderService {
   private async _compareAndUpdateLines(
     existingOrder: OrderResponseDTO,
     newLines: Array<{ product: { id: number }; quantity: number }>,
+    newLines: Array<{ product: { id: number }; quantity: number }>,
     orderId: number,
   ): Promise<{ updatedLines: Line[]; deletedLines: Line[] }> {
     const existingLines = existingOrder.lines;
@@ -151,9 +152,18 @@ export class OrderService implements IOrderService {
             newLine,
             orderId,
           );
+          const updatedLine = await this._updateLine(
+            existingLine.id,
+            newLine,
+            orderId,
+          );
           updatedLines.push(updatedLine);
         } else {
           // Keep existing line
+          const lineEntity = await this._getLineEntityById(
+            existingLine.id,
+            orderId,
+          );
           const lineEntity = await this._getLineEntityById(
             existingLine.id,
             orderId,
@@ -162,6 +172,10 @@ export class OrderService implements IOrderService {
         }
         newLineMap.delete(Number(existingLine.product.id));
       } else {
+        // Remove line - add to deletedLines
+        const lineEntity = await this._getLineEntityById(
+          existingLine.id,
+          orderId,
         // Remove line - add to deletedLines
         const lineEntity = await this._getLineEntityById(
           existingLine.id,
@@ -189,8 +203,10 @@ export class OrderService implements IOrderService {
       productType?: string;
     },
     orderId: number,
+    orderId: number,
   ): Promise<Line> {
     // Fetch existing line entity
+    const lineEntity = await this._getLineEntityById(lineId, orderId);
     const lineEntity = await this._getLineEntityById(lineId, orderId);
     console.log(
       `[DEBUG] Updating line ${lineId}: current quantity=${lineEntity.quantity}, new quantity=${newLineData.quantity}`,
@@ -332,6 +348,7 @@ export class OrderService implements IOrderService {
     line.productId = newLineData.product.id;
     line.quantity = Number(newLineData.quantity);
     line.product.productTypeId = newLineData.productType === 'custom' ? 2 : 1;
+    line.product.productTypeId = newLineData.productType === 'custom' ? 2 : 1;
     line.orderId = orderId; // Set the orderId
 
     // Fetch product to get unitPrice
@@ -385,6 +402,10 @@ export class OrderService implements IOrderService {
     lineId: string,
     orderId: number,
   ): Promise<Line> {
+  private async _getLineEntityById(
+    lineId: string,
+    orderId: number,
+  ): Promise<Line> {
     // Fetch line entity from repository
     const lineResponse = await this._lineService.findById(Number(lineId));
     if (!lineResponse) {
@@ -397,8 +418,6 @@ export class OrderService implements IOrderService {
     line.quantity = lineResponse.quantity;
     line.unitPrice = lineResponse.totalPrice / lineResponse.quantity;
     line.totalPrice = lineResponse.totalPrice;
-    line.subTotal = lineResponse.totalPrice; // Approximation - should be pre-tax price
-    line.orderId = orderId; // Set the orderId
     line.subTotal = lineResponse.totalPrice; // Approximation - should be pre-tax price
     line.orderId = orderId; // Set the orderId
     line.productId = lineResponse.product.id;
