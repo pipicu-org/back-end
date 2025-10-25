@@ -1,6 +1,7 @@
 import { LineResponseDTO } from '../models/DTO/response/lineResponeDTO';
 import { LineSearchResponseDTO } from '../models/DTO/response/lineSearchResponseDTO';
 import { Line } from '../models/entity/line';
+import { Line } from '../models/entity/line';
 import { ILineRepository } from './line.repository';
 import { ILineService } from './line.service';
 
