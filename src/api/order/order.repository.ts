@@ -251,19 +251,81 @@ export class OrderRepository implements IOrderRepository {
   ): Promise<KitchenOrderResponseDTO> {
     const offset = (page - 1) * limit;
     try {
-      const orders = await this._dbOrderRepository
-        .createQueryBuilder('order')
-        .leftJoinAndSelect('order.client', 'client')
-        .leftJoinAndSelect('order.state', 'state')
-        .leftJoinAndSelect('order.lines', 'line')
-        .leftJoinAndSelect('line.product', 'product')
-        .leftJoinAndSelect('product.productType', 'productType')
-        .where('state.id = :stateId', { stateId: 1 })
-        .orderBy('order.createdAt', 'ASC')
-        .skip((page - 1) * limit)
-        .take(limit)
-        .getManyAndCount();
-      return this._orderMapper.toPreparationResponseDTO(orders[0], orders[1]);
+      let query = `
+      SELECT
+        l."orderId",
+        l.id AS "lineId",
+        gs.n AS "preparationId",
+        p.id AS "productId",
+        p.name AS "productName",
+        l.quantity,
+        json_agg(
+          json_build_object(
+            'ingredientId', ri."ingredientId",
+            'ingredientName', i.name,
+            'quantity', ri.quantity,
+            'unitName', u.name
+          )
+        ) AS "recipeIngredients"
+      FROM "Line" l
+      INNER JOIN "Order" o ON o.id = l."orderId"
+      INNER JOIN "Product" p ON p.id = l."productId"
+      INNER JOIN "Recipe" r ON r.id = p."recipeId"
+      LEFT JOIN "RecipeIngredient" ri ON ri."recipeId" = r.id
+      LEFT JOIN "Ingredient" i ON i.id = ri."ingredientId"
+      LEFT JOIN "Unit" u ON u.id = ri."unitId"
+      JOIN generate_series(1, l.quantity) AS gs(n) ON true
+      WHERE o."stateId" = $1
+      `;
+      const queryParams: any[] = [2, limit, offset];
+      if (productId) {
+        query += ` AND p.id = $${queryParams.length + 1}`;
+        queryParams.push(productId);
+      }
+      query += `
+      GROUP BY l."orderId", l.id, gs.n, p.id, p.name, l.quantity, o."deliveryTime"
+      ORDER BY o."deliveryTime" DESC, l.id, gs.n
+      LIMIT $2 OFFSET $3
+      `;
+      const rawData = await this._dbOrderRepository.query(query, queryParams);
+
+      let countQuery = `
+      SELECT COUNT(*) AS total
+      FROM (
+        SELECT l.id, gs.n
+        FROM "Line" l
+        INNER JOIN "Order" o ON o.id = l."orderId"
+        INNER JOIN "Product" p ON p.id = l."productId"
+        INNER JOIN "Recipe" r ON r.id = p."recipeId"
+        JOIN generate_series(1, l.quantity) AS gs(n) ON true
+        WHERE o."stateId" = $1
+      `;
+      const countQueryParams = [2];
+      if (productId) {
+        countQuery += `    AND p.id = $${countQueryParams.length + 1}\n`;
+        countQueryParams.push(productId);
+      }
+      countQuery += `        GROUP BY l.id, gs.n
+      ) AS sub`;
+
+      const totalResult = await this._dbOrderRepository.query(
+        countQuery,
+        countQueryParams,
+      );
+      const total = parseInt(totalResult[0].total, 10);
+      const items = (rawData ?? []).map(
+        (row: any) =>
+          new KitchenOrderItemDTO(
+            row.orderId,
+            row.lineId,
+            row.preparationId,
+            row.productId,
+            row.productName,
+            row.quantity,
+            row.recipeIngredients ?? [],
+          ),
+      );
+      return new KitchenOrderResponseDTO(items, total, page, limit);
     } catch (error: any) {
       console.error('Error fetching kitchen orders:', error.message);
       throw new HttpError(

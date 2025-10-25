@@ -834,55 +834,60 @@ export const orderRouter = (controller = orderController): Router => {
    *         content:
    *           application/json:
    *             schema:
-   *               type: array
-   *               items:
-   *                 type: object
-   *                 properties:
-   *                   id:
-   *                     type: string
-   *                     example: "1"
-   *                   state:
-   *                     type: string
-   *                     example: "pending"
-   *                   client:
-   *                     type: string
-   *                     example: "Juan Pérez"
-   *                   phoneNumber:
-   *                     type: string
-   *                     example: "123456789"
-   *                   address:
-   *                     type: string
-   *                     example: "Calle Principal 123"
-   *                   deliveryTime:
-   *                     type: string
-   *                     format: date-time
-   *                     example: "2024-01-01T12:00:00Z"
-   *                   contactMethod:
-   *                     type: string
-   *                     example: "phone"
-   *                   paymentMethod:
-   *                     type: string
-   *                     example: "cash"
-   *                   total:
-   *                     type: number
-   *                     example: 25.99
-   *                   lines:
-   *                     type: array
-   *                     items:
-   *                       type: object
-   *                       properties:
-   *                         id:
-   *                           type: string
-   *                           example: "1"
-   *                         product:
+   *               type: object
+   *               properties:
+   *                 total:
+   *                   type: string
+   *                   example: "10"
+   *                 page:
+   *                   type: number
+   *                   example: 1
+   *                 limit:
+   *                   type: number
+   *                   example: 10
+   *                 data:
+   *                   type: array
+   *                   items:
+   *                     type: object
+   *                     properties:
+   *                       orderId:
+   *                         type: number
+   *                         example: 352
+   *                       lineId:
+   *                         type: number
+   *                         example: 133
+   *                       preparationId:
+   *                         type: number
+   *                         example: 1
+   *                       product:
+   *                         type: object
+   *                         properties:
+   *                           id:
+   *                             type: number
+   *                             example: 1
+   *                           name:
+   *                             type: string
+   *                             example: "Immortan"
+   *                       quantity:
+   *                         type: number
+   *                         example: 5
+   *                       recipeIngredients:
+   *                         type: array
+   *                         items:
    *                           type: object
+   *                           properties:
+   *                             ingredientId:
+   *                               type: number
+   *                               example: 1
+   *                             ingredientName:
+   *                               type: object
    *                           properties:
    *                             id:
    *                               type: string
    *                               example: "1"
    *                             name:
    *                               type: string
-   *                               example: "Pizza Margherita"
+   *                                   example: "Tomato"
    *                             productType:
    *                               type: object
    *                               properties:
@@ -892,12 +897,12 @@ export const orderRouter = (controller = orderController): Router => {
    *                                 name:
    *                                   type: string
    *                                   example: "standard"
-   *                         quantity:
-   *                           type: integer
-   *                           example: 2
-   *                         totalPrice:
-   *                           type: number
-   *                           example: 25.98
+   *                             quantity:
+   *                               type: number
+   *                               example: 2.5
+   *                             unitName:
+   *                               type: string
+   *                               example: "kg"
    *       500:
    *         $ref: '#/components/responses/ErrorResponse'
    */
