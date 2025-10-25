@@ -111,7 +111,11 @@ export class OrderService implements IOrderService {
 
   private async _compareAndUpdateLines(
     existingOrder: OrderResponseDTO,
-    newLines: Array<{ product: { id: number }; quantity: number }>,
+    newLines: Array<{
+      product: { id: number };
+      quantity: number;
+      productType?: string;
+    }>,
     orderId: number,
   ): Promise<{ updatedLines: Line[]; deletedLines: Line[] }> {
     const existingLines = existingOrder.lines;
@@ -285,7 +289,7 @@ export class OrderService implements IOrderService {
     const line = new Line();
     line.productId = newLineData.product.id;
     line.quantity = Number(newLineData.quantity);
-    line.product.productTypeId = newLineData.productType === 'custom' ? 2 : 1;
+    line.productTypeId = newLineData.productType === 'custom' ? 2 : 1;
     line.orderId = orderId; // Set the orderId
 
     // Fetch product to get unitPrice

@@ -183,6 +183,8 @@ export const clientRepository = new ClientRepository(
   clientMapper,
 );
 
+export const unitRepository = new UnitRepository(dbUnitRepository, unitMapper);
+
 export const categoryRepository = new CategoryRepository(dbCategoryRepository);
 
 export const categoryService = new CategoryService(categoryRepository);
@@ -192,6 +194,10 @@ export const categoryController = new CategoryController(categoryService);
 export const ingredientRepository = new IngredientRepository(
   dbIngredientRepository,
   ingredientMapper,
+);
+
+export const stockMovementRepository = new StockMovementRepository(
+  dbStockMovementRepository,
 );
 
 export const recipeIngredientRepository = new RecipeIngredientRepository(
@@ -207,25 +213,6 @@ export const lineRepository = new LineRepository(
 );
 export const lineService = new LineService(lineRepository);
 
-export const stockMovementRepository = new StockMovementRepository(
-  dbStockMovementRepository,
-);
-export const unitRepository = new UnitRepository(dbUnitRepository, unitMapper);
-
-export const unitService = new UnitService(unitRepository);
-
-export const ingredientService = new IngredientService(
-  ingredientRepository,
-  ingredientMapper,
-);
-
-export const stockMovementService = new StockMovementService(
-  stockMovementRepository,
-  stockMovementMapper,
-  unitService,
-  ingredientService,
-);
-
 // Services
 
 export const recipeIngredientService = new RecipeIngredientService(
@@ -239,13 +226,25 @@ export const productService = new ProductService(
   productMapper,
 );
 
+export const unitService = new UnitService(unitRepository);
+
+export const ingredientService = new IngredientService(
+  ingredientRepository,
+  ingredientMapper,
+);
+export const stockMovementService = new StockMovementService(
+  stockMovementRepository,
+  stockMovementMapper,
+  unitService,
+  ingredientService,
+);
+
 export const orderService = new OrderService(
   orderRepository,
   orderMapper,
   lineService,
   productService,
   stockMovementService,
-  productMapper,
 );
 
 // Controllers
