@@ -210,14 +210,7 @@ export class OrderRepository implements IOrderRepository {
     }
   }
 
-  async getComanda(
-    page: number = 1,
-    limit: number = 10,
-  ): Promise<ComandaResponseDTO> {
-  async getComanda(
-    page: number = 1,
-    limit: number = 10,
-  ): Promise<ComandaResponseDTO> {
+  async getComanda(page: number = 1, limit: number = 10): Promise<ComandaResponseDTO> {
     try {
       const offset = (page - 1) * limit;
       const query = `
@@ -277,10 +270,7 @@ export class OrderRepository implements IOrderRepository {
         WHERE octe."stateId" = 2
         LIMIT $1 OFFSET $2
       `;
-      const rawData = await this._dbOrderRepository.query(query, [
-        limit,
-        offset,
-      ]);
+      const rawData = await this._dbOrderRepository.query(query, [limit, offset]);
 
       // Get total count for pagination
       const countQuery = `
@@ -308,12 +298,7 @@ export class OrderRepository implements IOrderRepository {
       const countResult = await this._dbOrderRepository.query(countQuery);
       const total = parseInt(countResult[0].total, 10);
 
-      return this._orderMapper.ordersToComandaResponseDTO(
-        rawData,
-        total,
-        page,
-        limit,
-      );
+      return this._orderMapper.ordersToComandaResponseDTO(rawData, total, page, limit);
     } catch (error: any) {
       console.error('Error fetching comanda: ', error);
       throw new HttpError(

@@ -50,7 +50,11 @@ export class OrderMapper {
       const productIds = orderRequest.lines.map((line) => line.product.id);
       const products = await this.productRepository.find({
         where: { id: In(productIds) },
-        relations: ['recipe', 'recipe.recipeIngredient', 'recipe.recipeIngredient.ingredient'],
+        relations: [
+          'recipe',
+          'recipe.recipeIngredient',
+          'recipe.recipeIngredient.ingredient',
+        ],
       });
       if (!products || products.length === 0) {
         throw new HttpError(404, 'No products found');
@@ -130,8 +134,10 @@ export class OrderMapper {
               const ingredientCost = recipeIngredient.ingredient?.cost || 0;
               totalCost += ingredientCost * recipeIngredient.quantity;
             }
-            console.log(totalCost)
-            entityLine.cost = Number((entityLine.quantity * totalCost).toFixed(2));
+            console.log(totalCost);
+            entityLine.cost = Number(
+              (entityLine.quantity * totalCost).toFixed(2),
+            );
           }
 
           return entityLine;
@@ -170,8 +176,6 @@ export class OrderMapper {
   public ordersToComandaResponseDTO(
     rawData: any[],
     total: number,
-    rawData: any[],
-    total: number,
     page: number = 1,
     limit: number = 10,
   ): ComandaResponseDTO {
@@ -202,9 +206,6 @@ export class OrderMapper {
             }))
           : [],
       })),
-    }));
-
-    return new ComandaResponseDTO(page, limit, total, data);
     }));
 
     return new ComandaResponseDTO(page, limit, total, data);
