@@ -263,6 +263,7 @@ export const orderService = new OrderService(
   lineService,
   productService,
   stockMovementService,
+  productMapper,
 );
 
 export const orderController = new OrderController(orderService);
