@@ -147,6 +147,8 @@ export class OrderMapper {
   public ordersToComandaResponseDTO(
     rawData: any[],
     total: number,
+    rawData: any[],
+    total: number,
     page: number = 1,
     limit: number = 10,
   ): ComandaResponseDTO {
@@ -163,20 +165,21 @@ export class OrderMapper {
           id: line.productId,
           name: line.productName,
         },
-        recipe: line.recipe
-          ? line.recipe.map((recipeItem: any) => ({
-              ingredient: {
-                id: recipeItem.ingredientId,
-                name: recipeItem.ingredientName,
-              },
-              unit: {
-                id: recipeItem.unitId,
-                name: recipeItem.unitName,
-              },
-              quantity: recipeItem.quantity,
-            }))
-          : [],
+        recipe: line.recipe ? line.recipe.map((recipeItem: any) => ({
+          ingredient: {
+            id: recipeItem.ingredientId,
+            name: recipeItem.ingredientName,
+          },
+          unit: {
+            id: recipeItem.unitId,
+            name: recipeItem.unitName,
+          },
+          quantity: recipeItem.quantity,
+        })) : [],
       })),
+    }));
+
+    return new ComandaResponseDTO(page, limit, total, data);
     }));
 
     return new ComandaResponseDTO(page, limit, total, data);
