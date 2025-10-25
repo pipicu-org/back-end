@@ -880,6 +880,12 @@ export const orderRouter = (controller = orderController): Router => {
    *                               type: number
    *                               example: 1
    *                             ingredientName:
+   *                               type: object
+   *                           properties:
+   *                             ingredientId:
+   *                               type: number
+   *                               example: 1
+   *                             ingredientName:
    *                               type: string
    *                               example: "Tomato"
    *                             quantity:
