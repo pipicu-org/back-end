@@ -17,6 +17,7 @@ interface IIngredient {
   name: string;
   unitId: number;
   lossFactor: number;
+  cost?: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -37,6 +38,9 @@ export class Ingredient implements IIngredient {
   @Min(0, { message: 'Loss factor must be at least 0' })
   @Max(1, { message: 'Loss factor must be at most 1' })
   lossFactor!: number;
+
+  @Column({ type: 'numeric', precision: 10, scale: 2, nullable: true, default: 0 })
+  cost?: number;
 
   @Column({
     type: 'numeric',

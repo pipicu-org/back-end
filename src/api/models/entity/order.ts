@@ -21,6 +21,7 @@ interface IOrder {
   subTotal: number;
   total: number;
   taxTotal: number;
+  cost?: number;
   createdAt: Date;
 }
 
@@ -54,6 +55,9 @@ export class Order implements IOrder {
 
   @Column({ type: 'numeric', precision: 10, scale: 2, nullable: false })
   taxTotal!: number;
+
+  @Column({ type: 'numeric', precision: 10, scale: 2, nullable: true, default: 0 })
+  cost?: number;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt!: Date;

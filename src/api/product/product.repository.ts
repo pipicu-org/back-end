@@ -4,6 +4,7 @@ import { ProductMapper } from '../models/mappers/productMapper';
 import { ProductSearchResponseDTO } from '../models/DTO/response/productSearchResponseDTO';
 import { ProductResponseDTO } from '../models/DTO/response/productResponseDTO';
 import { HttpError } from '../../errors/httpError';
+import { CustomProductResponsePaginatedDTO } from '../models/DTO/response/customProductResponsePaginatedDTO';
 
 export interface IProductRepository {
   findById(id: number): Promise<ProductResponseDTO>;
@@ -23,9 +24,7 @@ export interface IProductRepository {
   getAllCustomProducts(
     page: number,
     limit: number,
-  ): Promise<
-    import('../models/DTO/response/customProductResponsePaginatedDTO').CustomProductResponsePaginatedDTO
-  >;
+  ): Promise<CustomProductResponsePaginatedDTO>;
 }
 
 export class ProductRepository implements IProductRepository {
@@ -36,26 +35,17 @@ export class ProductRepository implements IProductRepository {
 
   private getCteQuery(): string {
     return `
-      WITH ingredient_cost_table AS (
-        SELECT i.id, trunc((p.cost/p."unitQuantity"),2) as "cost", p."createdAt" FROM "Ingredient" i
-        JOIN LATERAL (
-          SELECT t.id, t."createdAt", t.cost, t."unitQuantity" FROM "PurchaseItem" t
-          WHERE t."ingredientId" = i.id
-          ORDER BY t."createdAt" ASC
-          LIMIT 1
-        ) p ON TRUE
-      ),
-      prepareable_table AS (
+      WITH prepareable_table AS (
         SELECT ri."recipeId", ri."ingredientId", ri.quantity,
                CASE WHEN i.stock > 0 THEN trunc((i.stock / ri.quantity),0) ELSE 0 END AS "prepareable"
         FROM "RecipeIngredient" ri
         INNER JOIN "Ingredient" i ON i.id = ri."ingredientId"
       ),
       prepareable_recipes_table AS (
-        SELECT r.id, MIN(pt.prepareable) AS "maxPrepareable", SUM(ict.cost * pt.quantity) AS "cost"
+        SELECT r.id, MIN(pt.prepareable) AS "maxPrepareable", SUM(COALESCE(i.cost, 0) * pt.quantity) AS "cost"
         FROM "Recipe" r
         INNER JOIN prepareable_table pt ON pt."recipeId" = r.id
-        INNER JOIN ingredient_cost_table ict ON ict.id = pt."ingredientId"
+        INNER JOIN "Ingredient" i ON i.id = pt."ingredientId"
         GROUP BY r.id
       )
     `;
@@ -104,7 +94,7 @@ export class ProductRepository implements IProductRepository {
         .getOne();
       if (!product) {
         console.warn(`No product found with id ${id}`);
-        throw new HttpError(404, `Product id ${id} not found`);
+        throw new HttpError(404, `findById :: Product id ${id} not found`);
       }
       // Get cost using CTE
       if (product.recipeId) {
@@ -149,7 +139,7 @@ export class ProductRepository implements IProductRepository {
         .getOne();
       if (!existingProduct) {
         console.warn(`No product found with id ${id} to update`);
-        throw new HttpError(404, `Product id ${id} not found`);
+        throw new HttpError(404, `update :: Product id ${id} not found`);
       }
       product.recipe.id = existingProduct.recipe.id;
       await this._dbProductRepository.manager.remove(
@@ -178,7 +168,7 @@ export class ProductRepository implements IProductRepository {
         .getOne();
       if (!productToDelete) {
         console.warn(`No product found with id ${id} to delete`);
-        throw new HttpError(404, `Product id ${id} not found`);
+        throw new HttpError(404, `delete :: Product id ${id} not found`);
       }
       await this._dbProductRepository.manager.remove(productToDelete.recipe);
       await this._dbProductRepository.delete(id);
@@ -297,7 +287,7 @@ export class ProductRepository implements IProductRepository {
     page: number,
     limit: number,
   ): Promise<
-    import('../models/DTO/response/customProductResponsePaginatedDTO').CustomProductResponsePaginatedDTO
+    CustomProductResponsePaginatedDTO
   > {
     try {
       const offset = (page - 1) * limit;
@@ -314,10 +304,6 @@ export class ProductRepository implements IProductRepository {
         .skip(offset)
         .take(limit)
         .getManyAndCount();
-
-      const CustomProductResponsePaginatedDTO = (
-        await import('../models/DTO/response/customProductResponsePaginatedDTO')
-      ).CustomProductResponsePaginatedDTO;
 
       return new CustomProductResponsePaginatedDTO(
         [products, total],

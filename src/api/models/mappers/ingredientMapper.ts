@@ -31,7 +31,7 @@ export class IngredientMapper implements IIngredientEntityMapper, IIngredientRes
     ingredient.name = requestDTO.name;
     ingredient.unitId = requestDTO.unitId;
     ingredient.lossFactor = requestDTO.lossFactor;
-    // ingredient.price = requestDTO.price;
+    ingredient.cost = requestDTO.cost;
     return ingredient;
   }
 

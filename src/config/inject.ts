@@ -206,7 +206,6 @@ export const lineRepository = new LineRepository(
   dbTransitionTypeRepository,
   lineMapper,
 );
-export const lineService = new LineService(lineRepository);
 
 export const stockMovementRepository = new StockMovementRepository(
   dbStockMovementRepository,
@@ -218,6 +217,9 @@ export const stockMovementService = new StockMovementService(
   stockMovementMapper,
   AppDataSource,
 );
+
+// Services
+export const lineService = new LineService(lineRepository);
 
 export const recipeIngredientService = new RecipeIngredientService(
   recipeIngredientRepository,
@@ -235,6 +237,15 @@ export const ingredientService = new IngredientService(
   ingredientMapper,
 );
 
+export const orderService = new OrderService(
+  orderRepository,
+  orderMapper,
+  lineService,
+  stockMovementService,
+  productService,
+  productMapper,
+);
+
 // Controllers
 export const clientController = new ClientController(clientService);
 
@@ -250,15 +261,6 @@ export const recipeIngredientController = new RecipeIngredientController(
 
 export const stockMovementController = new StockMovementController(
   stockMovementService,
-);
-
-export const orderService = new OrderService(
-  orderRepository,
-  orderMapper,
-  lineService,
-  stockMovementService,
-  productService,
-  productMapper,
 );
 
 export const orderController = new OrderController(orderService);

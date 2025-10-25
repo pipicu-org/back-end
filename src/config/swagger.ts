@@ -348,12 +348,12 @@ const options = {
         },
         IngredientRequest: {
           type: 'object',
-          required: ['name', 'price', 'unitId', 'lossFactor'],
+          required: ['name', 'unitId', 'lossFactor'],
           properties: {
             name: { type: 'string', example: 'Tomato' },
-            price: { type: 'number', example: 2.5 },
             unitId: { type: 'number', example: 1 },
             lossFactor: { type: 'number', example: 0.1 },
+            cost: { type: 'number', example: 2.5 },
           },
         },
         IngredientResponse: {
@@ -363,6 +363,7 @@ const options = {
             name: { type: 'string', example: 'Tomato' },
             unitId: { type: 'number', example: 1 },
             lossFactor: { type: 'number', example: 0.1 },
+            cost: { type: 'number', example: 2.5 },
             stock: { type: 'number', example: 100.0 },
             createdAt: {
               type: 'string',
@@ -422,6 +423,8 @@ const options = {
             recipeId: { type: 'number', nullable: true, example: 1 },
             productTypeId: { type: 'number', example: 1 },
             categoryId: { type: 'number', example: 1 },
+            maxPrepareable: { type: 'number', example: 50 },
+            cost: { type: 'number', example: 5.75 },
             createdAt: {
               type: 'string',
               format: 'date-time',
