@@ -95,7 +95,9 @@ export const purchaseRouter = (controller = purchaseController): Router => {
    *             example:
    *               purchases:
    *                 - id: 1
-   *                   providerId: 1
+   *                   provider:
+   *                     id: 1
+   *                     name: "ABC Supplies"
    *                   createdAt: "2023-01-01T00:00:00Z"
    *                   updatedAt: "2023-01-01T00:00:00Z"
    *                   purchaseItems: []

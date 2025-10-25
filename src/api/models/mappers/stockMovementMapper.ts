@@ -51,9 +51,9 @@ export class StockMovementMapper
   public toEntity(stockMovement: StockMovementResponseDTO): StockMovement {
     const entity = new StockMovement();
     entity.id = stockMovement.id;
-    entity.ingredientId = stockMovement.ingredientId;
+    entity.ingredientId = stockMovement.ingredient.id;
     entity.quantity = stockMovement.quantity;
-    entity.unitId = stockMovement.unitId;
+    entity.unitId = stockMovement.unit.id;
     entity.stockMovementTypeId = stockMovement.stockMovementTypeId;
     entity.purchaseItemId = stockMovement.purchaseItemId;
     entity.createdAt = stockMovement.createdAt;
@@ -72,9 +72,15 @@ export class StockMovementMapper
       limit,
       resultsAndCount[0].map((stockMovement) => ({
         id: stockMovement.id,
-        ingredientId: stockMovement.ingredientId,
+        ingredient: {
+          id: stockMovement.ingredientId,
+          name: stockMovement.ingredient?.name || '',
+        },
         quantity: stockMovement.quantity,
-        unitId: stockMovement.unitId,
+        unit: {
+          id: stockMovement.unitId,
+          name: stockMovement.unit?.name || '',
+        },
         stockMovementTypeId: stockMovement.stockMovementTypeId,
         purchaseItemId: stockMovement.purchaseItemId,
         createdAt: stockMovement.createdAt.toISOString(),

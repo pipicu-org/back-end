@@ -1,14 +1,18 @@
-import { Column, Entity, ManyToOne, JoinColumn, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  JoinColumn,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Min } from 'class-validator';
 import { Order } from './order';
 import { Product } from './product';
-import { ProductType } from './productType';
 
 interface ILine {
   id: number;
   note: string;
   productId: number;
-  productTypeId: number;
   orderId: number;
   unitPrice: number;
   quantity: number;
@@ -29,9 +33,6 @@ export class Line implements ILine {
 
   @Column({ type: 'int', nullable: false })
   productId!: number;
-
-  @Column({ type: 'int', nullable: false })
-  productTypeId!: number;
 
   @Column({ type: 'int', nullable: false })
   orderId!: number;
@@ -58,7 +59,11 @@ export class Line implements ILine {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt!: Date;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
   updatedAt!: Date;
 
   // Relación muchos-a-uno con Product
@@ -67,11 +72,6 @@ export class Line implements ILine {
   })
   @JoinColumn({ name: 'productId' })
   product!: Product;
-
-  // Relación muchos-a-uno con ProductType
-  @ManyToOne(() => ProductType, { nullable: false })
-  @JoinColumn({ name: 'productTypeId' })
-  productType!: ProductType;
 
   // Relación muchos-a-uno con Order
   @ManyToOne(() => Order, (order) => order.lines, {

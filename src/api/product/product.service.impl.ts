@@ -1,5 +1,6 @@
 import { ProductRequestDTO } from '../models/DTO/request/productRequestDTO';
 import { ProductResponseDTO } from '../models/DTO/response/productResponseDTO';
+import { CustomProductResponsePaginatedDTO } from '../models/DTO/response/customProductResponsePaginatedDTO';
 import { IProductRepository } from './product.repository';
 import { ProductSearchResponseDTO } from '../models/DTO/response/productSearchResponseDTO';
 import { ProductMapper } from '../models/mappers/productMapper';
@@ -24,8 +25,13 @@ export class ProductService implements IProductService {
   }
 
   async createProduct(product: ProductRequestDTO): Promise<ProductResponseDTO> {
-    const productEntity = await this._productMapper.requestDTOToEntity(product);
-    return await this._productRepository.create(productEntity);
+    try {
+      const productEntity =
+        await this._productMapper.requestDTOToEntity(product);
+      return await this._productRepository.create(productEntity);
+    } catch (error: any) {
+      throw new Error(`${error.message}`);
+    }
   }
 
   async updateProduct(
@@ -50,5 +56,18 @@ export class ProductService implements IProductService {
       page,
       limit,
     );
+  }
+
+  /**
+   * Retrieves all custom products with pagination.
+   * @param page The page number to retrieve (1-based).
+   * @param limit The number of items per page.
+   * @returns A Promise that resolves to the CustomProductResponsePaginatedDTO containing the paginated results.
+   */
+  async getAllCustomProducts(
+    page: number,
+    limit: number,
+  ): Promise<CustomProductResponsePaginatedDTO> {
+    return this._productRepository.getAllCustomProducts(page, limit);
   }
 }

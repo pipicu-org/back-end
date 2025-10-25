@@ -11,6 +11,14 @@ const mockIngredientRepository = {
   find: jest.fn(),
 };
 
+const mockProductRepository = {
+  findOneBy: jest.fn(),
+};
+
+const mockProductTypeRepository = {
+  findOneBy: jest.fn(),
+};
+
 describe('ProductMapper', () => {
   let productMapper: ProductMapper;
 
@@ -19,6 +27,8 @@ describe('ProductMapper', () => {
     productMapper = new ProductMapper(
       mockCategoryRepository as any,
       mockIngredientRepository as any,
+      mockProductRepository as any,
+      mockProductTypeRepository as any,
     );
   });
 
@@ -43,13 +53,26 @@ describe('ProductMapper', () => {
 
   describe('searchToResponseDTO', () => {
     it('should create search response DTO', () => {
-      const products: Product[] = [{ id: 1, name: 'Product', preTaxPrice: 8, price: 10, category: { name: 'Cat' } as any } as Product];
+      const products: Product[] = [
+        {
+          id: 1,
+          name: 'Product',
+          preTaxPrice: 8,
+          price: 10,
+          category: { name: 'Cat' } as any,
+        } as Product,
+      ];
       const search = 'Prod';
       const page = 1;
       const limit = 10;
       const total = 1;
 
-      const result = productMapper.searchToResponseDTO([products, total], search, page, limit);
+      const result = productMapper.searchToResponseDTO(
+        [products, total],
+        search,
+        page,
+        limit,
+      );
 
       expect(result).toBeInstanceOf(ProductSearchResponseDTO);
       expect(result.search).toBe(search);

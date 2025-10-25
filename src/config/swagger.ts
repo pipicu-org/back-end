@@ -82,17 +82,28 @@ const options = {
             name: { type: 'string', example: 'Juan Pérez' },
             phoneNumber: { type: 'string', example: '123456789' },
             address: { type: 'string', example: 'Calle Principal 123' },
-            facebookusername: { type: 'string', example: 'juanperez' },
-            instagramusername: { type: 'string', example: 'juanperez_ig' },
+            facebookusername: {
+              type: 'string',
+              nullable: true,
+              example: 'juanperez',
+            },
+            instagramusername: {
+              type: 'string',
+              nullable: true,
+              example: 'juanperez_ig',
+            },
           },
         },
         ProductRequestDTO: {
           type: 'object',
-          required: ['category', 'name', 'price', 'ingredients'],
+          description:
+            'Request body for creating a product. Optional fields productTypeId and parentProductId enable custom product creation, defaulting to null if not provided.',
+          required: ['category', 'name', 'preTaxPrice', 'price', 'ingredients'],
           properties: {
             category: { type: 'number', example: 1 },
             name: { type: 'string', example: 'Pizza Margherita' },
-            price: { type: 'number', example: 10.99 },
+            preTaxPrice: { type: 'number', example: 10.99 },
+            price: { type: 'number', example: 12.99 },
             ingredients: {
               type: 'array',
               items: {
@@ -102,6 +113,20 @@ const options = {
                   quantity: { type: 'number', example: 2 },
                 },
               },
+            },
+            productTypeId: {
+              type: 'number',
+              nullable: true,
+              example: 1,
+              description:
+                'Optional field for custom product type, enabling custom product creation. Defaults to 1.',
+            },
+            parentProductId: {
+              type: 'number',
+              nullable: true,
+              example: null,
+              description:
+                'Optional field for parent product in custom products, enabling custom product creation. Defaults to null.',
             },
           },
         },
@@ -178,7 +203,13 @@ const options = {
           properties: {
             id: { type: 'number', example: 1 },
             purchaseId: { type: 'number', example: 1 },
-            ingredientId: { type: 'number', example: 1 },
+            ingredient: {
+              type: 'object',
+              properties: {
+                id: { type: 'number', example: 1 },
+                name: { type: 'string', example: 'Tomato' },
+              },
+            },
             cost: { type: 'number', example: 10.5 },
             quantity: { type: 'number', example: 100.0 },
             unitId: { type: 'number', example: 1 },
@@ -199,7 +230,13 @@ const options = {
           type: 'object',
           properties: {
             id: { type: 'number', example: 1 },
-            providerId: { type: 'number', example: 1 },
+            provider: {
+              type: 'object',
+              properties: {
+                id: { type: 'number', example: 1 },
+                name: { type: 'string', example: 'ABC Supplies' },
+              },
+            },
             createdAt: {
               type: 'string',
               format: 'date-time',
@@ -342,6 +379,8 @@ const options = {
         },
         ProductRequest: {
           type: 'object',
+          description:
+            'Request body for creating a product. Optional fields productTypeId and parentProductId enable custom product creation, defaulting to null if not provided.',
           required: ['category', 'name', 'preTaxPrice', 'price', 'ingredients'],
           properties: {
             category: { type: 'number', example: 1 },
@@ -358,6 +397,20 @@ const options = {
                 },
               },
             },
+            productTypeId: {
+              type: 'number',
+              nullable: true,
+              example: 1,
+              description:
+                'Optional field for custom product type, enabling custom product creation. Defaults to 1.',
+            },
+            parentProductId: {
+              type: 'number',
+              nullable: true,
+              example: null,
+              description:
+                'Optional field for parent product in custom products, enabling custom product creation. Defaults to null.',
+            },
           },
         },
         ProductResponse: {
@@ -368,6 +421,7 @@ const options = {
             preTaxPrice: { type: 'number', example: 10.99 },
             price: { type: 'number', example: 12.99 },
             recipeId: { type: 'number', nullable: true, example: 1 },
+            productTypeId: { type: 'number', example: 1 },
             categoryId: { type: 'number', example: 1 },
             maxPrepareable: { type: 'number', example: 50 },
             cost: { type: 'number', example: 5.75 },
@@ -393,7 +447,7 @@ const options = {
               nullable: true,
               properties: {
                 id: { type: 'number', example: 1 },
-                cost: { type: 'number', example: 5.75 },
+                cost: { type: 'number', nullable: true, example: 5.5 },
                 ingredients: {
                   type: 'array',
                   items: {
@@ -406,6 +460,7 @@ const options = {
                         properties: {
                           id: { type: 'number', example: 1 },
                           name: { type: 'string', example: 'Tomato' },
+                          stock: { type: 'number', example: 100.0 },
                         },
                       },
                     },
@@ -417,10 +472,20 @@ const options = {
         },
         OrderRequest: {
           type: 'object',
-          required: ['client', 'deliveryTime', 'contactMethod', 'paymentMethod', 'lines'],
+          required: [
+            'client',
+            'deliveryTime',
+            'contactMethod',
+            'paymentMethod',
+            'lines',
+          ],
           properties: {
             client: { type: 'number', example: 1 },
-            deliveryTime: { type: 'string', format: 'date-time', example: '2024-01-01T12:00:00Z' },
+            deliveryTime: {
+              type: 'string',
+              format: 'date-time',
+              example: '2024-01-01T12:00:00Z',
+            },
             contactMethod: { type: 'string', example: 'phone' },
             paymentMethod: { type: 'string', example: 'cash' },
             lines: {
@@ -428,9 +493,13 @@ const options = {
               items: {
                 type: 'object',
                 properties: {
-                  product: { type: 'number', example: 1 },
+                  product: {
+                    type: 'object',
+                    properties: {
+                      id: { type: 'number', example: 1 },
+                    },
+                  },
                   quantity: { type: 'number', example: 2 },
-                  personalizations: { type: 'array', items: { type: 'object' }, example: [] },
                 },
               },
             },
@@ -444,7 +513,11 @@ const options = {
             client: { type: 'string', example: 'Juan Pérez' },
             phoneNumber: { type: 'string', example: '123456789' },
             address: { type: 'string', example: 'Calle Principal 123' },
-            deliveryTime: { type: 'string', format: 'date-time', example: '2024-01-01T12:00:00Z' },
+            deliveryTime: {
+              type: 'string',
+              format: 'date-time',
+              example: '2024-01-01T12:00:00Z',
+            },
             contactMethod: { type: 'string', example: 'phone' },
             paymentMethod: { type: 'string', example: 'cash' },
             total: { type: 'number', example: 25.99 },
@@ -454,7 +527,14 @@ const options = {
                 type: 'object',
                 properties: {
                   id: { type: 'string', example: '1' },
-                  product: { type: 'string', example: 'Pizza Margherita' },
+                  product: {
+                    type: 'object',
+                    properties: {
+                      id: { type: 'string', example: '1' },
+                      name: { type: 'string', example: 'Pizza Margherita' },
+                      productTypeId: { type: 'number', example: 1 },
+                    },
+                  },
                   quantity: { type: 'number', example: 2 },
                   totalPrice: { type: 'number', example: 25.98 },
                 },
@@ -466,6 +546,189 @@ const options = {
           type: 'object',
           properties: {
             // Define properties for ComandaResponse if needed
+          },
+        },
+        CustomProductRequestDTO: {
+          type: 'object',
+          required: ['baseProductId', 'ingredients'],
+          properties: {
+            baseProductId: { type: 'number', example: 1 },
+            ingredients: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  id: { type: 'number', example: 1 },
+                  quantity: { type: 'number', example: 2 },
+                },
+              },
+            },
+          },
+        },
+        CustomProductResponsePaginatedDTO: {
+          type: 'object',
+          properties: {
+            total: { type: 'number', example: 2 },
+            page: { type: 'number', example: 1 },
+            limit: { type: 'number', example: 10 },
+            totalPages: { type: 'number', example: 1 },
+            data: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  id: { type: 'number', example: 1 },
+                  baseProductId: { type: 'number', nullable: true, example: 1 },
+                  createdAt: {
+                    type: 'string',
+                    format: 'date-time',
+                    example: '2023-01-01T00:00:00Z',
+                  },
+                  updatedAt: {
+                    type: 'string',
+                    format: 'date-time',
+                    example: '2023-01-01T00:00:00Z',
+                  },
+                  baseProduct: {
+                    type: 'object',
+                    nullable: true,
+                    properties: {
+                      id: { type: 'number', example: 1 },
+                      name: { type: 'string', example: 'Pizza Margherita' },
+                      preTaxPrice: { type: 'number', example: 10.99 },
+                      price: { type: 'number', example: 12.99 },
+                      categoryId: { type: 'number', example: 1 },
+                      category: {
+                        type: 'object',
+                        properties: {
+                          id: { type: 'number', example: 1 },
+                          name: { type: 'string', example: 'Pizzas' },
+                        },
+                      },
+                    },
+                  },
+                  recipe: {
+                    type: 'object',
+                    nullable: true,
+                    properties: {
+                      id: { type: 'number', example: 1 },
+                      ingredients: {
+                        type: 'array',
+                        items: {
+                          type: 'object',
+                          properties: {
+                            id: { type: 'number', example: 1 },
+                            quantity: { type: 'number', example: 2 },
+                            ingredient: {
+                              type: 'object',
+                              properties: {
+                                id: { type: 'number', example: 1 },
+                                name: { type: 'string', example: 'Tomato' },
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        StockMovementRequest: {
+          type: 'object',
+          required: [
+            'ingredientId',
+            'quantity',
+            'unitId',
+            'stockMovementTypeId',
+          ],
+          properties: {
+            ingredientId: { type: 'number', example: 1 },
+            quantity: { type: 'number', example: 10.5 },
+            unitId: { type: 'number', example: 1 },
+            stockMovementTypeId: { type: 'number', example: 1 },
+            purchaseItemId: { type: 'number', nullable: true, example: null },
+          },
+        },
+        StockMovementResponse: {
+          type: 'object',
+          properties: {
+            id: { type: 'number', example: 1 },
+            ingredient: {
+              type: 'object',
+              properties: {
+                id: { type: 'number', example: 1 },
+                name: { type: 'string', example: 'Tomato' },
+              },
+            },
+            quantity: { type: 'number', example: 10.5 },
+            unit: {
+              type: 'object',
+              properties: {
+                id: { type: 'number', example: 1 },
+                name: { type: 'string', example: 'Kilogram' },
+              },
+            },
+            stockMovementTypeId: { type: 'number', example: 1 },
+            purchaseItemId: { type: 'number', nullable: true, example: null },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+              example: '2023-01-01T00:00:00Z',
+            },
+            updatedAt: {
+              type: 'string',
+              format: 'date-time',
+              example: '2023-01-01T00:00:00Z',
+            },
+          },
+        },
+        StockMovementPagination: {
+          type: 'object',
+          properties: {
+            total: { type: 'number', example: 50 },
+            page: { type: 'number', example: 1 },
+            limit: { type: 'number', example: 10 },
+            data: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  id: { type: 'number', example: 1 },
+                  ingredient: {
+                    type: 'object',
+                    properties: {
+                      id: { type: 'number', example: 1 },
+                      name: { type: 'string', example: 'Tomato' },
+                    },
+                  },
+                  quantity: { type: 'number', example: 10.5 },
+                  unit: {
+                    type: 'object',
+                    properties: {
+                      id: { type: 'number', example: 1 },
+                      name: { type: 'string', example: 'Kilogram' },
+                    },
+                  },
+                  stockMovementTypeId: { type: 'number', example: 1 },
+                  purchaseItemId: {
+                    type: 'number',
+                    nullable: true,
+                    example: null,
+                  },
+                  createdAt: {
+                    type: 'string',
+                    example: '2023-01-01T00:00:00Z',
+                  },
+                  updatedAt: {
+                    type: 'string',
+                    example: '2023-01-01T00:00:00Z',
+                  },
+                },
+              },
+            },
           },
         },
       },

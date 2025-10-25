@@ -19,21 +19,28 @@ export class StockMovementHandler implements IStockMovementHandler {
     isUpdate: boolean = false,
     previousQuantity: number = 0,
   ): Promise<void> {
-    const stockMovementRequest = new StockMovementRequestDTO();
-    stockMovementRequest.ingredientId = item.ingredientId;
-    stockMovementRequest.unitId = item.unitId;
+    // Prepare arguments for StockMovementRequestDTO constructor
+    let quantity: number;
+    let stockMovementTypeId: number;
 
     if (isUpdate) {
       const quantityDifference = Math.abs(item.unitQuantity - previousQuantity);
       if (quantityDifference === 0) return; // No change
 
-      stockMovementRequest.quantity = quantityDifference;
-      stockMovementRequest.stockMovementTypeId =
-        item.unitQuantity > previousQuantity ? 1 : 2; // Buy or Return
+      quantity = quantityDifference;
+      stockMovementTypeId = item.unitQuantity > previousQuantity ? 1 : 2; // Buy or Return
     } else {
-      stockMovementRequest.quantity = item.unitQuantity;
-      stockMovementRequest.stockMovementTypeId = 1; // Buy
+      quantity = item.unitQuantity;
+      stockMovementTypeId = 1; // Buy
     }
+
+    const stockMovementRequest = new StockMovementRequestDTO(
+      item.ingredientId,
+      quantity,
+      item.unitId,
+      stockMovementTypeId,
+      item.id,
+    );
 
     const stockMovement =
       await this._stockMovementService.createStockMovement(

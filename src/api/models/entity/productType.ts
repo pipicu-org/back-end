@@ -1,5 +1,6 @@
 import { IsNotEmpty } from 'class-validator';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Product } from './product';
 
 interface IProductType {
   id: number;
@@ -20,8 +21,13 @@ export class ProductType implements IProductType {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt!: Date;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
   updatedAt!: Date;
 
-  // Nota: En el diagrama, ProductType no tiene relaciones directas mostradas, pero podría tener con Product si se infiere.
+  @OneToMany(() => Product, (product) => product.productType, {})
+  products!: Product[];
 }

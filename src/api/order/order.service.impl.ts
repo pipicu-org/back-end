@@ -10,22 +10,40 @@ import { PreparationResponseDTO } from '../models/DTO/response/preparationRespon
 import { OrderMapper } from '../models/mappers/orderMapper';
 import { IOrderRepository } from './order.repository';
 import { IOrderService } from './order.service';
+import { IStockMovementService } from '../stockMovement/stockMovement.service';
+import { ProductMapper } from '../models/mappers/productMapper';
 
 export class OrderService implements IOrderService {
   constructor(
     private readonly _orderRepository: IOrderRepository,
     private readonly _orderMapper: OrderMapper,
     private readonly _lineService: ILineService,
+    private readonly _stockMovementService: IStockMovementService,
     private readonly _productService: IProductService,
+    private readonly _productMapper: ProductMapper,
   ) {}
 
   async create(orderRequest: OrderRequestDTO): Promise<OrderResponseDTO> {
-    if (this._hasRepeatedProducts(orderRequest)) {
-      throw new HttpError(400, 'Order contains repeated products');
+    try {
+      if (this._hasRepeatedProducts(orderRequest)) {
+        throw new HttpError(400, 'Order contains repeated products');
+      }
+      const order =
+        await this._orderMapper.orderRequestDTOToOrder(orderRequest);
+      for (const line of order.lines) {
+        await this._stockMovementService.createStockMovementForOrderLine(
+          line,
+          false,
+        );
+      }
+      return await this._orderRepository.create(order);
+    } catch (error: any) {
+      console.error('Error creating order:', error);
+      throw new HttpError(
+        error.status || 500,
+        error.message || 'Internal Server Error',
+      );
     }
-    const order =
-      await this._orderMapper.orderRequestDTOToOrder(orderRequest);
-    return await this._orderRepository.create(order);
   }
 
   async getById(id: number): Promise<OrderResponseDTO> {
@@ -44,7 +62,14 @@ export class OrderService implements IOrderService {
     const existingOrder = await this._orderRepository.getById(id);
 
     // Compare and update lines selectively
-    const { updatedLines, deletedLines } = await this._compareAndUpdateLines(existingOrder, orderRequest.lines, id);
+    const { updatedLines, deletedLines } = await this._compareAndUpdateLines(
+      existingOrder,
+      orderRequest.lines.map((line) => ({
+        product: line.product,
+        quantity: line.quantity,
+      })),
+      id
+    );
 
     // Delete removed lines
     if (deletedLines.length > 0) {
@@ -99,16 +124,29 @@ export class OrderService implements IOrderService {
     const newLineMap = new Map<number, { product: { id: number }; quantity: number; productType?: string }>();
 
     // Create map of new lines by product ID
-    newLines.forEach(line => newLineMap.set(line.product.id, line));
-
+    newLines.forEach((line) =>
+      newLineMap.set(line.product.id, {
+        product: line.product,
+        quantity: line.quantity,
+      }),
+    );
     // Compare existing lines
     for (const existingLine of existingLines) {
       const newLine = newLineMap.get(Number(existingLine.product.id));
       if (newLine) {
         // Check if quantity changed
-        if (Number(existingLine.quantity) !== newLine.quantity) {
+        if (Number(existingLine.quantity) !== Number(newLine.quantity)) {
           // Update line
-          const updatedLine = await this._updateLine(existingLine.id, newLine, orderId);
+          const updatedLine = await this._updateLine(
+            existingLine.id,
+            {
+              product: {
+                id: newLine.product.id,
+              },
+              quantity: newLine.quantity,
+            },
+            orderId
+          );
           updatedLines.push(updatedLine);
         } else {
           // Keep existing line
@@ -117,15 +155,42 @@ export class OrderService implements IOrderService {
         }
         newLineMap.delete(Number(existingLine.product.id));
       } else {
-        // Remove line - add to deletedLines
         const lineEntity = await this._getLineEntityById(existingLine.id, orderId);
+        console.info('[DEBUG] Handle stock movement for removed line');
+        console.log(lineEntity);
+        const productFound = await this._productService.getProductById(
+          lineEntity.productId,
+        );
+        const productEntity =
+          await this._productMapper.responseDTOToEntity(productFound);
+        lineEntity.product = productEntity;
+        await this._stockMovementService.createStockMovementForOrderLine(
+          lineEntity,
+          true,
+        );
         deletedLines.push(lineEntity);
       }
     }
 
     // Add new lines
     for (const [, newLine] of newLineMap) {
-      const newLineEntity = await this._createNewLine(newLine, orderId);
+      const newLineEntity = await this._createNewLine({
+        product: {
+          id: newLine.product.id,
+        },
+        quantity: newLine.quantity,
+      }, orderId);
+      // Handle stock movement for new line
+      const productFound = await this._productService.getProductById(
+        newLineEntity.productId,
+      );
+      const productEntity =
+        await this._productMapper.responseDTOToEntity(productFound);
+      newLineEntity.product = productEntity;
+      await this._stockMovementService.createStockMovementForOrderLine(
+        newLineEntity,
+        false,
+      );
       updatedLines.push(newLineEntity);
     }
 
@@ -139,6 +204,7 @@ export class OrderService implements IOrderService {
   ): Promise<Line> {
     // Fetch existing line entity
     const lineEntity = await this._getLineEntityById(lineId, orderId);
+    const lastQuantity = lineEntity.quantity;
     console.log(`[DEBUG] Updating line ${lineId}: current quantity=${lineEntity.quantity}, new quantity=${newLineData.quantity}`);
     console.log(`[DEBUG] Current unitPrice=${lineEntity.unitPrice}, current totalPrice=${lineEntity.totalPrice}`);
 
@@ -204,6 +270,17 @@ export class OrderService implements IOrderService {
 
     console.log(`[DEBUG] Updated line: quantity=${lineEntity.quantity}, totalPrice=${lineEntity.totalPrice}, cost=${lineEntity.cost}`);
 
+    const productFound = await this._productService.getProductById(
+      lineEntity.productId,
+    );
+    const productEntity =
+      await this._productMapper.responseDTOToEntity(productFound);
+    lineEntity.product = productEntity;
+    await this._stockMovementService.createStockMovementForOrderLine(
+      lineEntity,
+      true,
+      lastQuantity,
+    );
     return lineEntity;
   }
 
@@ -216,7 +293,6 @@ export class OrderService implements IOrderService {
     const line = new Line();
     line.productId = newLineData.product.id;
     line.quantity = Number(newLineData.quantity);
-    line.productTypeId = newLineData.productType === 'custom' ? 2 : 1;
     line.orderId = orderId; // Set the orderId
 
     // Fetch product to get unitPrice
@@ -262,16 +338,19 @@ export class OrderService implements IOrderService {
     const line = new Line();
     line.id = Number(lineResponse.id);
     line.quantity = lineResponse.quantity;
-    line.unitPrice = lineResponse.totalPrice / lineResponse.quantity; // Approximation
+    line.unitPrice = lineResponse.totalPrice / lineResponse.quantity;
     line.totalPrice = lineResponse.totalPrice;
-    line.subTotal = lineResponse.totalPrice; // Approximation - should be pre-tax price
-    line.orderId = orderId; // Set the orderId
-    line.productId = lineResponse.product.id
-    // Note: cost is not available in the DTO, so it will be recalculated later
+    line.subTotal = lineResponse.totalPrice;
+    line.productId = lineResponse.product.id;
+    line.orderId = lineResponse.order.id;
     return line;
   }
 
-  private _recalculateTotals(lines: Line[]): { subTotal: number; total: number; taxTotal: number } {
+  private _recalculateTotals(lines: Line[]): {
+    subTotal: number;
+    total: number;
+    taxTotal: number;
+  } {
     let subTotal = 0;
     let total = 0;
 
@@ -290,7 +369,11 @@ export class OrderService implements IOrderService {
     const roundedTotal = Number(total.toFixed(2));
     const roundedTaxTotal = Number(taxTotal.toFixed(2));
 
-    return { subTotal: roundedSubTotal, total: roundedTotal, taxTotal: roundedTaxTotal };
+    return {
+      subTotal: roundedSubTotal,
+      total: roundedTotal,
+      taxTotal: roundedTaxTotal,
+    };
   }
 
   async delete(id: number): Promise<OrderResponseDTO> {
@@ -317,19 +400,6 @@ export class OrderService implements IOrderService {
     return await this._orderRepository.getOrdersByState(stateId, page, limit);
   }
 
-  private async _isOrderAbleToChangeState(
-    order: OrderResponseDTO,
-    newState: number,
-  ): Promise<boolean> {
-    const lines = await this._lineService.getLinesByOrderId(Number(order.id));
-    if (!lines || lines.length === 0) {
-      throw new HttpError(404, `No lines found for order with id ${order.id}`);
-    }
-    console.info(newState)
-    // return lines.every((line) => line.state.id === newState);
-    return true;
-  }
-
   async changeStateOrder(
     orderId: number,
     stateId: number,
@@ -338,12 +408,6 @@ export class OrderService implements IOrderService {
     if (!order) {
       throw new HttpError(404, `Order with id ${orderId} not found`);
     }
-    // if (!(await this._isOrderAbleToChangeState(order, stateId))) {
-    //   throw new HttpError(
-    //     400,
-    //     'Order cannot change state due to line states mismatch',
-    //   );
-    // }
     return await this._orderRepository.changeStateOrder(orderId, stateId);
   }
 

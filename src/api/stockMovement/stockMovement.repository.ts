@@ -24,8 +24,9 @@ export class StockMovementRepository implements IStockMovementRepository {
 
   async findById(id: number): Promise<StockMovementResponseDTO | void> {
     try {
-      const stockMovement = await this._dbStockMovementRepository.findOneBy({
-        id,
+      const stockMovement = await this._dbStockMovementRepository.findOne({
+        where: { id },
+        relations: ['ingredient', 'unit'],
       });
       if (!stockMovement) {
         throw new HttpError(404, `StockMovement with id ${id} not found`);
@@ -63,6 +64,8 @@ export class StockMovementRepository implements IStockMovementRepository {
     try {
       const stockMovements = await this._dbStockMovementRepository
         .createQueryBuilder('stockMovement')
+        .leftJoinAndSelect('stockMovement.ingredient', 'ingredient')
+        .leftJoinAndSelect('stockMovement.unit', 'unit')
         .skip((page - 1) * limit)
         .take(limit)
         .getManyAndCount();

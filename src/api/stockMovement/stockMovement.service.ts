@@ -1,7 +1,7 @@
 import { StockMovementRequestDTO } from '../models/DTO/request/stockMovementRequestDTO';
 import { StockMovementResponseDTO } from '../models/DTO/response/stockMovementResponseDTO';
 import { StockMovementPaginationDTO } from '../models/DTO/response/stockMovementPaginationDTO';
-import { StockMovement } from '../models/entity';
+import { Line, StockMovement } from '../models/entity';
 
 export interface IStockMovementService {
   createStockMovement(
@@ -12,4 +12,9 @@ export interface IStockMovementService {
     page: number,
     limit: number,
   ): Promise<StockMovementPaginationDTO>;
+  createStockMovementForOrderLine(
+    line: Line,
+    isUpdate?: boolean,
+    previousQuantity?: number,
+  ): Promise<void>;
 }

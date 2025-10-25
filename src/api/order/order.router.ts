@@ -59,6 +59,9 @@ export const orderRouter = (controller = orderController): Router => {
    *                     quantity:
    *                       type: number
    *                       example: 2
+   *                     productType:
+   *                       type: string
+   *                       example: "standard"
    *           example:
    *             client: 1
    *             deliveryTime: "2024-01-01T12:00:00Z"
@@ -67,6 +70,7 @@ export const orderRouter = (controller = orderController): Router => {
    *             lines:
    *               - product: { id: 1 }
    *                 quantity: 2
+   *                 productType: "standard"
    *     responses:
    *       201:
    *         description: Order created successfully
@@ -142,65 +146,32 @@ export const orderRouter = (controller = orderController): Router => {
    *         schema:
    *           type: integer
    *         description: Order ID
+   *         example: 1
    *     responses:
    *       200:
    *         description: Order retrieved successfully
    *         content:
    *           application/json:
    *             schema:
-   *               type: object
-   *               properties:
-   *                 id:
-   *                   type: string
-   *                   example: "1"
-   *                 state:
-   *                   type: string
-   *                   example: "pending"
-   *                 client:
-   *                   type: string
-   *                   example: "Juan Pérez"
-   *                 phoneNumber:
-   *                   type: string
-   *                   example: "123456789"
-   *                 address:
-   *                   type: string
-   *                   example: "Calle Principal 123"
-   *                 deliveryTime:
-   *                   type: string
-   *                   format: date-time
-   *                   example: "2024-01-01T12:00:00Z"
-   *                 contactMethod:
-   *                   type: string
-   *                   example: "phone"
-   *                 paymentMethod:
-   *                   type: string
-   *                   example: "cash"
-   *                 total:
-   *                   type: number
-   *                   example: 25.99
-   *                 lines:
-   *                   type: array
-   *                   items:
-   *                     type: object
-   *                     properties:
-   *                       id:
-   *                         type: string
-   *                         example: "1"
-   *                             product:
-   *                               type: object
-   *                               properties:
-   *                                 id:
-   *                                   type: string
-   *                                   example: "1"
-   *                                 name:
-   *                                   type: string
-   *                                   example: "Pizza Margherita"
-   *                       quantity:
-   *                         type: integer
-   *                         example: 2
-   *                       totalPrice:
-   *                         type: number
-   *                         example: 25.98
+   *               $ref: '#/components/schemas/OrderResponse'
+   *             example:
+   *               id: "1"
+   *               state: "pending"
+   *               client: "Juan Pérez"
+   *               phoneNumber: "123456789"
+   *               address: "Calle Principal 123"
+   *               deliveryTime: "2024-01-01T12:00:00Z"
+   *               contactMethod: "phone"
+   *               paymentMethod: "cash"
+   *               total: 25.99
+   *               lines:
+   *                 - id: "1"
+   *                   product:
+   *                     id: "1"
+   *                     name: "Pizza Margherita"
+   *                     productTypeId: 1
+   *                   quantity: 2
+   *                   totalPrice: 25.98
    *       404:
    *         $ref: '#/components/responses/NotFoundError'
    *       500:
@@ -283,6 +254,9 @@ export const orderRouter = (controller = orderController): Router => {
    *                     quantity:
    *                       type: number
    *                       example: 2
+   *                     productType:
+   *                       type: string
+   *                       example: "standard"
    *           example:
    *             client: 1
    *             deliveryTime: "2024-01-01T12:00:00Z"
@@ -291,6 +265,7 @@ export const orderRouter = (controller = orderController): Router => {
    *             lines:
    *               - product: { id: 1 }
    *                 quantity: 2
+   *                 productType: "standard"
    *     responses:
    *       200:
    *         description: Order updated successfully

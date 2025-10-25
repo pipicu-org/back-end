@@ -2,7 +2,7 @@ import { Repository } from 'typeorm';
 import { ProductRequestDTO } from '../DTO/request/productRequestDTO';
 import { ProductResponseDTO } from '../DTO/response/productResponseDTO';
 import { ProductSearchResponseDTO } from '../DTO/response/productSearchResponseDTO';
-import { Category, Ingredient, Product, Recipe } from '../entity';
+import { Category, Ingredient, Product, Recipe, ProductType } from '../entity';
 import { RecipeIngredient } from '../entity/recipeIngredient';
 import { HttpError } from '../../../errors/httpError';
 
@@ -23,10 +23,22 @@ export interface IProductSearchMapper {
   ): ProductSearchResponseDTO;
 }
 
-export class ProductMapper implements IProductEntityMapper, IProductResponseMapper, IProductSearchMapper {
+export interface IProductResponseEntityMapper {
+  responseDTOToEntity(dto: ProductResponseDTO): Promise<Product>;
+}
+
+export class ProductMapper
+  implements
+    IProductEntityMapper,
+    IProductResponseMapper,
+    IProductSearchMapper,
+    IProductResponseEntityMapper
+{
   constructor(
     private readonly categoryRepository: Repository<Category>,
     private readonly _ingredientRepository: Repository<Ingredient>,
+    private readonly _productRepository: Repository<Product>,
+    private readonly _productTypeRepository: Repository<ProductType>,
   ) {}
 
   public searchToResponseDTO(
@@ -62,6 +74,36 @@ export class ProductMapper implements IProductEntityMapper, IProductResponseMapp
       throw new HttpError(400, 'ingredients must be an array');
     }
     product.category = category;
+
+    // Set product type and parent product for custom products
+    if (requestDTO.productTypeId) {
+      const productType = await this._productTypeRepository.findOneBy({
+        id: requestDTO.productTypeId,
+      });
+      if (!productType) {
+        throw new HttpError(
+          404,
+          `ProductType with id ${requestDTO.productTypeId} not found`,
+        );
+      }
+      product.productType = productType;
+      product.productTypeId = requestDTO.productTypeId;
+    }
+
+    if (requestDTO.parentProductId) {
+      const parentProduct = await this._productRepository.findOneBy({
+        id: requestDTO.parentProductId,
+      });
+      if (!parentProduct) {
+        throw new HttpError(
+          404,
+          `Parent Product with id ${requestDTO.parentProductId} not found`,
+        );
+      }
+      product.parentProduct = parentProduct;
+      product.parentProductId = requestDTO.parentProductId;
+    }
+
     const ingredients = await this._ingredientRepository.find();
     const recipeEntity = new Recipe();
     const recipeIngredient = requestDTO.ingredients.map((ingredient) => {
@@ -79,16 +121,68 @@ export class ProductMapper implements IProductEntityMapper, IProductResponseMapp
       recipeIngredient.unitId = ingredientEntity.unitId;
       return recipeIngredient;
     });
-
-    // TODO: La receta no tiene totalPrice
-    // recipeEntity.totalPrice = 0;
-    // for (const recipeIngredient of recipeIngredient) {
-    //   recipeEntity.totalPrice +=
-    //     recipeIngredient.ingredient.price * recipeIngredient.quantity;
-    // }
     recipeEntity.recipeIngredient = recipeIngredient;
     recipeEntity.product = product;
     product.recipe = recipeEntity;
+    return product;
+  }
+
+  public async responseDTOToEntity(dto: ProductResponseDTO): Promise<Product> {
+    if (!dto) {
+      throw new HttpError(400, 'Invalid input: ProductResponseDTO is required');
+    }
+
+    const product = new Product();
+    product.id = dto.id;
+    product.name = dto.name;
+    product.preTaxPrice = dto.preTaxPrice;
+    product.price = dto.price;
+    product.recipeId = dto.recipeId;
+    product.categoryId = dto.categoryId;
+    product.createdAt = new Date(dto.createdAt);
+    product.updatedAt = new Date(dto.updatedAt);
+
+    // Map category
+    if (dto.category) {
+      const category = new Category();
+      category.id = dto.category.id;
+      category.name = dto.category.name;
+      product.category = category;
+    }
+
+    // Map recipe if present
+    if (dto.recipe) {
+      const recipe = new Recipe();
+      recipe.id = dto.recipe.id;
+      recipe.cost = dto.recipe.cost || 0;
+
+      // Map ingredients
+      if (dto.recipe.ingredients && Array.isArray(dto.recipe.ingredients)) {
+        const ingredients = await this._ingredientRepository.find();
+        recipe.recipeIngredient = dto.recipe.ingredients.map((ing) => {
+          const ingredientEntity = ingredients.find(
+            (i) => i.id === ing.ingredient.id,
+          );
+          if (!ingredientEntity) {
+            throw new HttpError(
+              404,
+              `Ingredient with id ${ing.ingredient.id} not found`,
+            );
+          }
+          const recipeIngredient = new RecipeIngredient();
+          recipeIngredient.id = ing.id;
+          recipeIngredient.quantity = ing.quantity;
+          recipeIngredient.ingredient = ingredientEntity;
+          recipeIngredient.recipe = recipe;
+          recipeIngredient.unitId = ingredientEntity.unitId;
+          return recipeIngredient;
+        });
+      }
+
+      recipe.product = product;
+      product.recipe = recipe;
+    }
+
     return product;
   }
 }

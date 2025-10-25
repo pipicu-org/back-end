@@ -4,9 +4,15 @@ export class StockMovementPaginationDTO {
   limit: number;
   data: Array<{
     id: number;
-    ingredientId: number;
+    ingredient: {
+      id: number;
+      name: string;
+    };
     quantity: number;
-    unitId: number;
+    unit: {
+      id: number;
+      name: string;
+    };
     stockMovementTypeId: number;
     purchaseItemId: number | null;
     createdAt: string;
@@ -19,9 +25,15 @@ export class StockMovementPaginationDTO {
     limit: number,
     data: Array<{
       id: number;
-      ingredientId: number;
+      ingredient: {
+        id: number;
+        name: string;
+      };
       quantity: number;
-      unitId: number;
+      unit: {
+        id: number;
+        name: string;
+      };
       stockMovementTypeId: number;
       purchaseItemId: number | null;
       createdAt: string;

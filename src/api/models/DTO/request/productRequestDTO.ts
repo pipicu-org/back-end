@@ -7,6 +7,8 @@ export class ProductRequestDTO {
     id: number;
     quantity: number;
   }>;
+  productTypeId?: number; // Optional for custom products
+  parentProductId?: number; // Optional for custom products
 
   constructor(
     category: number,
@@ -14,11 +16,15 @@ export class ProductRequestDTO {
     preTaxPrice: number,
     price: number,
     ingredients: Array<{ id: number; quantity: number }>,
+    productTypeId?: number,
+    parentProductId?: number,
   ) {
     this.category = category;
     this.name = name;
     this.preTaxPrice = preTaxPrice;
     this.price = price;
     this.ingredients = ingredients;
+    this.productTypeId = productTypeId || 1;
+    this.parentProductId = parentProductId;
   }
 }
