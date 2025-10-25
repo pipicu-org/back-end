@@ -1,18 +1,22 @@
-export interface IClientService {
-  createClient(client: import('../models/DTO/request/clientRequestDTO').ClientRequestDTO): Promise<import('../models/DTO/response/clientResponseDTO').ClientResponseDTO>;
+import { ClientRequestDTO } from '../models/DTO/request/clientRequestDTO';
+import { ClientResponseDTO } from '../models/DTO/response/clientResponseDTO';
+import { ClientSearchResponseDTO } from '../models/DTO/response/clientSearchResponseDTO';
 
-  getClientById(id: number): Promise<import('../models/DTO/response/clientResponseDTO').ClientResponseDTO | void>;
+export interface IClientService {
+  createClient(client: ClientRequestDTO): Promise<ClientResponseDTO>;
+
+  getClientById(id: number): Promise<ClientResponseDTO | void>;
 
   updateClient(
     id: number,
-    client: import('../models/DTO/request/clientRequestDTO').ClientRequestDTO,
-  ): Promise<import('../models/DTO/response/clientResponseDTO').ClientResponseDTO | void>;
+    client: ClientRequestDTO,
+  ): Promise<ClientResponseDTO | void>;
 
-  deleteClient(id: number): Promise<import('../models/DTO/response/clientResponseDTO').ClientResponseDTO | void>;
+  deleteClient(id: number): Promise<ClientResponseDTO | void>;
 
   searchClients(
     search: string,
     page: number,
     limit: number,
-  ): Promise<import('../models/DTO/response/clientSearchResponseDTO').ClientSearchResponseDTO>;
+  ): Promise<ClientSearchResponseDTO>;
 }

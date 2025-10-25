@@ -15,7 +15,7 @@ export interface IIngredientService {
   ): Promise<IngredientSearchResponseDTO | void>;
   updateIngredient(
     id: number,
-    requestDTO: import('../models/DTO/request/ingredientRequestDTO').IngredientRequestDTO,
+    requestDTO: IngredientRequestDTO,
   ): Promise<IngredientResponseDTO | void>;
   deleteIngredient(id: number): Promise<IngredientResponseDTO | void>;
   getAllUnits(): Promise<Unit[] | void>;
