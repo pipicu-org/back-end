@@ -150,6 +150,15 @@ export class OrderMapper {
         }
       }
       order.cost = Number(orderTotalCost.toFixed(2));
+
+      // Calculate total cost for the order
+      orderTotalCost = 0;
+      for (const line of order.lines) {
+        if (line.cost) {
+          orderTotalCost += line.cost;
+        }
+      }
+      order.cost = Number(orderTotalCost.toFixed(2));
       return order;
     } catch (error: any) {
       console.error('Error mapping OrderRequestDTO to Order:', error);
