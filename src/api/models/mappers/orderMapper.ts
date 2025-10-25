@@ -172,28 +172,38 @@ export class OrderMapper {
   }
 
   public ordersToComandaResponseDTO(
-    orders: [Order[], number],
+    rawData: any[],
+    total: number,
     page: number = 1,
     limit: number = 10,
   ): ComandaResponseDTO {
-    const [orderList, total] = orders;
-    return new ComandaResponseDTO(
-      page,
-      limit,
-      total,
-      orderList.map((order) => ({
-        client: {
-          id: order.client.id.toString(),
-          name: order.client.name,
+    const data = rawData.map((row) => ({
+      orderId: row.orderId,
+      client: {
+        id: row.clientId,
+        name: row.clientName,
+      },
+      lines: row.lines.map((line: any) => ({
+        lineId: line.lineId,
+        quantity: line.quantity,
+        product: {
+          id: line.productId,
+          name: line.productName,
         },
-        lines: order.lines.map((line) => ({
-          quantity: line.quantity,
-          product: {
-            id: line.product.id.toString(),
-            name: line.product.name,
+        recipe: line.recipe ? line.recipe.map((recipeItem: any) => ({
+          ingredient: {
+            id: recipeItem.ingredientId,
+            name: recipeItem.ingredientName,
           },
-        })),
+          unit: {
+            id: recipeItem.unitId,
+            name: recipeItem.unitName,
+          },
+          quantity: recipeItem.quantity,
+        })) : [],
       })),
-    );
+    }));
+
+    return new ComandaResponseDTO(page, limit, total, data);
   }
 }
