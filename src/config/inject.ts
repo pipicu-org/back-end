@@ -239,6 +239,15 @@ export const productService = new ProductService(
   productMapper,
 );
 
+export const orderService = new OrderService(
+  orderRepository,
+  orderMapper,
+  lineService,
+  productService,
+  stockMovementService,
+  productMapper,
+);
+
 // Controllers
 export const clientController = new ClientController(clientService);
 
@@ -254,15 +263,6 @@ export const recipeIngredientController = new RecipeIngredientController(
 
 export const stockMovementController = new StockMovementController(
   stockMovementService,
-);
-
-export const orderService = new OrderService(
-  orderRepository,
-  orderMapper,
-  lineService,
-  productService,
-  stockMovementService,
-  productMapper,
 );
 
 export const orderController = new OrderController(orderService);

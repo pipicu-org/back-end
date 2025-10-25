@@ -190,17 +190,19 @@ export class OrderMapper {
           id: line.productId,
           name: line.productName,
         },
-        recipe: line.recipe ? line.recipe.map((recipeItem: any) => ({
-          ingredient: {
-            id: recipeItem.ingredientId,
-            name: recipeItem.ingredientName,
-          },
-          unit: {
-            id: recipeItem.unitId,
-            name: recipeItem.unitName,
-          },
-          quantity: recipeItem.quantity,
-        })) : [],
+        recipe: line.recipe
+          ? line.recipe.map((recipeItem: any) => ({
+              ingredient: {
+                id: recipeItem.ingredientId,
+                name: recipeItem.ingredientName,
+              },
+              unit: {
+                id: recipeItem.unitId,
+                name: recipeItem.unitName,
+              },
+              quantity: recipeItem.quantity,
+            }))
+          : [],
       })),
     }));
 
