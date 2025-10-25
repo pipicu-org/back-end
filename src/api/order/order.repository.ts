@@ -4,14 +4,7 @@ import { OrderMapper } from '../models/mappers/orderMapper';
 import { OrderSearchResponseDTO } from '../models/DTO/response/orderSearchResponseDTO';
 import { OrderResponseDTO } from '../models/DTO/response/orderResponseDTO';
 import { ComandaResponseDTO } from '../models/DTO/response/comandaResponseDTO';
-import {
-  KitchenOrderResponseDTO,
-  KitchenOrderItemDTO,
-} from '../models/DTO/response/kitchenOrderResponseDTO';
-import {
-  KitchenOrderResponseDTO,
-  KitchenOrderItemDTO,
-} from '../models/DTO/response/kitchenOrderResponseDTO';
+import { KitchenOrderResponseDTO, KitchenOrderItemDTO } from '../models/DTO/response/kitchenOrderResponseDTO';
 import { HttpError } from '../../errors/httpError';
 
 export interface IOrderRepository {
@@ -44,6 +37,8 @@ export interface IOrderRepository {
     limit?: number,
     productId?: number,
   ): Promise<KitchenOrderResponseDTO>;
+    productId?: number,
+  ): Promise<KitchenOrderResponseDTO>;
 }
 
 export class OrderRepository implements IOrderRepository {
@@ -53,8 +48,7 @@ export class OrderRepository implements IOrderRepository {
     private readonly _dbTransitionRepository: Repository<Transition>,
     private readonly _dbTransitionTypeRepository: Repository<TransitionType>,
     private readonly _orderMapper: OrderMapper,
-  ) {}
-  ) {}
+  ) { }
 
   async create(order: Partial<Order>): Promise<OrderResponseDTO> {
     try {
@@ -146,6 +140,7 @@ export class OrderRepository implements IOrderRepository {
         .innerJoinAndSelect('product.productType', 'productType')
         .where('order.id = :id', { id })
         .getOne();
+
 
       if (!order) throw new HttpError(404, `Order id ${id} not found`);
       return this._orderMapper.orderToOrderResponseDTO(order);
@@ -383,19 +378,16 @@ export class OrderRepository implements IOrderRepository {
         INNER JOIN "Recipe" r ON r.id = p."recipeId"
         JOIN generate_series(1, l.quantity) AS gs(n) ON true
         WHERE o."stateId" = $1
-      `;
-      const countQueryParams = [2];
+      `
+      const countQueryParams = [2]
       if (productId) {
         countQuery += `    AND p.id = $${countQueryParams.length + 1}\n`;
-        countQueryParams.push(productId);
+        countQueryParams.push(productId)
       }
       countQuery += `        GROUP BY l.id, gs.n
-      ) AS sub`;
+      ) AS sub`
 
-      const totalResult = await this._dbOrderRepository.query(
-        countQuery,
-        countQueryParams,
-      );
+      const totalResult = await this._dbOrderRepository.query(countQuery, countQueryParams);
       const total = parseInt(totalResult[0].total, 10);
       const items = (rawData ?? []).map(
         (row: any) =>
@@ -412,8 +404,10 @@ export class OrderRepository implements IOrderRepository {
       return new KitchenOrderResponseDTO(items, total, page, limit);
     } catch (error: any) {
       console.error('Error fetching kitchen orders:', error.message);
+      console.error('Error fetching kitchen orders:', error.message);
       throw new HttpError(
         error.status || 500,
+        error.message || 'Could not fetch kitchen orders',
         error.message || 'Could not fetch kitchen orders',
       );
     }
