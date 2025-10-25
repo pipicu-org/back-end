@@ -142,24 +142,34 @@ export class OrderService implements IOrderService {
           // Update line
           const updatedLine = await this._updateLine(
             existingLine.id,
-            newLine,
+            {
+              product: {
+                id: newLine.product.id,
+              },
+              quantity: newLine.quantity,
+            },
             orderId,
           );
           updatedLines.push(updatedLine);
         } else {
           // Keep existing line
-          const lineEntity = await this._getLineEntityById(
-            existingLine.id,
-            orderId,
-          );
+          const lineEntity = await this._getLineEntityById(existingLine.id);
           updatedLines.push(lineEntity);
         }
         newLineMap.delete(Number(existingLine.product.id));
       } else {
-        // Remove line - add to deletedLines
-        const lineEntity = await this._getLineEntityById(
-          existingLine.id,
-          orderId,
+        const lineEntity = await this._getLineEntityById(existingLine.id);
+        console.info('[DEBUG] Handle stock movement for removed line');
+        console.log(lineEntity);
+        const productFound = await this._productService.getProductById(
+          lineEntity.productId,
+        );
+        const productEntity =
+          await this._productMapper.responseDTOToEntity(productFound);
+        lineEntity.product = productEntity;
+        await this._stockMovementService.createStockMovementForOrderLine(
+          lineEntity,
+          true,
         );
         deletedLines.push(lineEntity);
       }
@@ -181,10 +191,10 @@ export class OrderService implements IOrderService {
       quantity: number;
       productType?: string;
     },
-    orderId: number,
   ): Promise<Line> {
     // Fetch existing line entity
-    const lineEntity = await this._getLineEntityById(lineId, orderId);
+    const lineEntity = await this._getLineEntityById(lineId);
+    const lastQuantity = lineEntity.quantity;
     console.log(
       `[DEBUG] Updating line ${lineId}: current quantity=${lineEntity.quantity}, new quantity=${newLineData.quantity}`,
     );
@@ -330,10 +340,7 @@ export class OrderService implements IOrderService {
     return line;
   }
 
-  private async _getLineEntityById(
-    lineId: string,
-    orderId: number,
-  ): Promise<Line> {
+  private async _getLineEntityById(lineId: string): Promise<Line> {
     // Fetch line entity from repository
     const lineResponse = await this._lineService.findById(Number(lineId));
     if (!lineResponse) {
