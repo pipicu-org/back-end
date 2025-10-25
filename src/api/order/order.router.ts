@@ -185,15 +185,104 @@ export const orderRouter = (controller = orderController): Router => {
    * @swagger
    * /api/orders/comanda/kitchen:
    *   get:
-   *     summary: Get comanda for kitchen
+   *     summary: Get comanda for kitchen (orders with stateId = 2)
    *     tags: [Orders]
+   *     parameters:
+   *       - in: query
+   *         name: page
+   *         schema:
+   *           type: integer
+   *           minimum: 1
+   *           default: 1
+   *         description: Page number for pagination
+   *       - in: query
+   *         name: limit
+   *         schema:
+   *           type: integer
+   *           minimum: 1
+   *           maximum: 100
+   *           default: 10
+   *         description: Number of items per page
    *     responses:
    *       200:
    *         description: Comanda retrieved successfully
    *         content:
    *           application/json:
    *             schema:
-   *               $ref: '#/components/schemas/ComandaResponse'
+   *               type: object
+   *               properties:
+   *                 page:
+   *                   type: integer
+   *                   example: 1
+   *                 limit:
+   *                   type: integer
+   *                   example: 10
+   *                 total:
+   *                   type: integer
+   *                   example: 25
+   *                 data:
+   *                   type: array
+   *                   items:
+   *                     type: object
+   *                     properties:
+   *                       orderId:
+   *                         type: integer
+   *                         example: 123
+   *                       client:
+   *                         type: object
+   *                         properties:
+   *                           id:
+   *                             type: integer
+   *                             example: 456
+   *                           name:
+   *                             type: string
+   *                             example: "Juan Pérez"
+   *                       lines:
+   *                         type: array
+   *                         items:
+   *                           type: object
+   *                           properties:
+   *                             lineId:
+   *                               type: integer
+   *                               example: 789
+   *                             quantity:
+   *                               type: number
+   *                               example: 2
+   *                             product:
+   *                               type: object
+   *                               properties:
+   *                                 id:
+   *                                   type: integer
+   *                                   example: 11
+   *                                 name:
+   *                                   type: string
+   *                                   example: "Vuvalini"
+   *                             recipe:
+   *                               type: array
+   *                               items:
+   *                                 type: object
+   *                                 properties:
+   *                                   ingredient:
+   *                                     type: object
+   *                                     properties:
+   *                                       id:
+   *                                         type: integer
+   *                                         example: 4
+   *                                       name:
+   *                                         type: string
+   *                                         example: "Papas"
+   *                                   unit:
+   *                                     type: object
+   *                                     properties:
+   *                                       id:
+   *                                         type: integer
+   *                                         example: 283
+   *                                       name:
+   *                                         type: string
+   *                                         example: "gr"
+   *                                   quantity:
+   *                                     type: number
+   *                                     example: 1
    *       500:
    *         $ref: '#/components/responses/ErrorResponse'
    */
