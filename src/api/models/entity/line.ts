@@ -16,7 +16,9 @@ interface ILine {
   orderId: number;
   unitPrice: number;
   quantity: number;
+  subTotal: number;
   totalPrice: number;
+  cost?: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -43,9 +45,16 @@ export class Line implements ILine {
   @Min(0, { message: 'Quantity must be positive' })
   quantity!: number;
 
+  @Column({ type: 'numeric', precision: 10, scale: 2, nullable: true, default: 0 })
+  @Min(0, { message: 'SubTotal must be positive' })
+  subTotal!: number;
+
   @Column({ type: 'numeric', precision: 10, scale: 2, nullable: false })
   @Min(0, { message: 'Total price must be positive' })
   totalPrice!: number;
+
+  @Column({ type: 'numeric', precision: 10, scale: 2, nullable: true, default: 0 })
+  cost?: number;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt!: Date;

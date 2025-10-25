@@ -133,9 +133,10 @@ export class OrderRepository implements IOrderRepository {
         .innerJoinAndSelect('order.state', 'state')
         .innerJoinAndSelect('order.lines', 'line')
         .innerJoinAndSelect('line.product', 'product')
+        .innerJoinAndSelect('product.productType', 'productType')
         .where('order.id = :id', { id })
         .getOne();
-      
+
       if (!order) throw new HttpError(404, `Order id ${id} not found`);
       return this._orderMapper.orderToOrderResponseDTO(order);
     } catch (error: any) {
@@ -158,6 +159,7 @@ export class OrderRepository implements IOrderRepository {
         .leftJoinAndSelect('order.state', 'state')
         .leftJoinAndSelect('order.lines', 'line')
         .leftJoinAndSelect('line.product', 'product')
+        .leftJoinAndSelect('product.productType', 'productType')
         .where('order.id = :id', { id: orderId })
         .getOne();
       if (!order) {
@@ -210,6 +212,7 @@ export class OrderRepository implements IOrderRepository {
         .leftJoinAndSelect('order.state', 'state')
         .leftJoinAndSelect('order.lines', 'line')
         .leftJoinAndSelect('line.product', 'product')
+        .leftJoinAndSelect('product.productType', 'productType')
         .where('state.id = :stateId', { stateId: 1 })
         .orderBy('order.createdAt', 'ASC')
         .getManyAndCount();
@@ -234,6 +237,7 @@ export class OrderRepository implements IOrderRepository {
         .leftJoinAndSelect('order.state', 'state')
         .leftJoinAndSelect('order.lines', 'line')
         .leftJoinAndSelect('line.product', 'product')
+        .leftJoinAndSelect('product.productType', 'productType')
         .where('state.id = :stateId', { stateId: 1 })
         .orderBy('order.createdAt', 'ASC')
         .skip((page - 1) * limit)

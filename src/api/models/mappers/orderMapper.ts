@@ -6,14 +6,12 @@ import { OrderRequestDTO } from '../DTO/request/orderRequestDTO';
 import { ComandaResponseDTO } from '../DTO/response/comandaResponseDTO';
 import { PreparationResponseDTO } from '../DTO/response/preparationResponseDTO';
 import { HttpError } from '../../../errors/httpError';
-import { ProductMapper } from './productMapper';
 
 export class OrderMapper {
   constructor(
     private readonly _clientRepository: Repository<Client>,
     private readonly _productRepository: Repository<Product>,
     private readonly _stateRepository: Repository<State>,
-    private readonly _productMapper: ProductMapper,
   ) {}
 
   public ordersToOrderSearchResponseDTO(
@@ -50,16 +48,15 @@ export class OrderMapper {
         id: orderRequest.client,
       });
       const productIds = orderRequest.lines.map((line) => line.product.id);
-      const products = await this._productRepository
-        .createQueryBuilder('product')
-        .leftJoinAndSelect('product.recipe', 'recipe')
-        .leftJoinAndSelect('recipe.recipeIngredient', 'recipeIngredient')
-        .leftJoinAndSelect('recipeIngredient.ingredient', 'ingredient')
-        .leftJoinAndSelect('recipeIngredient.unit', 'unit')
-        .leftJoinAndSelect('product.productType', 'productType')
-        .where({ id: In(productIds) })
-        .getMany();
-      if (products.length === 0) {
+      const products = await this._productRepository.find({
+        where: { id: In(productIds) },
+        relations: [
+          'recipe',
+          'recipe.recipeIngredient',
+          'recipe.recipeIngredient.ingredient',
+        ],
+      });
+      if (!products || products.length === 0) {
         throw new HttpError(404, 'No products found');
       }
       if (!client) {
@@ -124,11 +121,35 @@ export class OrderMapper {
           entityLine.unitPrice = product.price;
           entityLine.quantity = line.quantity;
           entityLine.totalPrice = product.price * line.quantity;
+          entityLine.subTotal = product.preTaxPrice * line.quantity; // Calculate subTotal using pre-tax price
           entityLine.createdAt = new Date();
           entityLine.order = order;
+
+          // Calculate cost based on recipe ingredients
+          if (product.recipe && product.recipe.recipeIngredient) {
+            let totalCost = 0;
+            for (const recipeIngredient of product.recipe.recipeIngredient) {
+              const ingredientCost = recipeIngredient.ingredient?.cost || 0;
+              totalCost += ingredientCost * recipeIngredient.quantity;
+            }
+            console.log(totalCost);
+            entityLine.cost = Number(
+              (entityLine.quantity * totalCost).toFixed(2),
+            );
+          }
+
           return entityLine;
         }),
       );
+
+      // Calculate total cost for the order
+      let orderTotalCost = 0;
+      for (const line of order.lines) {
+        if (line.cost) {
+          orderTotalCost += line.cost;
+        }
+      }
+      order.cost = Number(orderTotalCost.toFixed(2));
       return order;
     } catch (error: any) {
       console.error('Error mapping OrderRequestDTO to Order:', error);
