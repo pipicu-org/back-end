@@ -24,7 +24,7 @@ export class MetricsRepository {
         DATE(o."createdAt") AS day,
         COUNT(*) AS total_orders
       FROM "Order" o
-      WHERE o."stateId" = 4
+      WHERE o."stateId" = 6
     `;
 
     if (startDate) {
@@ -50,7 +50,7 @@ export class MetricsRepository {
         COUNT(l.id) AS total_orders
       FROM "Order" o
       INNER JOIN "Line" l ON l."orderId" = o.id
-      WHERE o."stateId" = 4
+      WHERE o."stateId" = 6
     `;
 
     if (startDate) {
@@ -75,7 +75,7 @@ export class MetricsRepository {
         DATE(o."createdAt") AS day,
         SUM(o.total) AS gmv
       FROM "Order" o
-      WHERE o."stateId" = 4
+      WHERE o."stateId" = 6
     `;
 
     if (startDate) {
@@ -100,7 +100,7 @@ export class MetricsRepository {
         o."contactMethod",
         SUM(o.total) AS gmv
       FROM "Order" o
-      WHERE o."stateId" = 4
+      WHERE o."stateId" = 6
       GROUP BY o."contactMethod"
       ORDER BY o."contactMethod"
     `;
@@ -115,7 +115,7 @@ export class MetricsRepository {
         o."paymentMethod",
         SUM(o.total) AS gmv
       FROM "Order" o
-      WHERE o."stateId" = 4
+      WHERE o."stateId" = 6
       GROUP BY o."paymentMethod"
       ORDER BY o."paymentMethod"
     `;
