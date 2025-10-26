@@ -1,54 +1,49 @@
+interface Recipe {
+  ingredient: {
+    id: number;
+    name: string;
+  };
+  unit: {
+    id: number;
+    name: string;
+  };
+  quantity: number;
+}
+
+interface Line {
+  lineId: number;
+  quantity: number;
+  product: {
+    id: number;
+    name: string;
+  };
+  recipe: Recipe[];
+}
+
+interface Comanda {
+  orderId: number;
+  client: {
+    id: number;
+    name: string;
+  };
+  lines: Line[];
+}
+
 export class ComandaResponseDTO {
   page: number;
   limit: number;
   total: number;
-  data: {
-    client: {
-      id: string;
-      name: string;
-    };
-    lines: {
-      quantity: number;
-      product: {
-        id: string;
-        name: string;
-      };
-    }[];
-  }[];
+  data: Comanda[];
 
   constructor(
     page: number,
     limit: number,
     total: number,
-    data: {
-      client: {
-        id: string;
-        name: string;
-      };
-      lines: {
-        quantity: number;
-        product: {
-          id: string;
-          name: string;
-        };
-      }[];
-    }[],
+    data: Comanda[],
   ) {
     this.page = page;
     this.limit = limit;
     this.total = total;
-    this.data = data.map((order) => ({
-      client: {
-        id: order.client.id,
-        name: order.client.name,
-      },
-      lines: order.lines.map((line) => ({
-        quantity: line.quantity,
-        product: {
-          id: line.product.id,
-          name: line.product.name,
-        },
-      })),
-    }));
+    this.data = data;
   }
 }

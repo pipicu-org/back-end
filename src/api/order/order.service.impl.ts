@@ -6,7 +6,7 @@ import { OrderRequestDTO } from '../models/DTO/request/orderRequestDTO';
 import { ComandaResponseDTO } from '../models/DTO/response/comandaResponseDTO';
 import { OrderResponseDTO } from '../models/DTO/response/orderResponseDTO';
 import { OrderSearchResponseDTO } from '../models/DTO/response/orderSearchResponseDTO';
-import { PreparationResponseDTO } from '../models/DTO/response/preparationResponseDTO';
+import { KitchenOrderResponseDTO } from '../models/DTO/response/kitchenOrderResponseDTO';
 import { OrderMapper } from '../models/mappers/orderMapper';
 import { IOrderRepository } from './order.repository';
 import { IOrderService } from './order.service';
@@ -419,8 +419,9 @@ export class OrderService implements IOrderService {
   async getKitchenOrders(
     page: number = 1,
     limit: number = 10,
-  ): Promise<PreparationResponseDTO> {
-    return await this._orderRepository.getKitchenOrders(page, limit);
+    productId?: number,
+  ): Promise<KitchenOrderResponseDTO> {
+    return await this._orderRepository.getKitchenOrders(page, limit, productId);
   }
 
   private _hasRepeatedProducts(order: OrderRequestDTO): boolean {
