@@ -43,6 +43,45 @@ export class MetricsController {
     }
   }
 
+  async getGrossProfitByDay(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { startDate, endDate } = req.query;
+      const result = await this.metricsService.getGrossProfitByDay(
+        startDate as string,
+        endDate as string
+      );
+      res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getMarginByDay(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { startDate, endDate } = req.query;
+      const result = await this.metricsService.getMarginByDay(
+        startDate as string,
+        endDate as string
+      );
+      res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getMrgByDay(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { startDate, endDate } = req.query;
+      const result = await this.metricsService.getMrgByDay(
+        startDate as string,
+        endDate as string
+      );
+      res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async getGmvByContactMethod(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const result = await this.metricsService.getGmvByContactMethod();

@@ -4,6 +4,9 @@ import {
   OrdersByDayResponseDTO,
   LinesByDayResponseDTO,
   GmvByDayResponseDTO,
+  GrossProfitByDayResponseDTO,
+  MarginByDayResponseDTO,
+  MrgByDayResponseDTO,
   GmvByContactMethodResponseDTO,
   GmvByPaymentMethodResponseDTO,
   StockByDayResponseDTO,
@@ -43,6 +46,21 @@ export class MetricsServiceImpl implements IMetricsService {
   async getGmvByDay(startDate?: string, endDate?: string): Promise<GmvByDayResponseDTO[]> {
     this.validateDateRange(startDate, endDate);
     return await this.metricsRepository.getGmvByDay(startDate, endDate);
+  }
+
+  async getGrossProfitByDay(startDate?: string, endDate?: string): Promise<GrossProfitByDayResponseDTO[]> {
+    this.validateDateRange(startDate, endDate);
+    return await this.metricsRepository.getGrossProfitByDay(startDate, endDate);
+  }
+
+  async getMarginByDay(startDate?: string, endDate?: string): Promise<MarginByDayResponseDTO[]> {
+    this.validateDateRange(startDate, endDate);
+    return await this.metricsRepository.getMarginByDay(startDate, endDate);
+  }
+
+  async getMrgByDay(startDate?: string, endDate?: string): Promise<MrgByDayResponseDTO[]> {
+    this.validateDateRange(startDate, endDate);
+    return await this.metricsRepository.getMrgByDay(startDate, endDate);
   }
 
   async getGmvByContactMethod(): Promise<GmvByContactMethodResponseDTO[]> {
