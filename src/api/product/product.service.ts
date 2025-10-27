@@ -1,43 +1,27 @@
+import { ProductRequestDTO } from '../models/DTO/request/productRequestDTO';
+import { CustomProductResponsePaginatedDTO } from '../models/DTO/response/customProductResponsePaginatedDTO';
+import { ProductResponseDTO } from '../models/DTO/response/productResponseDTO';
+import { ProductSearchResponseDTO } from '../models/DTO/response/productSearchResponseDTO';
+
 export interface IProductService {
   getByName(
     name: string,
     page: number,
     limit: number,
-  ): Promise<
-    import('../models/DTO/response/productSearchResponseDTO').ProductSearchResponseDTO
-  >;
+  ): Promise<ProductSearchResponseDTO>;
   getProductById(
     id: number,
-  ): Promise<
-    import('../models/DTO/response/productResponseDTO').ProductResponseDTO
-  >;
-  createProduct(
-    product: import('../models/DTO/request/productRequestDTO').ProductRequestDTO,
-  ): Promise<
-    import('../models/DTO/response/productResponseDTO').ProductResponseDTO
-  >;
-  updateProduct(
-    id: number,
-    product: import('../models/DTO/request/productRequestDTO').ProductRequestDTO,
-  ): Promise<
-    import('../models/DTO/response/productResponseDTO').ProductResponseDTO
-  >;
-  deleteProduct(
-    id: number,
-  ): Promise<
-    import('../models/DTO/response/productResponseDTO').ProductResponseDTO
-  >;
+  ): Promise<ProductResponseDTO>;
+  createProduct(product: ProductRequestDTO): Promise<ProductResponseDTO>;
+  updateProduct(id: number, product: ProductRequestDTO): Promise<ProductResponseDTO>;
+  deleteProduct(id: number): Promise<ProductResponseDTO>;
   getProductsByCategoryId(
     categoryId: number,
     page: number,
     limit: number,
-  ): Promise<
-    import('../models/DTO/response/productSearchResponseDTO').ProductSearchResponseDTO
-  >;
+  ): Promise<ProductSearchResponseDTO>;
   getAllCustomProducts(
     page: number,
     limit: number,
-  ): Promise<
-    import('../models/DTO/response/customProductResponsePaginatedDTO').CustomProductResponsePaginatedDTO
-  >;
+  ): Promise<CustomProductResponsePaginatedDTO>;
 }

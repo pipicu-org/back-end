@@ -1,7 +1,6 @@
 import { LineResponseDTO } from '../models/DTO/response/lineResponeDTO';
 import { LineSearchResponseDTO } from '../models/DTO/response/lineSearchResponseDTO';
 import { Line } from '../models/entity/line';
-import { Line } from '../models/entity/line';
 import { ILineRepository } from './line.repository';
 import { ILineService } from './line.service';
 
@@ -56,7 +55,7 @@ export class LineService implements ILineService {
 
   async deleteLines(lines: Line[]): Promise<void> {
     try {
-      const lineIds = lines.map((line) => line.id);
+      const lineIds = lines.map(line => line.id);
       await this._lineRepository.deleteLines(lineIds);
     } catch (error: any) {
       console.error('Error deleting lines:', error);

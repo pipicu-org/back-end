@@ -828,25 +828,6 @@ export const orderRouter = (controller = orderController): Router => {
    *         schema:
    *           type: integer
    *         description: Filter by product ID
-   *     parameters:
-   *       - in: query
-   *         name: page
-   *         schema:
-   *           type: integer
-   *           minimum: 1
-   *         description: Page number
-   *       - in: query
-   *         name: limit
-   *         schema:
-   *           type: integer
-   *           minimum: 1
-   *           maximum: 100
-   *         description: Number of items per page
-   *       - in: query
-   *         name: productId
-   *         schema:
-   *           type: integer
-   *         description: Filter by product ID
    *     responses:
    *       200:
    *         description: Kitchen orders retrieved successfully

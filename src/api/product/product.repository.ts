@@ -4,6 +4,7 @@ import { ProductMapper } from '../models/mappers/productMapper';
 import { ProductSearchResponseDTO } from '../models/DTO/response/productSearchResponseDTO';
 import { ProductResponseDTO } from '../models/DTO/response/productResponseDTO';
 import { HttpError } from '../../errors/httpError';
+import { CustomProductResponsePaginatedDTO } from '../models/DTO/response/customProductResponsePaginatedDTO';
 
 export interface IProductRepository {
   findById(id: number): Promise<ProductResponseDTO>;
@@ -23,9 +24,7 @@ export interface IProductRepository {
   getAllCustomProducts(
     page: number,
     limit: number,
-  ): Promise<
-    import('../models/DTO/response/customProductResponsePaginatedDTO').CustomProductResponsePaginatedDTO
-  >;
+  ): Promise<CustomProductResponsePaginatedDTO>;
 }
 
 export class ProductRepository implements IProductRepository {
@@ -288,7 +287,7 @@ export class ProductRepository implements IProductRepository {
     page: number,
     limit: number,
   ): Promise<
-    import('../models/DTO/response/customProductResponsePaginatedDTO').CustomProductResponsePaginatedDTO
+    CustomProductResponsePaginatedDTO
   > {
     try {
       const offset = (page - 1) * limit;
@@ -305,10 +304,6 @@ export class ProductRepository implements IProductRepository {
         .skip(offset)
         .take(limit)
         .getManyAndCount();
-
-      const CustomProductResponsePaginatedDTO = (
-        await import('../models/DTO/response/customProductResponsePaginatedDTO')
-      ).CustomProductResponsePaginatedDTO;
 
       return new CustomProductResponsePaginatedDTO(
         [products, total],

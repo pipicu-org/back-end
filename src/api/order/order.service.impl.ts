@@ -11,6 +11,7 @@ import { OrderMapper } from '../models/mappers/orderMapper';
 import { IOrderRepository } from './order.repository';
 import { IOrderService } from './order.service';
 import { IStockMovementService } from '../stockMovement/stockMovement.service';
+import { ProductMapper } from '../models/mappers/productMapper';
 
 export class OrderService implements IOrderService {
   constructor(
@@ -59,7 +60,14 @@ export class OrderService implements IOrderService {
     const existingOrder = await this._orderRepository.getById(id);
 
     // Compare and update lines selectively
-    const { updatedLines, deletedLines } = await this._compareAndUpdateLines(existingOrder, orderRequest.lines, id);
+    const { updatedLines, deletedLines } = await this._compareAndUpdateLines(
+      existingOrder,
+      orderRequest.lines.map((line) => ({
+        product: line.product,
+        quantity: line.quantity,
+      })),
+      id
+    );
 
     // Delete removed lines
     if (deletedLines.length > 0) {
@@ -90,16 +98,10 @@ export class OrderService implements IOrderService {
       total: Number(recalculatedTotals.total),
       taxTotal: Number(recalculatedTotals.taxTotal),
       cost: Number(totalCost.toFixed(2)),
-      cost: Number(totalCost.toFixed(2)),
       lines: updatedLines,
     };
 
     Object.assign(updatedOrder, orderUpdate);
-
-    // Ensure cost is properly set
-    if (orderUpdate.cost !== undefined) {
-      updatedOrder.cost = orderUpdate.cost;
-    }
 
     // Ensure cost is properly set
     if (orderUpdate.cost !== undefined) {
@@ -131,8 +133,7 @@ export class OrderService implements IOrderService {
       const newLine = newLineMap.get(Number(existingLine.product.id));
       if (newLine) {
         // Check if quantity changed
-        if (Number(existingLine.quantity) !== newLine.quantity) {
-        if (Number(existingLine.quantity) !== newLine.quantity) {
+        if (Number(existingLine.quantity) !== Number(newLine.quantity)) {
           // Update line
           const updatedLine = await this._updateLine(
             existingLine.id,
@@ -170,8 +171,23 @@ export class OrderService implements IOrderService {
 
     // Add new lines
     for (const [, newLine] of newLineMap) {
-      const newLineEntity = await this._createNewLine(newLine, orderId);
-      const newLineEntity = await this._createNewLine(newLine, orderId);
+      const newLineEntity = await this._createNewLine({
+        product: {
+          id: newLine.product.id,
+        },
+        quantity: newLine.quantity,
+      }, orderId);
+      // Handle stock movement for new line
+      const productFound = await this._productService.getProductById(
+        newLineEntity.productId,
+      );
+      const productEntity =
+        await this._productMapper.responseDTOToEntity(productFound);
+      newLineEntity.product = productEntity;
+      await this._stockMovementService.createStockMovementForOrderLine(
+        newLineEntity,
+        false,
+      );
       updatedLines.push(newLineEntity);
     }
 
@@ -250,6 +266,17 @@ export class OrderService implements IOrderService {
 
     console.log(`[DEBUG] Updated line: quantity=${lineEntity.quantity}, totalPrice=${lineEntity.totalPrice}, cost=${lineEntity.cost}`);
 
+    const productFound = await this._productService.getProductById(
+      lineEntity.productId,
+    );
+    const productEntity =
+      await this._productMapper.responseDTOToEntity(productFound);
+    lineEntity.product = productEntity;
+    await this._stockMovementService.createStockMovementForOrderLine(
+      lineEntity,
+      true,
+      lastQuantity,
+    );
     return lineEntity;
   }
 
@@ -262,7 +289,6 @@ export class OrderService implements IOrderService {
     const line = new Line();
     line.productId = newLineData.product.id;
     line.quantity = Number(newLineData.quantity);
-    line.productTypeId = newLineData.productType === 'custom' ? 2 : 1;
     line.orderId = orderId; // Set the orderId
 
     // Fetch product to get unitPrice
@@ -294,7 +320,6 @@ export class OrderService implements IOrderService {
     line.createdAt = new Date();
     line.updatedAt = new Date();
 
-
     return line;
   }
 
@@ -311,10 +336,9 @@ export class OrderService implements IOrderService {
     line.quantity = lineResponse.quantity;
     line.unitPrice = lineResponse.totalPrice / lineResponse.quantity;
     line.totalPrice = lineResponse.totalPrice;
-    line.subTotal = lineResponse.totalPrice; // Approximation - should be pre-tax price
-    line.orderId = orderId; // Set the orderId
-    line.productId = lineResponse.product.id
-    // Note: cost is not available in the DTO, so it will be recalculated later
+    line.subTotal = lineResponse.totalPrice;
+    line.productId = lineResponse.product.id;
+    line.orderId = lineResponse.order.id;
     return line;
   }
 

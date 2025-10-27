@@ -37,8 +37,6 @@ export interface IOrderRepository {
     limit?: number,
     productId?: number,
   ): Promise<KitchenOrderResponseDTO>;
-    productId?: number,
-  ): Promise<KitchenOrderResponseDTO>;
 }
 
 export class OrderRepository implements IOrderRepository {
@@ -140,7 +138,6 @@ export class OrderRepository implements IOrderRepository {
         .innerJoinAndSelect('product.productType', 'productType')
         .where('order.id = :id', { id })
         .getOne();
-
 
       if (!order) throw new HttpError(404, `Order id ${id} not found`);
       return this._orderMapper.orderToOrderResponseDTO(order);
@@ -389,10 +386,8 @@ export class OrderRepository implements IOrderRepository {
       return new KitchenOrderResponseDTO(items, total, page, limit);
     } catch (error: any) {
       console.error('Error fetching kitchen orders:', error.message);
-      console.error('Error fetching kitchen orders:', error.message);
       throw new HttpError(
         error.status || 500,
-        error.message || 'Could not fetch kitchen orders',
         error.message || 'Could not fetch kitchen orders',
       );
     }

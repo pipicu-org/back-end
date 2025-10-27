@@ -240,8 +240,6 @@ export const stockMovementService = new StockMovementService(
 // Services
 export const lineService = new LineService(lineRepository);
 
-// Services
-
 export const recipeIngredientService = new RecipeIngredientService(
   recipeIngredientRepository,
 );
@@ -250,6 +248,20 @@ export const clientService = new ClientService(clientRepository, clientMapper);
 
 export const productService = new ProductService(
   productRepository,
+  productMapper,
+);
+
+export const ingredientService = new IngredientService(
+  ingredientRepository,
+  ingredientMapper,
+);
+
+export const orderService = new OrderService(
+  orderRepository,
+  orderMapper,
+  lineService,
+  stockMovementService,
+  productService,
   productMapper,
 );
 
