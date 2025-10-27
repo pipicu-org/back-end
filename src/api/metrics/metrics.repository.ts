@@ -7,6 +7,9 @@ import {
   GmvByContactMethodResponseDTO,
   GmvByPaymentMethodResponseDTO,
   StockByDayResponseDTO,
+  GrossProfitByDayResponseDTO,
+  MarginByDayResponseDTO,
+  MrgByDayResponseDTO,
 } from '../models/DTO/response/ordersByDayResponseDTO';
 
 export class MetricsRepository {
@@ -24,7 +27,7 @@ export class MetricsRepository {
         DATE(o."createdAt") AS day,
         COUNT(*) AS total_orders
       FROM "Order" o
-      WHERE o."stateId" = 4
+      WHERE o."stateId" = 6
     `;
 
     if (startDate) {
@@ -50,7 +53,7 @@ export class MetricsRepository {
         COUNT(l.id) AS total_orders
       FROM "Order" o
       INNER JOIN "Line" l ON l."orderId" = o.id
-      WHERE o."stateId" = 4
+      WHERE o."stateId" = 6
     `;
 
     if (startDate) {
@@ -75,7 +78,32 @@ export class MetricsRepository {
         DATE(o."createdAt") AS day,
         SUM(o.total) AS gmv
       FROM "Order" o
-      WHERE o."stateId" = 4
+      WHERE o."stateId" = 6
+    `;
+
+    if (startDate) {
+      query += ` AND DATE(o."createdAt") >= '${startDate}'`;
+    }
+    if (endDate) {
+      query += ` AND DATE(o."createdAt") <= '${endDate}'`;
+    }
+
+    query += `
+      GROUP BY DATE(o."createdAt")
+      ORDER BY day
+    `;
+
+    const result = await this.orderRepository.query(query);
+    return result;
+  }
+
+  async getGrossProfitByDay(startDate?: string, endDate?: string): Promise<GrossProfitByDayResponseDTO[]> {
+    let query = `
+      SELECT
+        DATE(o."createdAt") AS day,
+        SUM(o.total) - SUM(o.cost) AS gp
+      FROM "Order" o
+      WHERE o."stateId" = 6
     `;
 
     if (startDate) {
@@ -100,7 +128,7 @@ export class MetricsRepository {
         o."contactMethod",
         SUM(o.total) AS gmv
       FROM "Order" o
-      WHERE o."stateId" = 4
+      WHERE o."stateId" = 6
       GROUP BY o."contactMethod"
       ORDER BY o."contactMethod"
     `;
@@ -115,7 +143,7 @@ export class MetricsRepository {
         o."paymentMethod",
         SUM(o.total) AS gmv
       FROM "Order" o
-      WHERE o."stateId" = 4
+      WHERE o."stateId" = 6
       GROUP BY o."paymentMethod"
       ORDER BY o."paymentMethod"
     `;
@@ -156,6 +184,80 @@ export class MetricsRepository {
     `;
 
     const result = await this.stockMovementRepository.query(query);
+    return result;
+  }
+
+  async getMarginByDay(startDate?: string, endDate?: string): Promise<MarginByDayResponseDTO[]> {
+    let query = `
+      WITH base_indicators AS (
+        SELECT
+          DATE(o."createdAt") AS day,
+          SUM(o.total) AS gmv,
+          SUM(o."cost") AS costs,
+          SUM(o.total) - SUM(o."cost") AS gp
+        FROM "Order" o
+        WHERE o."stateId" = 6
+    `;
+
+    if (startDate) {
+      query += ` AND DATE(o."createdAt") >= '${startDate}'`;
+    }
+    if (endDate) {
+      query += ` AND DATE(o."createdAt") <= '${endDate}'`;
+    }
+
+    query += `
+        GROUP BY DATE(o."createdAt")
+      )
+      SELECT
+        bi.day,
+        ROUND(
+          CASE WHEN bi.gmv > 0
+            THEN (bi.gp / bi.gmv) * 100
+            ELSE 0 END,
+        2) AS margin
+      FROM base_indicators bi
+      ORDER BY bi.day
+    `;
+
+    const result = await this.orderRepository.query(query);
+    return result;
+  }
+
+  async getMrgByDay(startDate?: string, endDate?: string): Promise<MrgByDayResponseDTO[]> {
+    let query = `
+      WITH base_indicators AS (
+        SELECT
+          DATE(o."createdAt") AS day,
+          SUM(o.total) AS gmv,
+          SUM(o."cost") AS costs,
+          SUM(o.total) - SUM(o."cost") AS gp
+        FROM "Order" o
+        WHERE o."stateId" = 6
+    `;
+
+    if (startDate) {
+      query += ` AND DATE(o."createdAt") >= '${startDate}'`;
+    }
+    if (endDate) {
+      query += ` AND DATE(o."createdAt") <= '${endDate}'`;
+    }
+
+    query += `
+        GROUP BY DATE(o."createdAt")
+      )
+      SELECT
+        bi.day,
+        ROUND(
+          CASE WHEN bi.costs > 0
+            THEN (bi.gp / bi.costs) * 100
+            ELSE 0 END,
+        2) AS mrg
+      FROM base_indicators bi
+      ORDER BY bi.day
+    `;
+
+    const result = await this.orderRepository.query(query);
     return result;
   }
 }

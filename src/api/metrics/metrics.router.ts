@@ -157,6 +157,150 @@ export const metricsRouter = (controller: MetricsController): Router => {
 
   /**
    * @swagger
+   * /api/metrics/gross-profit-by-day:
+   *   get:
+   *     summary: Get Gross Profit by day
+   *     tags: [Metrics]
+   *     parameters:
+   *       - in: query
+   *         name: startDate
+   *         schema:
+   *           type: string
+   *           format: date
+   *         description: Start date in YYYY-MM-DD format
+   *         example: "2024-01-01"
+   *       - in: query
+   *         name: endDate
+   *         schema:
+   *           type: string
+   *           format: date
+   *         description: End date in YYYY-MM-DD format
+   *         example: "2024-12-31"
+   *     responses:
+   *       200:
+   *         description: Gross Profit by day retrieved successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: array
+   *               items:
+   *                 type: object
+   *                 properties:
+   *                   day:
+   *                     type: string
+   *                     format: date
+   *                     example: "2024-01-01"
+   *                   gp:
+   *                     type: number
+   *                     format: float
+   *                     example: 750.25
+   *       400:
+   *         $ref: '#/components/responses/ValidationError'
+   *       500:
+   *         $ref: '#/components/responses/ErrorResponse'
+   */
+  router.get(`${PATH}/gross-profit-by-day`, (req, res, next) =>
+    controller.getGrossProfitByDay(req, res, next),
+  );
+
+  /**
+   * @swagger
+   * /api/metrics/margin-by-day:
+   *   get:
+   *     summary: Get Margin by day
+   *     tags: [Metrics]
+   *     parameters:
+   *       - in: query
+   *         name: startDate
+   *         schema:
+   *           type: string
+   *           format: date
+   *         description: Start date in YYYY-MM-DD format
+   *         example: "2024-01-01"
+   *       - in: query
+   *         name: endDate
+   *         schema:
+   *           type: string
+   *           format: date
+   *         description: End date in YYYY-MM-DD format
+   *         example: "2024-12-31"
+   *     responses:
+   *       200:
+   *         description: Margin by day retrieved successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: array
+   *               items:
+   *                 type: object
+   *                 properties:
+   *                   day:
+   *                     type: string
+   *                     format: date
+   *                     example: "2024-01-01"
+   *                   margin:
+   *                     type: number
+   *                     format: float
+   *                     example: 25.50
+   *       400:
+   *         $ref: '#/components/responses/ValidationError'
+   *       500:
+   *         $ref: '#/components/responses/ErrorResponse'
+   */
+  router.get(`${PATH}/margin-by-day`, (req, res, next) =>
+    controller.getMarginByDay(req, res, next),
+  );
+
+  /**
+   * @swagger
+   * /api/metrics/mrg-by-day:
+   *   get:
+   *     summary: Get MRG by day
+   *     tags: [Metrics]
+   *     parameters:
+   *       - in: query
+   *         name: startDate
+   *         schema:
+   *           type: string
+   *           format: date
+   *         description: Start date in YYYY-MM-DD format
+   *         example: "2024-01-01"
+   *       - in: query
+   *         name: endDate
+   *         schema:
+   *           type: string
+   *           format: date
+   *         description: End date in YYYY-MM-DD format
+   *         example: "2024-12-31"
+   *     responses:
+   *       200:
+   *         description: MRG by day retrieved successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: array
+   *               items:
+   *                 type: object
+   *                 properties:
+   *                   day:
+   *                     type: string
+   *                     format: date
+   *                     example: "2024-01-01"
+   *                   mrg:
+   *                     type: number
+   *                     format: float
+   *                     example: 150.75
+   *       400:
+   *         $ref: '#/components/responses/ValidationError'
+   *       500:
+   *         $ref: '#/components/responses/ErrorResponse'
+   */
+  router.get(`${PATH}/mrg-by-day`, (req, res, next) =>
+    controller.getMrgByDay(req, res, next),
+  );
+
+  /**
+   * @swagger
    * /api/metrics/gmv-by-contact-method:
    *   get:
    *     summary: Get Gross Merchandise Value (GMV) by contact method
