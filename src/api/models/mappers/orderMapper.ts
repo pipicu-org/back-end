@@ -48,7 +48,7 @@ export class OrderMapper {
         id: orderRequest.client,
       });
       const productIds = orderRequest.lines.map((line) => line.product.id);
-      const products = await this.productRepository.find({
+      const products = await this._productRepository.find({
         where: { id: In(productIds) },
         relations: [
           'recipe',
@@ -131,8 +131,10 @@ export class OrderMapper {
               const ingredientCost = recipeIngredient.ingredient?.cost || 0;
               totalCost += ingredientCost * recipeIngredient.quantity;
             }
-            console.log(totalCost)
-            entityLine.cost = Number((entityLine.quantity * totalCost).toFixed(2));
+            console.log(totalCost);
+            entityLine.cost = Number(
+              (entityLine.quantity * totalCost).toFixed(2),
+            );
           }
           return entityLine;
         }),
@@ -186,17 +188,19 @@ export class OrderMapper {
           id: line.productId,
           name: line.productName,
         },
-        recipe: line.recipe ? line.recipe.map((recipeItem: any) => ({
-          ingredient: {
-            id: recipeItem.ingredientId,
-            name: recipeItem.ingredientName,
-          },
-          unit: {
-            id: recipeItem.unitId,
-            name: recipeItem.unitName,
-          },
-          quantity: recipeItem.quantity,
-        })) : [],
+        recipe: line.recipe
+          ? line.recipe.map((recipeItem: any) => ({
+              ingredient: {
+                id: recipeItem.ingredientId,
+                name: recipeItem.ingredientName,
+              },
+              unit: {
+                id: recipeItem.unitId,
+                name: recipeItem.unitName,
+              },
+              quantity: recipeItem.quantity,
+            }))
+          : [],
       })),
     }));
 

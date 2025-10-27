@@ -1,5 +1,6 @@
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
+import config from './config';
 
 const options = {
   definition: {
@@ -19,7 +20,7 @@ const options = {
         description: 'Docker compose',
       },
       {
-        url: 'https://api.pipicucu.vmdigitai.com',
+        url: config.prodUrl,
         description: 'Prod',
       },
     ],

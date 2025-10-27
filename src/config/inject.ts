@@ -183,10 +183,6 @@ export const clientRepository = new ClientRepository(
   clientMapper,
 );
 
-export const unitRepository = new UnitRepository(dbUnitRepository, unitMapper);
-
-export const unitRepository = new UnitRepository(dbUnitRepository, unitMapper);
-
 export const categoryRepository = new CategoryRepository(dbCategoryRepository);
 
 export const categoryService = new CategoryService(categoryRepository);
@@ -196,10 +192,6 @@ export const categoryController = new CategoryController(categoryService);
 export const ingredientRepository = new IngredientRepository(
   dbIngredientRepository,
   ingredientMapper,
-);
-
-export const stockMovementRepository = new StockMovementRepository(
-  dbStockMovementRepository,
 );
 
 export const recipeIngredientRepository = new RecipeIngredientRepository(
@@ -219,11 +211,7 @@ export const stockMovementRepository = new StockMovementRepository(
 );
 export const unitRepository = new UnitRepository(dbUnitRepository, unitMapper);
 
-export const unitService = new UnitService(
-  unitRepository,
-  unitMapper,
-  AppDataSource,
-);
+export const unitService = new UnitService(unitRepository);
 
 export const ingredientService = new IngredientService(
   ingredientRepository,
@@ -251,17 +239,12 @@ export const productService = new ProductService(
   productMapper,
 );
 
-export const ingredientService = new IngredientService(
-  ingredientRepository,
-  ingredientMapper,
-);
-
 export const orderService = new OrderService(
   orderRepository,
   orderMapper,
   lineService,
-  stockMovementService,
   productService,
+  stockMovementService,
   productMapper,
 );
 

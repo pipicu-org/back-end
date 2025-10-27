@@ -4,7 +4,10 @@ import { OrderMapper } from '../models/mappers/orderMapper';
 import { OrderSearchResponseDTO } from '../models/DTO/response/orderSearchResponseDTO';
 import { OrderResponseDTO } from '../models/DTO/response/orderResponseDTO';
 import { ComandaResponseDTO } from '../models/DTO/response/comandaResponseDTO';
-import { KitchenOrderResponseDTO, KitchenOrderItemDTO } from '../models/DTO/response/kitchenOrderResponseDTO';
+import {
+  KitchenOrderResponseDTO,
+  KitchenOrderItemDTO,
+} from '../models/DTO/response/kitchenOrderResponseDTO';
 import { HttpError } from '../../errors/httpError';
 
 export interface IOrderRepository {
@@ -46,7 +49,7 @@ export class OrderRepository implements IOrderRepository {
     private readonly _dbTransitionRepository: Repository<Transition>,
     private readonly _dbTransitionTypeRepository: Repository<TransitionType>,
     private readonly _orderMapper: OrderMapper,
-  ) { }
+  ) {}
 
   async create(order: Partial<Order>): Promise<OrderResponseDTO> {
     try {
@@ -135,7 +138,6 @@ export class OrderRepository implements IOrderRepository {
         .innerJoinAndSelect('order.lines', 'line')
         .innerJoinAndSelect('line.product', 'product')
         .innerJoinAndSelect('product.productType', 'productType')
-        .innerJoinAndSelect('product.productType', 'productType')
         .where('order.id = :id', { id })
         .getOne();
 
@@ -161,7 +163,6 @@ export class OrderRepository implements IOrderRepository {
         .leftJoinAndSelect('order.state', 'state')
         .leftJoinAndSelect('order.lines', 'line')
         .leftJoinAndSelect('line.product', 'product')
-        .leftJoinAndSelect('product.productType', 'productType')
         .leftJoinAndSelect('product.productType', 'productType')
         .where('order.id = :id', { id: orderId })
         .getOne();
@@ -207,7 +208,10 @@ export class OrderRepository implements IOrderRepository {
     }
   }
 
-  async getComanda(page: number = 1, limit: number = 10): Promise<ComandaResponseDTO> {
+  async getComanda(
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<ComandaResponseDTO> {
     try {
       const offset = (page - 1) * limit;
       const query = `
@@ -267,7 +271,10 @@ export class OrderRepository implements IOrderRepository {
         WHERE octe."stateId" = 2
         LIMIT $1 OFFSET $2
       `;
-      const rawData = await this._dbOrderRepository.query(query, [limit, offset]);
+      const rawData = await this._dbOrderRepository.query(query, [
+        limit,
+        offset,
+      ]);
 
       // Get total count for pagination
       const countQuery = `
@@ -295,7 +302,12 @@ export class OrderRepository implements IOrderRepository {
       const countResult = await this._dbOrderRepository.query(countQuery);
       const total = parseInt(countResult[0].total, 10);
 
-      return this._orderMapper.ordersToComandaResponseDTO(rawData, total, page, limit);
+      return this._orderMapper.ordersToComandaResponseDTO(
+        rawData,
+        total,
+        page,
+        limit,
+      );
     } catch (error: any) {
       console.error('Error fetching comanda: ', error);
       throw new HttpError(
@@ -360,16 +372,19 @@ export class OrderRepository implements IOrderRepository {
         INNER JOIN "Recipe" r ON r.id = p."recipeId"
         JOIN generate_series(1, l.quantity) AS gs(n) ON true
         WHERE o."stateId" = $1
-      `
-      const countQueryParams = [2]
+      `;
+      const countQueryParams = [2];
       if (productId) {
         countQuery += `    AND p.id = $${countQueryParams.length + 1}\n`;
-        countQueryParams.push(productId)
+        countQueryParams.push(productId);
       }
       countQuery += `        GROUP BY l.id, gs.n
-      ) AS sub`
+      ) AS sub`;
 
-      const totalResult = await this._dbOrderRepository.query(countQuery, countQueryParams);
+      const totalResult = await this._dbOrderRepository.query(
+        countQuery,
+        countQueryParams,
+      );
       const total = parseInt(totalResult[0].total, 10);
       const items = (rawData ?? []).map(
         (row: any) =>
