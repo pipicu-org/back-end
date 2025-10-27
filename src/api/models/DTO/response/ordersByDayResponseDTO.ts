@@ -13,6 +13,21 @@ export interface GmvByDayResponseDTO {
   gmv: number;
 }
 
+export interface GrossProfitByDayResponseDTO {
+  day: string;
+  gp: number;
+}
+
+export interface MarginByDayResponseDTO {
+  day: string;
+  margin: number;
+}
+
+export interface MrgByDayResponseDTO {
+  day: string;
+  mrg: number;
+}
+
 export interface GmvByContactMethodResponseDTO {
   contactMethod: string;
   gmv: number;

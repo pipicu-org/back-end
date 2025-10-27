@@ -7,6 +7,9 @@ import {
   GmvByContactMethodResponseDTO,
   GmvByPaymentMethodResponseDTO,
   StockByDayResponseDTO,
+  GrossProfitByDayResponseDTO,
+  MarginByDayResponseDTO,
+  MrgByDayResponseDTO,
 } from '../models/DTO/response/ordersByDayResponseDTO';
 
 export class MetricsRepository {
@@ -94,6 +97,31 @@ export class MetricsRepository {
     return result;
   }
 
+  async getGrossProfitByDay(startDate?: string, endDate?: string): Promise<GrossProfitByDayResponseDTO[]> {
+    let query = `
+      SELECT
+        DATE(o."createdAt") AS day,
+        SUM(o.total) - SUM(o.cost) AS gp
+      FROM "Order" o
+      WHERE o."stateId" = 6
+    `;
+
+    if (startDate) {
+      query += ` AND DATE(o."createdAt") >= '${startDate}'`;
+    }
+    if (endDate) {
+      query += ` AND DATE(o."createdAt") <= '${endDate}'`;
+    }
+
+    query += `
+      GROUP BY DATE(o."createdAt")
+      ORDER BY day
+    `;
+
+    const result = await this.orderRepository.query(query);
+    return result;
+  }
+
   async getGmvByContactMethod(): Promise<GmvByContactMethodResponseDTO[]> {
     const query = `
       SELECT
@@ -156,6 +184,80 @@ export class MetricsRepository {
     `;
 
     const result = await this.stockMovementRepository.query(query);
+    return result;
+  }
+
+  async getMarginByDay(startDate?: string, endDate?: string): Promise<MarginByDayResponseDTO[]> {
+    let query = `
+      WITH base_indicators AS (
+        SELECT
+          DATE(o."createdAt") AS day,
+          SUM(o.total) AS gmv,
+          SUM(o."cost") AS costs,
+          SUM(o.total) - SUM(o."cost") AS gp
+        FROM "Order" o
+        WHERE o."stateId" = 6
+    `;
+
+    if (startDate) {
+      query += ` AND DATE(o."createdAt") >= '${startDate}'`;
+    }
+    if (endDate) {
+      query += ` AND DATE(o."createdAt") <= '${endDate}'`;
+    }
+
+    query += `
+        GROUP BY DATE(o."createdAt")
+      )
+      SELECT
+        bi.day,
+        ROUND(
+          CASE WHEN bi.gmv > 0
+            THEN (bi.gp / bi.gmv) * 100
+            ELSE 0 END,
+        2) AS margin
+      FROM base_indicators bi
+      ORDER BY bi.day
+    `;
+
+    const result = await this.orderRepository.query(query);
+    return result;
+  }
+
+  async getMrgByDay(startDate?: string, endDate?: string): Promise<MrgByDayResponseDTO[]> {
+    let query = `
+      WITH base_indicators AS (
+        SELECT
+          DATE(o."createdAt") AS day,
+          SUM(o.total) AS gmv,
+          SUM(o."cost") AS costs,
+          SUM(o.total) - SUM(o."cost") AS gp
+        FROM "Order" o
+        WHERE o."stateId" = 6
+    `;
+
+    if (startDate) {
+      query += ` AND DATE(o."createdAt") >= '${startDate}'`;
+    }
+    if (endDate) {
+      query += ` AND DATE(o."createdAt") <= '${endDate}'`;
+    }
+
+    query += `
+        GROUP BY DATE(o."createdAt")
+      )
+      SELECT
+        bi.day,
+        ROUND(
+          CASE WHEN bi.costs > 0
+            THEN (bi.gp / bi.costs) * 100
+            ELSE 0 END,
+        2) AS mrg
+      FROM base_indicators bi
+      ORDER BY bi.day
+    `;
+
+    const result = await this.orderRepository.query(query);
     return result;
   }
 }
