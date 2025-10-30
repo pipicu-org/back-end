@@ -223,6 +223,7 @@ export const stockMovementService = new StockMovementService(
   stockMovementMapper,
   unitService,
   ingredientService,
+  ingredientMapper,
 );
 
 // Services

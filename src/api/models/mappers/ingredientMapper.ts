@@ -21,7 +21,12 @@ export interface IIngredientSearchMapper {
   ): IngredientSearchResponseDTO;
 }
 
-export class IngredientMapper implements IIngredientEntityMapper, IIngredientResponseMapper, IIngredientSearchMapper {
+export class IngredientMapper
+  implements
+    IIngredientEntityMapper,
+    IIngredientResponseMapper,
+    IIngredientSearchMapper
+{
   public toResponseDTO(ingredient: Ingredient): IngredientResponseDTO {
     return new IngredientResponseDTO(ingredient);
   }
@@ -41,6 +46,18 @@ export class IngredientMapper implements IIngredientEntityMapper, IIngredientRes
     entity.name = ingredient.name;
     // entity.price = ingredient.price;
     return entity;
+  }
+
+  public toRequestDTO(
+    responseDTO: IngredientResponseDTO,
+  ): IngredientRequestDTO {
+    const requestDTO = new IngredientRequestDTO(
+      responseDTO.name,
+      responseDTO.unit.id,
+      responseDTO.lossFactor,
+      responseDTO.cost,
+    );
+    return requestDTO;
   }
 
   public createSearchToIngredientSearchDTO(

@@ -3,7 +3,10 @@ import { Ingredient } from '../../entity/ingredient';
 export class IngredientResponseDTO {
   id: number;
   name: string;
-  unitId: number;
+  unit: {
+    id: number;
+    name: string;
+  };
   lossFactor: number;
   cost?: number;
   stock: number;
@@ -13,7 +16,10 @@ export class IngredientResponseDTO {
   constructor(ingredient: Ingredient) {
     this.id = ingredient.id;
     this.name = ingredient.name;
-    this.unitId = ingredient.unitId;
+    this.unit = {
+      id: ingredient.unit.id,
+      name: ingredient.unit.name,
+    };
     this.lossFactor = ingredient.lossFactor;
     this.cost = ingredient.cost;
     this.stock = ingredient.stock;

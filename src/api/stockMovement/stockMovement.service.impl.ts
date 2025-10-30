@@ -9,6 +9,7 @@ import { HttpError } from '../../errors/httpError';
 import logger from '../../config/logger';
 import { IIngredientService } from '../ingredient/ingredient.service';
 import { IUnitService } from '../unit/unit.service';
+import { IngredientMapper } from '../models/mappers/ingredientMapper';
 
 export class StockMovementService implements IStockMovementService {
   constructor(
@@ -16,6 +17,7 @@ export class StockMovementService implements IStockMovementService {
     private readonly _stockMovementMapper: StockMovementMapper,
     private readonly _unitService: IUnitService,
     private readonly _ingredientService: IIngredientService,
+    private readonly _ingredientMapper: IngredientMapper,
   ) {}
 
   async createStockMovementForOrderLine(
@@ -87,10 +89,13 @@ export class StockMovementService implements IStockMovementService {
         );
       }
 
+      const ingredientRequestDTO =
+        this._ingredientMapper.toRequestDTO(ingredient);
+
       // Save updated ingredient
       await this._ingredientService.updateIngredient(
         requestDTO.ingredientId,
-        ingredient,
+        ingredientRequestDTO,
       );
 
       // Create and save stock movement
