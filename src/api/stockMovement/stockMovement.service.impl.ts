@@ -1,19 +1,23 @@
-import { DataSource } from 'typeorm';
 import { StockMovementRequestDTO } from '../models/DTO/request/stockMovementRequestDTO';
 import { StockMovementResponseDTO } from '../models/DTO/response/stockMovementResponseDTO';
 import { StockMovementPaginationDTO } from '../models/DTO/response/stockMovementPaginationDTO';
 import { StockMovementMapper } from '../models/mappers/stockMovementMapper';
 import { IStockMovementRepository } from './stockMovement.repository';
 import { IStockMovementService } from './stockMovement.service';
-import { Ingredient, Line, StockMovement, Unit } from '../models/entity';
+import { Line } from '../models/entity';
 import { HttpError } from '../../errors/httpError';
 import logger from '../../config/logger';
+import { IIngredientService } from '../ingredient/ingredient.service';
+import { IUnitService } from '../unit/unit.service';
+import { IngredientMapper } from '../models/mappers/ingredientMapper';
 
 export class StockMovementService implements IStockMovementService {
   constructor(
     private readonly _stockMovementRepository: IStockMovementRepository,
     private readonly _stockMovementMapper: StockMovementMapper,
-    private readonly _dataSource: DataSource,
+    private readonly _unitService: IUnitService,
+    private readonly _ingredientService: IIngredientService,
+    private readonly _ingredientMapper: IngredientMapper,
   ) {}
 
   async createStockMovementForOrderLine(
@@ -36,7 +40,7 @@ export class StockMovementService implements IStockMovementService {
         stockMovementTypeId =
           recipe.quantity * line.quantity > recipe.quantity * previousQuantity
             ? 2
-            : 1; // Out or Return
+            : 1;
       } else {
         quantity = recipe.quantity * line.quantity;
         stockMovementTypeId = 2; // Out
@@ -55,26 +59,19 @@ export class StockMovementService implements IStockMovementService {
 
   async createStockMovement(
     requestDTO: StockMovementRequestDTO,
-  ): Promise<StockMovement | void> {
-    const queryRunner = this._dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-
+  ): Promise<StockMovementResponseDTO | void> {
     try {
       // Load ingredient
-      const ingredient = await queryRunner.manager.findOne(Ingredient, {
-        where: { id: requestDTO.ingredientId },
-      });
+      const ingredient = await this._ingredientService.getIngredientById(
+        requestDTO.ingredientId,
+      );
       if (!ingredient) {
         throw new HttpError(
           400,
           `Ingredient with id ${requestDTO.ingredientId} not found`,
         );
       }
-      const unit = await queryRunner.manager.findOneBy(Unit, {
-        id: requestDTO.unitId,
-      });
-
+      const unit = await this._unitService.getUnitById(requestDTO.unitId);
       if (!unit) {
         throw new HttpError(400, `Unit with id ${requestDTO.unitId} not found`);
       }
@@ -92,30 +89,37 @@ export class StockMovementService implements IStockMovementService {
         );
       }
 
+      const ingredientRequestDTO =
+        this._ingredientMapper.toRequestDTO(ingredient);
+
       // Save updated ingredient
-      await queryRunner.manager.save(Ingredient, ingredient);
+      await this._ingredientService.updateIngredient(
+        requestDTO.ingredientId,
+        ingredientRequestDTO,
+      );
 
       // Create and save stock movement
       const stockMovement =
         this._stockMovementMapper.requestDTOToEntity(requestDTO);
-      ingredient.stockMovements ??= [];
-      ingredient.stockMovements.push(stockMovement);
-      stockMovement.ingredient = ingredient;
-      stockMovement.unit = unit;
-      const createdStockMovement =
-        await queryRunner.manager.save(stockMovement);
-
-      await queryRunner.commitTransaction();
+      stockMovement.ingredientId = ingredient.id;
+      stockMovement.unitId = unit.id;
+      await this._stockMovementRepository.create(stockMovement);
+      const createdStockMovement = await this._stockMovementRepository.findById(
+        stockMovement.id,
+      );
+      if (!createdStockMovement) {
+        throw new HttpError(
+          500,
+          'Failed to retrieve created stock movement after saving',
+        );
+      }
       return createdStockMovement;
     } catch (error: any) {
-      await queryRunner.rollbackTransaction();
       logger.error('Error creating stock movement with stock update', {
         error: error.message,
         stack: error.stack,
       });
       throw new HttpError(500, 'Failed to create stock movement');
-    } finally {
-      await queryRunner.release();
     }
   }
 
@@ -123,7 +127,11 @@ export class StockMovementService implements IStockMovementService {
     id: number,
   ): Promise<StockMovementResponseDTO | void> {
     try {
-      return await this._stockMovementRepository.findById(id);
+      const stockMovement = await this._stockMovementRepository.findById(id);
+      if (!stockMovement) {
+        throw new HttpError(404, `Stock movement with id ${id} not found`);
+      }
+      return new StockMovementResponseDTO(stockMovement);
     } catch (error: any) {
       logger.error('Error fetching stock movement by ID', {
         id,
@@ -139,7 +147,13 @@ export class StockMovementService implements IStockMovementService {
     limit: number,
   ): Promise<StockMovementPaginationDTO> {
     try {
-      return await this._stockMovementRepository.findAllPaginated(page, limit);
+      const [stockMovements, total] =
+        await this._stockMovementRepository.findAllPaginated(page, limit);
+      return this._stockMovementMapper.toPaginationDTO(
+        [stockMovements, total],
+        page,
+        limit,
+      );
     } catch (error: any) {
       logger.error('Error fetching paginated stock movements', {
         page,

@@ -50,7 +50,9 @@ export const stockMovementRouter = (
    *                   unit:
    *                     id: 1
    *                     name: "kg"
-   *                   stockMovementTypeId: 1
+   *                   stockMovementType:
+   *                     id: 1
+   *                     name: "Compra"
    *                   purchaseItemId: null
    *                   createdAt: "2023-01-01T00:00:00Z"
    *                   updatedAt: "2023-01-01T00:00:00Z"
@@ -90,7 +92,9 @@ export const stockMovementRouter = (
    *               unit:
    *                 id: 1
    *                 name: "Kilogram"
-   *               stockMovementTypeId: 1
+   *               stockMovementType:
+   *                 id: 1
+   *                 name: "Compra"
    *               purchaseItemId: null
    *               createdAt: "2023-01-01T00:00:00Z"
    *               updatedAt: "2023-01-01T00:00:00Z"

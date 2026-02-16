@@ -1,12 +1,12 @@
 import { StockMovementRequestDTO } from '../models/DTO/request/stockMovementRequestDTO';
 import { StockMovementResponseDTO } from '../models/DTO/response/stockMovementResponseDTO';
 import { StockMovementPaginationDTO } from '../models/DTO/response/stockMovementPaginationDTO';
-import { Line, StockMovement } from '../models/entity';
+import { Line } from '../models/entity';
 
 export interface IStockMovementService {
   createStockMovement(
     requestDTO: StockMovementRequestDTO,
-  ): Promise<StockMovement | void>;
+  ): Promise<StockMovementResponseDTO | void>;
   getStockMovementById(id: number): Promise<StockMovementResponseDTO | void>;
   getStockMovementsPaginated(
     page: number,

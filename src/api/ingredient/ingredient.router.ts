@@ -29,6 +29,7 @@ export const ingredientRouter = (controller = ingredientController): Router => {
    *             name: "Tomato"
    *             unitId: 1
    *             lossFactor: 0.1
+   *             cost: 2.5
    *     responses:
    *       201:
    *         description: Ingredient created successfully
@@ -71,6 +72,18 @@ export const ingredientRouter = (controller = ingredientController): Router => {
    *               name: "Tomato"
    *               unitId: 1
    *               lossFactor: 0.1
+   *               cost: 2.5
+   *               stock: 100.0
+   *               createdAt: "2023-01-01T00:00:00Z"
+   *               updatedAt: "2023-01-01T00:00:00Z"
+   *               unitId: 1
+   *               lossFactor: 0.1
+   *               cost: 2.5
+   *               stock: 100.0
+   *               createdAt: "2023-01-01T00:00:00Z"
+   *               updatedAt: "2023-01-01T00:00:00Z"
+   *               unitId: 1
+   *               lossFactor: 0.1
    *               stock: 100.0
    *               createdAt: "2023-01-01T00:00:00Z"
    *               updatedAt: "2023-01-01T00:00:00Z"
@@ -106,6 +119,7 @@ export const ingredientRouter = (controller = ingredientController): Router => {
    *             name: "Updated Tomato"
    *             unitId: 1
    *             lossFactor: 0.05
+   *             cost: 3.0
    *     responses:
    *       200:
    *         description: Ingredient updated successfully
@@ -118,6 +132,7 @@ export const ingredientRouter = (controller = ingredientController): Router => {
    *               name: "Updated Tomato"
    *               unitId: 1
    *               lossFactor: 0.05
+   *               cost: 3.0
    *               stock: 100.0
    *               createdAt: "2023-01-01T00:00:00Z"
    *               updatedAt: "2023-01-01T00:00:00Z"
@@ -202,6 +217,7 @@ export const ingredientRouter = (controller = ingredientController): Router => {
    *                 name: "Tomato"
    *                 unitId: 1
    *                 lossFactor: 0.1
+   *                 cost: 2.5
    *                 stock: 100.0
    *                 createdAt: "2023-01-01T00:00:00Z"
    *                 updatedAt: "2023-01-01T00:00:00Z"

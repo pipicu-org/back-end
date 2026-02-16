@@ -4,6 +4,7 @@ dotenv.config();
 
 interface Config {
   port: number;
+  prodUrl: string;
   nodeEnv: string;
   postgres: {
     host: string;
@@ -18,6 +19,7 @@ interface Config {
 
 const config: Config = {
   port: Number(process.env.PORT) || 9091,
+  prodUrl: process.env.PROD_URL || 'Production URL not set',
   nodeEnv: process.env.NODE_ENV ?? 'production',
   postgres: {
     host: process.env.POSTGRES_HOST ?? 'localhost',

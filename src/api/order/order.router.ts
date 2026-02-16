@@ -116,8 +116,23 @@ export const orderRouter = (controller = orderController): Router => {
    *                         type: string
    *                         example: "1"
    *                       product:
-   *                         type: string
-   *                         example: "Pizza Margherita"
+   *                         type: object
+   *                         properties:
+   *                           id:
+   *                             type: string
+   *                             example: "1"
+   *                           name:
+   *                             type: string
+   *                             example: "Pizza Margherita"
+   *                           productType:
+   *                             type: object
+   *                             properties:
+   *                               id:
+   *                                 type: number
+   *                                 example: 1
+   *                               name:
+   *                                 type: string
+   *                                 example: "standard"
    *                       quantity:
    *                         type: integer
    *                         example: 2
@@ -169,7 +184,9 @@ export const orderRouter = (controller = orderController): Router => {
    *                   product:
    *                     id: "1"
    *                     name: "Pizza Margherita"
-   *                     productTypeId: 1
+   *                     productType:
+   *                       id: 1
+   *                       name: "standard"
    *                   quantity: 2
    *                   totalPrice: 25.98
    *       404:
@@ -405,9 +422,45 @@ export const orderRouter = (controller = orderController): Router => {
    *                           id:
    *                             type: string
    *                             example: "1"
-   *                           name:
-   *                             type: string
-   *                             example: "Pizza Margherita"
+   *                             name:
+   *                               type: string
+   *                               example: "Pizza Margherita"
+   *                             productType:
+   *                               type: object
+   *                               properties:
+   *                                 id:
+   *                                   type: number
+   *                                   example: 1
+   *                                 name:
+   *                                   type: string
+   *                                   example: "standard"
+   *                             productType:
+   *                               type: object
+   *                               properties:
+   *                                 id:
+   *                                   type: number
+   *                                   example: 1
+   *                                 name:
+   *                                   type: string
+   *                                   example: "standard"
+   *                             productType:
+   *                               type: object
+   *                               properties:
+   *                                 id:
+   *                                   type: number
+   *                                   example: 1
+   *                                 name:
+   *                                   type: string
+   *                                   example: "standard"
+   *                           productType:
+   *                             type: object
+   *                             properties:
+   *                               id:
+   *                                 type: number
+   *                                 example: 1
+   *                               name:
+   *                                 type: string
+   *                                 example: "standard"
    *                       quantity:
    *                         type: integer
    *                         example: 2
@@ -715,9 +768,24 @@ export const orderRouter = (controller = orderController): Router => {
    *                       id:
    *                         type: string
    *                         example: "1"
-   *                       product:
-   *                         type: string
-   *                         example: "Pizza Margherita"
+   *                         product:
+   *                           type: object
+   *                           properties:
+   *                             id:
+   *                               type: string
+   *                               example: "1"
+   *                             name:
+   *                               type: string
+   *                               example: "Pizza Margherita"
+   *                             productType:
+   *                               type: object
+   *                               properties:
+   *                                 id:
+   *                                   type: number
+   *                                   example: 1
+   *                                 name:
+   *                                   type: string
+   *                                   example: "standard"
    *                       quantity:
    *                         type: integer
    *                         example: 2

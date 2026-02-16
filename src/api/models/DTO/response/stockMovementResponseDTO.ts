@@ -11,7 +11,10 @@ export class StockMovementResponseDTO {
     id: number;
     name: string;
   };
-  stockMovementTypeId: number;
+  stockMovementType: {
+    id: number;
+    name: string;
+  };
   purchaseItemId: number | null;
   createdAt: Date;
   updatedAt: Date;
@@ -27,7 +30,10 @@ export class StockMovementResponseDTO {
       id: stockMovement.unitId,
       name: stockMovement.unit.name,
     };
-    this.stockMovementTypeId = stockMovement.stockMovementTypeId;
+    this.stockMovementType = {
+      id: stockMovement.stockMovementTypeId,
+      name: stockMovement.stockMovementType.name,
+    };
     this.purchaseItemId = stockMovement.purchaseItemId;
     this.createdAt = stockMovement.createdAt;
     this.updatedAt = stockMovement.updatedAt;

@@ -1,10 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { IStockMovementService } from './stockMovement.service';
 import { StockMovementRequestDTO } from '../models/DTO/request/stockMovementRequestDTO';
-import { StockMovementMapper } from '../models/mappers/stockMovementMapper';
 import { validate } from 'class-validator';
-
-const stockMovementMapper = new StockMovementMapper();
 
 export class StockMovementController {
   constructor(private readonly stockMovementService: IStockMovementService) {}
@@ -26,7 +23,7 @@ export class StockMovementController {
         stockMovementRequestDTO,
       );
       if (stockMovement) {
-        res.status(201).json(stockMovementMapper.toResponseDTO(stockMovement));
+        res.status(201).json(stockMovement);
       } else {
         res.status(500).json({ message: 'Failed to create stock movement' });
       }

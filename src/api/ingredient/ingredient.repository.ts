@@ -35,6 +35,7 @@ export class IngredientRepository implements IIngredientRepository {
     try {
       const results = await this._dbIngredientRepository
         .createQueryBuilder('ingredient')
+        .leftJoinAndSelect('ingredient.unit', 'unit')
         .where('ingredient.name ILIKE :search', { search: `%${search}%` })
         .skip((page - 1) * limit)
         .take(limit)
@@ -56,7 +57,11 @@ export class IngredientRepository implements IIngredientRepository {
 
   async findById(id: number): Promise<IngredientResponseDTO | void> {
     try {
-      const ingredient = await this._dbIngredientRepository.findOneBy({ id });
+      const ingredient = await this._dbIngredientRepository
+        .createQueryBuilder('ingredient')
+        .leftJoinAndSelect('ingredient.unit', 'unit')
+        .where('ingredient.id = :id', { id })
+        .getOne();
       if (!ingredient) {
         throw new HttpError(404, `Ingredient with id ${id} not found`);
       }
@@ -72,8 +77,15 @@ export class IngredientRepository implements IIngredientRepository {
 
   async create(ingredient: Ingredient): Promise<IngredientResponseDTO | void> {
     try {
-      const createdIngredient =
-        await this._dbIngredientRepository.save(ingredient);
+      await this._dbIngredientRepository.save(ingredient);
+      const createdIngredient = await this._dbIngredientRepository
+        .createQueryBuilder('ingredient')
+        .leftJoinAndSelect('ingredient.unit', 'unit')
+        .where('ingredient.id = :id', { id: ingredient.id })
+        .getOne();
+      if (!createdIngredient) {
+        throw new HttpError(500, 'Failed to retrieve the created ingredient');
+      }
       return this._ingredientMapper.toResponseDTO(createdIngredient);
     } catch (error: any) {
       console.error('Error creating ingredient:', error);
@@ -98,6 +110,7 @@ export class IngredientRepository implements IIngredientRepository {
       }
       const updatedIngredient = await this._dbIngredientRepository
         .createQueryBuilder('ingredient')
+        .leftJoinAndSelect('ingredient.unit', 'unit')
         .where('ingredient.id = :id', { id })
         .getOne();
       if (!updatedIngredient) {
@@ -115,9 +128,11 @@ export class IngredientRepository implements IIngredientRepository {
 
   async delete(id: number): Promise<IngredientResponseDTO | void> {
     try {
-      const existingIngredient = await this._dbIngredientRepository.findOneBy({
-        id,
-      });
+      const existingIngredient = await this._dbIngredientRepository
+        .createQueryBuilder('ingredient')
+        .leftJoinAndSelect('ingredient.unit', 'unit')
+        .where('ingredient.id = :id', { id })
+        .getOne();
       if (existingIngredient) {
         await this._dbIngredientRepository.delete(id);
         return this._ingredientMapper.toResponseDTO(existingIngredient);

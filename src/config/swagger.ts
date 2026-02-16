@@ -1,5 +1,6 @@
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
+import config from './config';
 
 const options = {
   definition: {
@@ -19,7 +20,7 @@ const options = {
         description: 'Docker compose',
       },
       {
-        url: 'https://api.pipicucu.vmdigitai.com',
+        url: config.prodUrl,
         description: 'Prod',
       },
     ],
@@ -447,7 +448,7 @@ const options = {
               nullable: true,
               properties: {
                 id: { type: 'number', example: 1 },
-                cost: { type: 'number', nullable: true, example: 5.5 },
+                cost: { type: 'number', example: 5.75 },
                 ingredients: {
                   type: 'array',
                   items: {
@@ -532,7 +533,13 @@ const options = {
                     properties: {
                       id: { type: 'string', example: '1' },
                       name: { type: 'string', example: 'Pizza Margherita' },
-                      productTypeId: { type: 'number', example: 1 },
+                      productType: {
+                        type: 'object',
+                        properties: {
+                          id: { type: 'number', example: 1 },
+                          name: { type: 'string', example: 'standard' },
+                        },
+                      },
                     },
                   },
                   quantity: { type: 'number', example: 2 },
@@ -671,7 +678,13 @@ const options = {
                 name: { type: 'string', example: 'Kilogram' },
               },
             },
-            stockMovementTypeId: { type: 'number', example: 1 },
+            stockMovementType: {
+              type: 'object',
+              properties: {
+                id: { type: 'number', example: 1 },
+                name: { type: 'string', example: 'Ingreso' },
+              },
+            },
             purchaseItemId: { type: 'number', nullable: true, example: null },
             createdAt: {
               type: 'string',
@@ -712,7 +725,13 @@ const options = {
                       name: { type: 'string', example: 'Kilogram' },
                     },
                   },
-                  stockMovementTypeId: { type: 'number', example: 1 },
+                  stockMovementType: {
+                    type: 'object',
+                    properties: {
+                      id: { type: 'number', example: 1 },
+                      name: { type: 'string', example: 'Ingreso' },
+                    },
+                  },
                   purchaseItemId: {
                     type: 'number',
                     nullable: true,
