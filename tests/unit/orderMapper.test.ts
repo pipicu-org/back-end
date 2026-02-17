@@ -28,7 +28,6 @@ describe('OrderMapper', () => {
       mockClientRepository as any,
       mockProductRepository as any,
       mockStateRepository as any,
-      mockProductMapper as any,
     );
   });
 

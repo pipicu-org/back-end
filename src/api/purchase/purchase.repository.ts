@@ -10,7 +10,6 @@ export interface IPurchaseRepository {
   findAllPaginated(
     page: number,
     size: number,
-    sortField: string,
     sortOrder: 'ASC' | 'DESC',
   ): Promise<PurchasePageResponseDTO>;
   findById(id: number): Promise<PurchaseResponseDTO | void>;
@@ -57,24 +56,18 @@ export class PurchaseRepository implements IPurchaseRepository {
   }
 
   async findAllPaginated(
-    page: number,
-    size: number,
-    sortField: string,
-    sortOrder: 'ASC' | 'DESC',
+    page: number = 0,
+    size: number = 10,
+    sortOrder: 'ASC' | 'DESC' = 'DESC',
   ): Promise<PurchasePageResponseDTO> {
     try {
-      let queryBuilder = this._dbPurchaseRepository
+      const queryBuilder = this._dbPurchaseRepository
         .createQueryBuilder('purchase')
         .leftJoinAndSelect('purchase.purchaseItems', 'purchaseItem')
         .leftJoinAndSelect('purchase.provider', 'provider')
-        .leftJoinAndSelect('purchaseItem.ingredient', 'ingredient');
-
-      if (sortField === 'date') {
-        queryBuilder = queryBuilder.orderBy('purchase.createdAt', sortOrder);
-      } else {
-        // Default sort by createdAt desc
-        queryBuilder = queryBuilder.orderBy('purchase.createdAt', 'DESC');
-      }
+        .leftJoinAndSelect('purchaseItem.ingredient', 'ingredient')
+        .leftJoinAndSelect('purchaseItem.unit', 'unit')
+        .orderBy('purchase.createdAt', sortOrder === 'ASC' ? 'ASC' : 'DESC');
 
       const [purchases, total] = await queryBuilder
         .skip(page * size)
@@ -90,7 +83,6 @@ export class PurchaseRepository implements IPurchaseRepository {
       logger.error('Error fetching paginated purchases', {
         page,
         size,
-        sortField,
         sortOrder,
         error: error.message,
         stack: error.stack,
