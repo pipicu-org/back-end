@@ -44,29 +44,18 @@ export class PurchaseService implements IPurchaseService {
     size: number = 10,
     sort: string = 'date_desc',
   ): Promise<PurchasePageResponseDTO> {
-    // Validate parameters
-    if (page < 0) {
-      throw new HttpError(400, 'Page must be >= 0');
-    }
-    if (size < 1 || size > 100) {
-      throw new HttpError(400, 'Size must be between 1 and 100');
-    }
-
-    // Parse sort parameter
-    const [sortField, sortOrderStr] = sort.split('_');
-    let sortOrder: 'ASC' | 'DESC' = 'DESC';
-    if (sortOrderStr && sortOrderStr.toLowerCase() === 'asc') {
-      sortOrder = 'ASC';
+    if (page < 0 || size < 1 || size > 100) {
+      throw new HttpError(
+        400,
+        page < 0 ? 'Page must be >= 0' : 'Size must be between 1 and 100',
+      );
     }
 
-    if (sortField !== 'date') {
-      throw new HttpError(400, 'Sort field must be "date"');
-    }
+    const sortOrder = sort.includes('_asc') ? 'ASC' : 'DESC';
 
     return await this._purchaseRepository.findAllPaginated(
       page,
       size,
-      sortField,
       sortOrder,
     );
   }
@@ -80,8 +69,6 @@ export class PurchaseService implements IPurchaseService {
     purchaseDto: UpdatePurchaseDto,
   ): Promise<PurchaseResponseDTO | void> {
     try {
-      // Strategy Pattern: Delegates to specific strategy for update
-      // Open-Closed: New strategies can be added without modifying this method
       return await this._updateStrategy.execute(purchaseDto, id);
     } catch (error: any) {
       logger.error('Error updating purchase', {

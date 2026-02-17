@@ -37,6 +37,7 @@ export class IngredientMapper
     ingredient.unitId = requestDTO.unitId;
     ingredient.lossFactor = requestDTO.lossFactor;
     ingredient.cost = requestDTO.cost;
+    ingredient.stock = requestDTO.stock;
     return ingredient;
   }
 
@@ -44,7 +45,10 @@ export class IngredientMapper
     const entity = new Ingredient();
     entity.id = ingredient.id;
     entity.name = ingredient.name;
-    // entity.price = ingredient.price;
+    entity.cost = ingredient.cost;
+    entity.lossFactor = ingredient.lossFactor;
+    entity.stock = ingredient.stock;
+    entity.unitId = ingredient.unit.id;
     return entity;
   }
 
@@ -55,6 +59,7 @@ export class IngredientMapper
       responseDTO.name,
       responseDTO.unit.id,
       responseDTO.lossFactor,
+      responseDTO.stock,
       responseDTO.cost,
     );
     return requestDTO;

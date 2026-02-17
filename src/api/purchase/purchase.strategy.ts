@@ -17,7 +17,6 @@ export interface IPurchaseStrategy {
   ): Promise<PurchaseResponseDTO>;
 }
 
-// Common dependencies for strategies
 export abstract class BasePurchaseStrategy implements IPurchaseStrategy {
   constructor(
     protected readonly _repository: IPurchaseRepository,

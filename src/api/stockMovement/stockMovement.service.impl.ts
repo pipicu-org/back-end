@@ -97,6 +97,7 @@ export class StockMovementService implements IStockMovementService {
         requestDTO.ingredientId,
         ingredientRequestDTO,
       );
+      console.log('Updated ingredient stock:', ingredient.stock);
 
       // Create and save stock movement
       const stockMovement =
