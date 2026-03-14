@@ -105,9 +105,34 @@ export class StockMovementService implements IStockMovementService {
   async getStockMovementsPaginated(
     page: number,
     limit: number,
+    search?: string,
+    ingredientId?: number,
+    stockMovementTypeId?: number,
+    unitId?: number,
+    purchaseItemId?: number,
+    minQuantity?: number,
+    maxQuantity?: number,
+    startDate?: Date,
+    endDate?: Date,
+    sortBy?: string,
+    sortOrder?: 'ASC' | 'DESC',
   ): Promise<StockMovementPaginationDTO> {
     try {
-      return await this._stockMovementRepository.findAllPaginated(page, limit);
+      return await this._stockMovementRepository.findAllPaginated(
+        page,
+        limit,
+        search,
+        ingredientId,
+        stockMovementTypeId,
+        unitId,
+        purchaseItemId,
+        minQuantity,
+        maxQuantity,
+        startDate,
+        endDate,
+        sortBy,
+        sortOrder,
+      );
     } catch (error: any) {
       logger.error('Error fetching paginated stock movements', {
         page,

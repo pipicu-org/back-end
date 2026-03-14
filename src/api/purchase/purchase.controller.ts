@@ -6,6 +6,7 @@ import { IPurchaseService } from './purchase.service';
 import { NextFunction, Request, Response } from 'express';
 import { validate } from 'class-validator';
 import { plainToClass } from 'class-transformer';
+import multer from 'multer';
 
 export class PurchaseController {
   constructor(private readonly _purchaseService: IPurchaseService) {}
@@ -83,6 +84,30 @@ export class PurchaseController {
         return res.status(404).json({ message: 'Purchase not found' });
       }
       res.status(200).json(deletedPurchase);
+    } catch (error: any) {
+      next(error);
+    }
+  }
+
+  async downloadTemplate(req: Request, res: Response, next: NextFunction) {
+    try {
+      const buffer = await this._purchaseService.downloadTemplate();
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', 'attachment; filename=purchase_template.xlsx');
+      res.send(buffer);
+    } catch (error: any) {
+      next(error);
+    }
+  }
+
+  async uploadExcel(req: Request, res: Response, next: NextFunction) {
+    try {
+      const file = req.file;
+      if (!file) {
+        return res.status(400).json({ message: 'No se proporcionó ningún archivo' });
+      }
+      const purchases = await this._purchaseService.uploadFromExcel(file);
+      res.status(201).json(purchases);
     } catch (error: any) {
       next(error);
     }

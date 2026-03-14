@@ -20,4 +20,6 @@ export interface IPurchaseService {
   ): Promise<PurchaseResponseDTO | void>;
   findItemsByPurchaseId(purchaseId: number): Promise<PurchaseItem[]>;
   deletePurchase(id: number): Promise<PurchaseResponseDTO | void>;
+  downloadTemplate(): Promise<Buffer>;
+  uploadFromExcel(file: Express.Multer.File): Promise<PurchaseResponseDTO[]>;
 }

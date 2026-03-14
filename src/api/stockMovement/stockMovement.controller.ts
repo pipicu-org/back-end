@@ -55,12 +55,38 @@ export class StockMovementController {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
+      const search = req.query.search as string | undefined;
+      const ingredientId = req.query.ingredientId ? parseInt(req.query.ingredientId as string) : undefined;
+      const stockMovementTypeId = req.query.stockMovementTypeId ? parseInt(req.query.stockMovementTypeId as string) : undefined;
+      const unitId = req.query.unitId ? parseInt(req.query.unitId as string) : undefined;
+      const purchaseItemId = req.query.purchaseItemId ? parseInt(req.query.purchaseItemId as string) : undefined;
+      const minQuantity = req.query.minQuantity ? parseFloat(req.query.minQuantity as string) : undefined;
+      const maxQuantity = req.query.maxQuantity ? parseFloat(req.query.maxQuantity as string) : undefined;
+      const startDate = req.query.startDate ? new Date(req.query.startDate as string) : undefined;
+      const endDate = req.query.endDate ? new Date(req.query.endDate as string) : undefined;
+      const sortBy = req.query.sortBy as string | undefined;
+      const sortOrder = (req.query.sortOrder as 'ASC' | 'DESC') || 'DESC';
+
       if (page < 1 || limit < 1) {
         res.status(400).json({ message: 'Invalid page or limit' });
         return;
       }
       const stockMovements =
-        await this.stockMovementService.getStockMovementsPaginated(page, limit);
+        await this.stockMovementService.getStockMovementsPaginated(
+          page,
+          limit,
+          search,
+          ingredientId,
+          stockMovementTypeId,
+          unitId,
+          purchaseItemId,
+          minQuantity,
+          maxQuantity,
+          startDate,
+          endDate,
+          sortBy,
+          sortOrder,
+        );
       res.status(200).json(stockMovements);
     } catch (error: any) {
       next(error);

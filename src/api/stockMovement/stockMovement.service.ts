@@ -11,5 +11,16 @@ export interface IStockMovementService {
   getStockMovementsPaginated(
     page: number,
     limit: number,
+    search?: string,
+    ingredientId?: number,
+    stockMovementTypeId?: number,
+    unitId?: number,
+    purchaseItemId?: number,
+    minQuantity?: number,
+    maxQuantity?: number,
+    startDate?: Date,
+    endDate?: Date,
+    sortBy?: string,
+    sortOrder?: 'ASC' | 'DESC',
   ): Promise<StockMovementPaginationDTO>;
 }

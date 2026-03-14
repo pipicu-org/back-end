@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { IIngredientService } from './ingredient.service';
 import { IngredientRequestDTO } from '../models/DTO/request/ingredientRequestDTO';
+import { ingredientService } from '../../config/inject';
 
 export class IngredientController {
   constructor(
@@ -80,6 +81,30 @@ export class IngredientController {
       } else {
         res.status(404).json({ message: 'Ingredient not found' });
       }
+    } catch (error: any) {
+      next(error);
+    }
+  }
+
+  async downloadTemplate(req: Request, res: Response, next: NextFunction) {
+    try {
+      const buffer = await this.ingredientService.downloadTemplate();
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', 'attachment; filename=ingredient_template.xlsx');
+      res.send(buffer);
+    } catch (error: any) {
+      next(error);
+    }
+  }
+
+  async uploadExcel(req: Request, res: Response, next: NextFunction) {
+    try {
+      const file = req.file;
+      if (!file) {
+        return res.status(400).json({ message: 'No se proporcionó ningún archivo' });
+      }
+      const ingredients = await this.ingredientService.uploadFromExcel(file);
+      res.status(201).json(ingredients);
     } catch (error: any) {
       next(error);
     }

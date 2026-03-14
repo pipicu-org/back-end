@@ -35,6 +35,7 @@ export class IngredientRepository implements IIngredientRepository {
     try {
       const results = await this._dbIngredientRepository
         .createQueryBuilder('ingredient')
+        .leftJoinAndSelect('ingredient.unit', 'unit')
         .where('ingredient.name ILIKE :search', { search: `%${search}%` })
         .skip((page - 1) * limit)
         .take(limit)
@@ -56,7 +57,11 @@ export class IngredientRepository implements IIngredientRepository {
 
   async findById(id: number): Promise<IngredientResponseDTO | void> {
     try {
-      const ingredient = await this._dbIngredientRepository.findOneBy({ id });
+      const ingredient = await this._dbIngredientRepository
+        .createQueryBuilder('ingredient')
+        .leftJoinAndSelect('ingredient.unit', 'unit')
+        .where('ingredient.id = :id', { id })
+        .getOne();
       if (!ingredient) {
         throw new HttpError(404, `Ingredient with id ${id} not found`);
       }

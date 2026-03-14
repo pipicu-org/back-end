@@ -65,7 +65,10 @@ export class PurchaseRepository implements IPurchaseRepository {
     try {
       let queryBuilder = this._dbPurchaseRepository
         .createQueryBuilder('purchase')
-        .leftJoinAndSelect('purchase.purchaseItems', 'purchaseItem');
+        .leftJoinAndSelect('purchase.provider', 'provider')
+        .leftJoinAndSelect('purchase.purchaseItems', 'purchaseItem')
+        .leftJoinAndSelect('purchaseItem.ingredient', 'ingredient')
+        .leftJoinAndSelect('purchaseItem.unit', 'unit');
 
       if (sortField === 'date') {
         queryBuilder = queryBuilder.orderBy('purchase.createdAt', sortOrder);
@@ -101,7 +104,10 @@ export class PurchaseRepository implements IPurchaseRepository {
     try {
       const purchase = await this._dbPurchaseRepository
         .createQueryBuilder('purchase')
+        .leftJoinAndSelect('purchase.provider', 'provider')
         .leftJoinAndSelect('purchase.purchaseItems', 'purchaseItem')
+        .leftJoinAndSelect('purchaseItem.ingredient', 'ingredient')
+        .leftJoinAndSelect('purchaseItem.unit', 'unit')
         .where('purchase.id = :id', { id })
         .getOne();
       if (purchase) {
@@ -192,7 +198,10 @@ export class PurchaseRepository implements IPurchaseRepository {
     try {
       const purchase = await this._dbPurchaseRepository
         .createQueryBuilder('purchase')
+        .leftJoinAndSelect('purchase.provider', 'provider')
         .leftJoinAndSelect('purchase.purchaseItems', 'purchaseItem')
+        .leftJoinAndSelect('purchaseItem.ingredient', 'ingredient')
+        .leftJoinAndSelect('purchaseItem.unit', 'unit')
         .where('purchase.id = :id', { id })
         .getOne();
       if (purchase) {

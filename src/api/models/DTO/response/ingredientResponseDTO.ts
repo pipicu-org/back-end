@@ -1,9 +1,22 @@
 import { Ingredient } from '../../entity/ingredient';
+import { UnitResponseDTO, IUnitResponseDTO } from './unitResponseDTO';
 
-export class IngredientResponseDTO {
+export interface IIngredientResponseDTO {
   id: number;
   name: string;
   unitId: number;
+  unit?: IUnitResponseDTO;
+  lossFactor: number;
+  stock: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export class IngredientResponseDTO implements IIngredientResponseDTO {
+  id: number;
+  name: string;
+  unitId: number;
+  unit?: UnitResponseDTO;
   lossFactor: number;
   stock: number;
   createdAt: Date;
@@ -17,5 +30,10 @@ export class IngredientResponseDTO {
     this.stock = ingredient.stock;
     this.createdAt = ingredient.createdAt;
     this.updatedAt = ingredient.updatedAt;
+    
+    // Include unit information if available
+    if (ingredient.unit) {
+      this.unit = new UnitResponseDTO(ingredient.unit);
+    }
   }
 }

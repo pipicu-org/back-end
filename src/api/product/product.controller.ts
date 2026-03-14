@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { IProductService } from './product.service';
 import { ProductRequestDTO } from '../models/DTO/request/productRequestDTO';
+import { productService } from '../../config/inject';
 
 export class ProductController {
   constructor(private readonly _productService: IProductService) {}
@@ -92,6 +93,30 @@ export class ProductController {
         limit,
       );
       res.status(200).json(products);
+    } catch (error: any) {
+      next(error);
+    }
+  }
+
+  async downloadTemplate(req: Request, res: Response, next: NextFunction) {
+    try {
+      const buffer = await this._productService.downloadTemplate();
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', 'attachment; filename=product_template.xlsx');
+      res.send(buffer);
+    } catch (error: any) {
+      next(error);
+    }
+  }
+
+  async uploadExcel(req: Request, res: Response, next: NextFunction) {
+    try {
+      const file = req.file;
+      if (!file) {
+        return res.status(400).json({ message: 'No se proporcionó ningún archivo' });
+      }
+      const products = await this._productService.uploadFromExcel(file);
+      res.status(201).json(products);
     } catch (error: any) {
       next(error);
     }

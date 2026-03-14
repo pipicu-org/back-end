@@ -23,7 +23,17 @@ export class UnitController {
 
   async getAllUnits(req: Request, res: Response, next: NextFunction) {
     try {
-      const units = await this._unitService.getAllUnits();
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const search = req.query.search as string | undefined;
+      const sortBy = req.query.sortBy as string | undefined;
+      const sortOrder = (req.query.sortOrder as 'ASC' | 'DESC') || 'ASC';
+
+      if (page < 1 || limit < 1) {
+        return res.status(400).json({ message: 'Invalid page or limit' });
+      }
+
+      const units = await this._unitService.getAllUnits(page, limit, search, sortBy, sortOrder);
       res.status(200).json(units);
     } catch (error: any) {
       next(error);

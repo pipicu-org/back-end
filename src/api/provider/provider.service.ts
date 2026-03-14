@@ -18,4 +18,6 @@ export interface IProviderService {
     requestDTO: ProviderRequestDTO,
   ): Promise<ProviderResponseDTO | void>;
   deleteProvider(id: number): Promise<ProviderResponseDTO | void>;
+  downloadTemplate(): Promise<Buffer>;
+  uploadFromExcel(file: Express.Multer.File): Promise<ProviderResponseDTO[]>;
 }

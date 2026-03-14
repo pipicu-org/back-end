@@ -27,8 +27,14 @@ export class UnitService implements IUnitService {
     }
   }
 
-  async getAllUnits(): Promise<UnitResponseDTO[]> {
-    return await this._unitRepository.findAll();
+  async getAllUnits(
+    page: number = 1,
+    limit: number = 10,
+    search?: string,
+    sortBy?: string,
+    sortOrder?: 'ASC' | 'DESC',
+  ): Promise<{ data: UnitResponseDTO[]; total: number; page: number; limit: number }> {
+    return await this._unitRepository.findAll(page, limit, search, sortBy, sortOrder);
   }
 
   async getUnitById(id: number): Promise<UnitResponseDTO | void> {

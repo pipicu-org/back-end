@@ -13,6 +13,17 @@ export interface IStockMovementRepository {
   findAllPaginated(
     page: number,
     limit: number,
+    search?: string,
+    ingredientId?: number,
+    stockMovementTypeId?: number,
+    unitId?: number,
+    purchaseItemId?: number,
+    minQuantity?: number,
+    maxQuantity?: number,
+    startDate?: Date,
+    endDate?: Date,
+    sortBy?: string,
+    sortOrder?: 'ASC' | 'DESC',
   ): Promise<StockMovementPaginationDTO>;
 }
 
@@ -24,9 +35,15 @@ export class StockMovementRepository implements IStockMovementRepository {
 
   async findById(id: number): Promise<StockMovementResponseDTO | void> {
     try {
-      const stockMovement = await this._dbStockMovementRepository.findOneBy({
-        id,
-      });
+      const stockMovement = await this._dbStockMovementRepository
+        .createQueryBuilder('stockMovement')
+        .leftJoinAndSelect('stockMovement.ingredient', 'ingredient')
+        .leftJoinAndSelect('stockMovement.unit', 'unit')
+        .leftJoinAndSelect('stockMovement.stockMovementType', 'stockMovementType')
+        .leftJoinAndSelect('stockMovement.purchaseItem', 'purchaseItem')
+        .leftJoinAndSelect('purchaseItem.ingredient', 'purchaseItemIngredient')
+        .where('stockMovement.id = :id', { id })
+        .getOne();
       if (!stockMovement) {
         throw new HttpError(404, `StockMovement with id ${id} not found`);
       }
@@ -46,7 +63,17 @@ export class StockMovementRepository implements IStockMovementRepository {
     try {
       const createdStockMovement =
         await this._dbStockMovementRepository.save(stockMovement);
-      return this._stockMovementMapper.toResponseDTO(createdStockMovement);
+      // Fetch with relations for the response
+      const stockMovementWithRelations = await this._dbStockMovementRepository
+        .createQueryBuilder('stockMovement')
+        .leftJoinAndSelect('stockMovement.ingredient', 'ingredient')
+        .leftJoinAndSelect('stockMovement.unit', 'unit')
+        .leftJoinAndSelect('stockMovement.stockMovementType', 'stockMovementType')
+        .leftJoinAndSelect('stockMovement.purchaseItem', 'purchaseItem')
+        .leftJoinAndSelect('purchaseItem.ingredient', 'purchaseItemIngredient')
+        .where('stockMovement.id = :id', { id: createdStockMovement.id })
+        .getOne();
+      return this._stockMovementMapper.toResponseDTO(stockMovementWithRelations!);
     } catch (error: any) {
       console.error('Error creating stockMovement:', error);
       throw new HttpError(
@@ -59,13 +86,110 @@ export class StockMovementRepository implements IStockMovementRepository {
   async findAllPaginated(
     page: number,
     limit: number,
+    search?: string,
+    ingredientId?: number,
+    stockMovementTypeId?: number,
+    unitId?: number,
+    purchaseItemId?: number,
+    minQuantity?: number,
+    maxQuantity?: number,
+    startDate?: Date,
+    endDate?: Date,
+    sortBy?: string,
+    sortOrder: 'ASC' | 'DESC' = 'DESC',
   ): Promise<StockMovementPaginationDTO> {
     try {
-      const stockMovements = await this._dbStockMovementRepository
+      let queryBuilder = this._dbStockMovementRepository
         .createQueryBuilder('stockMovement')
+        .leftJoinAndSelect('stockMovement.ingredient', 'ingredient')
+        .leftJoinAndSelect('stockMovement.unit', 'unit')
+        .leftJoinAndSelect('stockMovement.stockMovementType', 'stockMovementType')
+        .leftJoinAndSelect('stockMovement.purchaseItem', 'purchaseItem')
+        .leftJoinAndSelect('purchaseItem.ingredient', 'purchaseItemIngredient');
+
+      // Apply filters
+      if (search) {
+        queryBuilder = queryBuilder.andWhere(
+          '(ingredient.name ILIKE :search OR stockMovementType.name ILIKE :search)',
+          { search: `%${search}%` },
+        );
+      }
+
+      if (ingredientId) {
+        queryBuilder = queryBuilder.andWhere(
+          'stockMovement.ingredientId = :ingredientId',
+          { ingredientId },
+        );
+      }
+
+      if (stockMovementTypeId) {
+        queryBuilder = queryBuilder.andWhere(
+          'stockMovement.stockMovementTypeId = :stockMovementTypeId',
+          { stockMovementTypeId },
+        );
+      }
+
+      if (unitId) {
+        queryBuilder = queryBuilder.andWhere(
+          'stockMovement.unitId = :unitId',
+          { unitId },
+        );
+      }
+
+      if (purchaseItemId) {
+        queryBuilder = queryBuilder.andWhere(
+          'stockMovement.purchaseItemId = :purchaseItemId',
+          { purchaseItemId },
+        );
+      }
+
+      if (minQuantity !== undefined) {
+        queryBuilder = queryBuilder.andWhere(
+          'stockMovement.quantity >= :minQuantity',
+          { minQuantity },
+        );
+      }
+
+      if (maxQuantity !== undefined) {
+        queryBuilder = queryBuilder.andWhere(
+          'stockMovement.quantity <= :maxQuantity',
+          { maxQuantity },
+        );
+      }
+
+      if (startDate) {
+        queryBuilder = queryBuilder.andWhere(
+          'stockMovement.createdAt >= :startDate',
+          { startDate },
+        );
+      }
+
+      if (endDate) {
+        queryBuilder = queryBuilder.andWhere(
+          'stockMovement.createdAt <= :endDate',
+          { endDate },
+        );
+      }
+
+      // Apply sorting
+      const validSortFields: Record<string, string> = {
+        id: 'stockMovement.id',
+        quantity: 'stockMovement.quantity',
+        ingredient: 'ingredient.name',
+        stockMovementType: 'stockMovementType.name',
+        unit: 'unit.name',
+        purchaseItem: 'purchaseItem.id',
+        createdAt: 'stockMovement.createdAt',
+      };
+
+      const sortField = validSortFields[sortBy || 'createdAt'] || 'stockMovement.createdAt';
+      queryBuilder = queryBuilder.orderBy(sortField, sortOrder);
+
+      const stockMovements = await queryBuilder
         .skip((page - 1) * limit)
         .take(limit)
         .getManyAndCount();
+
       return this._stockMovementMapper.toPaginationDTO(
         stockMovements,
         page,

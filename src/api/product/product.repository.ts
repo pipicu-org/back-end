@@ -67,7 +67,7 @@ export class ProductRepository implements IProductRepository {
       SELECT p.id, p.name, p."preTaxPrice", p.price, p."createdAt", p."updatedAt", p."recipeId", p."categoryId",
              c.name AS "categoryName", prt."maxPrepareable", prt."cost"
       FROM "Product" p
-      INNER JOIN prepareable_recipes_table prt ON prt.id = p."recipeId"
+      LEFT JOIN prepareable_recipes_table prt ON prt.id = p."recipeId"
       INNER JOIN "Category" c ON p."categoryId" = c.id
       WHERE ${filter}
       ORDER BY p.id
@@ -76,7 +76,7 @@ export class ProductRepository implements IProductRepository {
     const countQuery = `${cte}
       SELECT COUNT(*) AS total
       FROM "Product" p
-      INNER JOIN prepareable_recipes_table prt ON prt.id = p."recipeId"
+      LEFT JOIN prepareable_recipes_table prt ON prt.id = p."recipeId"
       WHERE ${filter}
     `;
     return { dataQuery, countQuery };

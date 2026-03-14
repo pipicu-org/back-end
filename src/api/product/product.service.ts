@@ -5,4 +5,6 @@ export interface IProductService {
   updateProduct(id: number, product: import('../models/DTO/request/productRequestDTO').ProductRequestDTO): Promise<import('../models/DTO/response/productResponseDTO').ProductResponseDTO>;
   deleteProduct(id: number): Promise<import('../models/DTO/response/productResponseDTO').ProductResponseDTO>;
   getProductsByCategoryId(categoryId: number, page: number, limit: number): Promise<import('../models/DTO/response/productSearchResponseDTO').ProductSearchResponseDTO>;
+  downloadTemplate(): Promise<Buffer>;
+  uploadFromExcel(file: Express.Multer.File): Promise<import('../models/DTO/response/productResponseDTO').ProductResponseDTO[]>;
 }

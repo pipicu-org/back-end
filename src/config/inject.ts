@@ -216,11 +216,13 @@ export const clientService = new ClientService(clientRepository, clientMapper);
 export const productService = new ProductService(
   productRepository,
   productMapper,
+  AppDataSource,
 );
 
 export const ingredientService = new IngredientService(
   ingredientRepository,
   ingredientMapper,
+  AppDataSource,
 );
 
 // Controllers
@@ -288,6 +290,7 @@ export const purchaseService = new PurchaseService(
   purchaseRepository,
   createPurchaseStrategy,
   updatePurchaseStrategy,
+  AppDataSource,
 );
 
 export const purchaseController = new PurchaseController(purchaseService);
@@ -300,6 +303,7 @@ export const providerRepository = new ProviderRepository(
 export const providerService = new ProviderService(
   providerRepository,
   providerMapper,
+  AppDataSource,
 );
 
 export const providerController = new ProviderController(providerService);

@@ -6,7 +6,7 @@ import { HttpError } from '../../errors/httpError';
 import logger from '../../config/logger';
 
 export interface IUnitRepository {
-  findAll(): Promise<UnitResponseDTO[]>;
+  findAll(page?: number, limit?: number, search?: string, sortBy?: string, sortOrder?: 'ASC' | 'DESC'): Promise<{ data: UnitResponseDTO[]; total: number; page: number; limit: number }>;
   findById(id: number): Promise<UnitResponseDTO | void>;
   create(unit: Unit): Promise<UnitResponseDTO>;
   update(id: number, unit: Unit): Promise<UnitResponseDTO | void>;
@@ -19,10 +19,41 @@ export class UnitRepository implements IUnitRepository {
     private readonly _unitMapper: UnitMapper,
   ) {}
 
-  async findAll(): Promise<UnitResponseDTO[]> {
+  async findAll(
+    page: number = 1,
+    limit: number = 10,
+    search?: string,
+    sortBy: string = 'name',
+    sortOrder: 'ASC' | 'DESC' = 'ASC',
+  ): Promise<{ data: UnitResponseDTO[]; total: number; page: number; limit: number }> {
     try {
-      const units = await this._dbUnitRepository.find();
-      return units.map(unit => this._unitMapper.toResponseDTO(unit));
+      let queryBuilder = this._dbUnitRepository.createQueryBuilder('unit');
+
+      if (search) {
+        queryBuilder = queryBuilder.where('unit.name ILIKE :search', { search: `%${search}%` });
+      }
+
+      // Apply sorting
+      const validSortFields: Record<string, string> = {
+        id: 'unit.id',
+        name: 'unit.name',
+        factor: 'unit.factor',
+        createdAt: 'unit.createdAt',
+      };
+      const sortField = validSortFields[sortBy] || 'unit.name';
+      queryBuilder = queryBuilder.orderBy(sortField, sortOrder);
+
+      const [units, total] = await queryBuilder
+        .skip((page - 1) * limit)
+        .take(limit)
+        .getManyAndCount();
+
+      return {
+        data: units.map(unit => this._unitMapper.toResponseDTO(unit)),
+        total,
+        page,
+        limit,
+      };
     } catch (error: any) {
       logger.error('Error fetching all units', { error: error.message, stack: error.stack });
       throw new HttpError(500, 'Failed to fetch units');

@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { IProviderService } from './provider.service';
 import { ProviderRequestDTO } from '../models/DTO/request/providerRequestDTO';
+import { providerService } from '../../config/inject';
 
 export class ProviderController {
   constructor(
@@ -82,6 +83,30 @@ export class ProviderController {
       } else {
         res.status(404).json({ message: 'Provider not found' });
       }
+    } catch (error: any) {
+      next(error);
+    }
+  }
+
+  async downloadTemplate(req: Request, res: Response, next: NextFunction) {
+    try {
+      const buffer = await this.providerService.downloadTemplate();
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', 'attachment; filename=provider_template.xlsx');
+      res.send(buffer);
+    } catch (error: any) {
+      next(error);
+    }
+  }
+
+  async uploadExcel(req: Request, res: Response, next: NextFunction) {
+    try {
+      const file = req.file;
+      if (!file) {
+        return res.status(400).json({ message: 'No se proporcionó ningún archivo' });
+      }
+      const providers = await this.providerService.uploadFromExcel(file);
+      res.status(201).json(providers);
     } catch (error: any) {
       next(error);
     }

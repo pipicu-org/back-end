@@ -2,9 +2,26 @@ const PATH = '/products';
 
 import { Router } from 'express';
 import { productController } from '../../config';
+import multer from 'multer';
+
+const upload = multer({ 
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024,
+  },
+});
 
 export const productRouter = (controller = productController): Router => {
   const router = Router();
+
+  // IMPORTANT: Specific routes must come BEFORE parameterized routes
+  router.get(`${PATH}/template`, (req, res, next) =>
+    controller.downloadTemplate(req, res, next),
+  );
+
+  router.post(`${PATH}/upload`, upload.single('file'), (req, res, next) =>
+    controller.uploadExcel(req, res, next),
+  );
 
   /**
    * @swagger

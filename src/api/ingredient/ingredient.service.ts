@@ -19,4 +19,6 @@ export interface IIngredientService {
   ): Promise<IngredientResponseDTO | void>;
   deleteIngredient(id: number): Promise<IngredientResponseDTO | void>;
   getAllUnits(): Promise<Unit[] | void>;
+  downloadTemplate(): Promise<Buffer>;
+  uploadFromExcel(file: Express.Multer.File): Promise<IngredientResponseDTO[]>;
 }
